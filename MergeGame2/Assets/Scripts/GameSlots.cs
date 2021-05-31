@@ -10,9 +10,13 @@ public class GameSlots : MonoBehaviour
 {
     private Transform crossMark;
     public bool canDrop;
-    private GameObject itemBag;
-    
-    
+
+
+    public event EventHandler<OnDroppedEventHandler> OnDropped;
+    public class OnDroppedEventHandler : EventArgs
+    {
+        public GameItems gameItem;
+    }
 
 
     public List<DropConditions> dropConditions = new List<DropConditions>();
@@ -24,7 +28,7 @@ public class GameSlots : MonoBehaviour
     {
         canDrop = true;
         crossMark = transform.Find("CrossMark");
-        itemBag = GameObject.Find("Button");
+
     }
 
     private void Start()
@@ -45,35 +49,35 @@ public class GameSlots : MonoBehaviour
 
     public void Drop (GameItems gameItem)
     {  
-            OnDropHandler?.Invoke(gameItem);
-            PlaceItem(gameItem);
-            crossMark.gameObject.SetActive(false);
-            canDrop = false;
-    }
-
-    public void Merge(GameItems firstItem, GameItems secondItem, Vector3 pos)
-    {
-        OnDropHandler?.Invoke(firstItem);
-        MergeItem(firstItem, secondItem, pos);
-        GetComponent<VisualEffects>().MergeAnimation(firstItem.transform.position, firstItem.GetComponent<Image>().sprite);
+        OnDropHandler?.Invoke(gameItem);
+        PlaceItem(gameItem);
+        crossMark.gameObject.SetActive(false);
         canDrop = false;
+
+        OnDropped?.Invoke(this, new OnDroppedEventHandler { gameItem = gameItem });
     }
 
-    private void MergeItem(GameItems firstItem, GameItems secondItem, Vector3 pos)
-    {
-        
-        Destroy(firstItem.gameObject);
-        Destroy(secondItem.gameObject);
-        
-        // bu kýsým düzgün deðil
-        itemBag.GetComponent<ItemBag>().GenerateItem();
-        GameObject newMergedItem = itemBag.GetComponent<ItemBag>().newGameItemIdentified;
-        newMergedItem.transform.position = pos;
+    //public void Merge(GameItems firstItem, GameItems secondItem, Vector3 pos)
+    //{
+    //    OnDropHandler?.Invoke(firstItem);
+    //    MergeItem(firstItem, secondItem, pos);
+    //////    GetComponent<VisualEffects>().MergeAnimation(firstItem.transform.position, firstItem.GetComponent<Image>().sprite);
+    //////    canDrop = false;
+    //}
 
+    //private void MergeItem(GameItems firstItem, GameItems secondItem, Vector3 pos)
+    //{
+        
+    //    Destroy(firstItem.gameObject);
+    //    Destroy(secondItem.gameObject);
+        
         
 
+        //itemBag.GetComponent<ItemBag>().GenerateItem();
+        //GameObject newMergedItem = itemBag.GetComponent<ItemBag>().newGameItemIdentified;
+        //newMergedItem.transform.position = pos;
 
-    }
+    //}
 
     private void PlaceItem(GameItems gameItem)
     {

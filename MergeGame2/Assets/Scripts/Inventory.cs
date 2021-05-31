@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public class Inventory : MonoBehaviour
 {
-    public bool[] canDrop ;
+    //public bool[] canDrop ;
     public GameObject[] slots;
     private List<Item> itemList;
    
@@ -16,12 +16,12 @@ public class Inventory : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        slots = GameObject.FindGameObjectsWithTag("Container");
-        canDrop = new bool[slots.Length];
-        for (int i = 0; i < canDrop.Length; i++)
-        {
-            canDrop[i] = slots[i].GetComponent<GameSlots>().canDrop;
-        }
+        //slots = GameObject.FindGameObjectsWithTag("Container");
+        //canDrop = new bool[slots.Length];
+        ////for (int i = 0; i < canDrop.Length; i++)
+        //{
+        //    canDrop[i] = slots[i].GetComponent<GameSlots>().canDrop;
+        //}
     }
 
     // Update is called once per frame
@@ -43,10 +43,10 @@ public class Inventory : MonoBehaviour
         
     }
 
-    public bool CanAdd(int i)
-    {
-        return slots[i].GetComponent<GameSlots>().canDrop;
-    }
+   // public bool CanAdd(int i)
+   // {
+    //    return slots[i].GetComponent<GameSlots>().canDrop;
+   // }
 
   
 

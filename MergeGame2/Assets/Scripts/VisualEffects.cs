@@ -5,22 +5,34 @@ using UnityEngine;
 public class VisualEffects : MonoBehaviour
 {
     private ParticleSystem particles;
-
-
+    public GameObject[] gameSlots;
+    
+    
     private void OnEnable()
     {
-        
+        gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        for (int i = 0; i < gameSlots.Length; i++)
+        {
+            gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
+        }
     }
 
     private void OnDisable()
     {
-        
+        gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        for (int i = 0; i < gameSlots.Length; i++)
+        {
+            gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
+        }
     }
 
     public void Awake()
     {
-        particles = GameObject.Find("Particle System").GetComponent<ParticleSystem>();
+        particles = GetComponent<ParticleSystem>();
         particles.Stop();
+
+        
+      
     }
 
 
@@ -28,14 +40,23 @@ public class VisualEffects : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
-        
+       
     }
 
-    // Update is called once per frame
-    public void MergeAnimation(Vector3 pos, Sprite sprite)
+    private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
     {
-        particles.gameObject.GetComponent<RectTransform>().position = pos;
-        particles.textureSheetAnimation.SetSprite(0, sprite);
+        e.gameItem.OnMerged += MergeAnimation;
+    }
+
+    
+
+
+
+    // Update is called once per frame
+    private void MergeAnimation(object sender, GameItems.OnMergedEventArgs e)
+    {
+        particles.gameObject.GetComponent<RectTransform>().position = e.mergePos;
+        particles.textureSheetAnimation.SetSprite(0, e.sprite);
         particles.Play();
         
     }

@@ -57,15 +57,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\ItemBag.cs" />
+    <Compile Include="Assets\Scripts\ScoreManager.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
     <Compile Include="Assets\Scripts\DropConditions.cs" />
     <Compile Include="Assets\Scripts\GameSlots.cs" />
+    <Compile Include="Assets\Scripts\VisualEffects.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
+    <Compile Include="Assets\Scripts\MergeConditions.cs" />
     <Compile Include="Assets\Scripts\GameItems.cs" />
     <Compile Include="Assets\Scripts\ItemAssets.cs" />
-    <Compile Include="Assets\Scripts\MergeConditions.cs" />
-    <Compile Include="Assets\Scripts\VisualEffects.cs" />
-    <Compile Include="Assets\Scripts\ScoreManager.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
