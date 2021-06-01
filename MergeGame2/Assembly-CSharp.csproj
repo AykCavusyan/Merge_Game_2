@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\MergeConditions.cs" />
     <Compile Include="Assets\Scripts\GameItems.cs" />
     <Compile Include="Assets\Scripts\ItemAssets.cs" />
+    <Compile Include="Assets\Scripts\ProgressBar.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -14,6 +14,9 @@ public class ScoreManager : MonoBehaviour
     public TMP_Text scoreText;
     private int score;
 
+    //
+    private int maxScoreForCurrentLevel;
+
     private void OnEnable()
     {
         gameSlots = GameObject.FindGameObjectsWithTag("Container");
