@@ -14,8 +14,11 @@ public class ScoreManager : MonoBehaviour
     public TMP_Text scoreText;
     private int score;
 
-    //
-    private int maxScoreForCurrentLevel;
+    public event EventHandler<OnScoreUpdateEventHandler> OnScoreUpdate;
+    public class OnScoreUpdateEventHandler : EventArgs
+    {
+        public int score;
+    }
 
     private void OnEnable()
     {
@@ -60,9 +63,11 @@ public class ScoreManager : MonoBehaviour
 
     private void UpdateText(object sender, GameItems.OnMergedEventArgs e)
     {
+        int oldScore = score;
         score++;
         scoreText.text = "SCORE : "  + score;
-            ;
+        OnScoreUpdate?.Invoke(this, new OnScoreUpdateEventHandler { score = score - oldScore});
+            
     }
 
 

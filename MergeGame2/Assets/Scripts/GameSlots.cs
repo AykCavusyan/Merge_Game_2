@@ -57,31 +57,41 @@ public class GameSlots : MonoBehaviour
         OnDropped?.Invoke(this, new OnDroppedEventHandler { gameItem = gameItem });
     }
 
-    //public void Merge(GameItems firstItem, GameItems secondItem, Vector3 pos)
-    //{
-    //    OnDropHandler?.Invoke(firstItem);
-    //    MergeItem(firstItem, secondItem, pos);
-    //////    GetComponent<VisualEffects>().MergeAnimation(firstItem.transform.position, firstItem.GetComponent<Image>().sprite);
-    //////    canDrop = false;
-    //}
-
-    //private void MergeItem(GameItems firstItem, GameItems secondItem, Vector3 pos)
-    //{
-        
-    //    Destroy(firstItem.gameObject);
-    //    Destroy(secondItem.gameObject);
-        
-        
-
-        //itemBag.GetComponent<ItemBag>().GenerateItem();
-        //GameObject newMergedItem = itemBag.GetComponent<ItemBag>().newGameItemIdentified;
-        //newMergedItem.transform.position = pos;
-
-    //}
-
+   
     private void PlaceItem(GameItems gameItem)
     {
-        gameItem.transform.position = transform.position;
+
+        //bu kýsmý düzenleme lazým
+
+        
+        if (gameItem.transform.position.x == 0 && gameItem.transform.position.y == 0 && gameItem.transform.position.z == 0)
+        {
+            Debug.Log("default called");
+            gameItem.transform.position = transform.position;
+        }
+        else
+        {
+            Debug.Log("lerp called");
+            StartCoroutine(LerpItemPositions(gameItem.transform.position, gameItem));
+        }
+
+
     }
 
+
+    IEnumerator LerpItemPositions(Vector3 itemDroppedPosition,GameItems gameItem)
+    {
+        float lerpDuration = .1f;
+        float timeElapsed = 0f;
+
+        while (timeElapsed < lerpDuration)
+        {
+            gameItem.transform.position = Vector3.Lerp(itemDroppedPosition, transform.position, timeElapsed/lerpDuration);
+            timeElapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        gameItem.transform.position = transform .position;
+    }
 }

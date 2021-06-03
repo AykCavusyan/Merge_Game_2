@@ -181,6 +181,14 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                     return;
                 }
+                else
+                {
+                   
+                    gameSlot.Drop(gameItemDragged);
+                    initialGameSlot.Drop(gameItemExisting);
+                    
+                    return;
+                }
                 
             }
         }
@@ -209,7 +217,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         
     }
 
-    public GameItems Merge(GameItems aaa , GameItems bbb)
+    public GameItems Merge(GameItems gameItemDragged, GameItems gameItemExisting)
     {
         GameItems mergedItem = itemBag.GenerateItem(gameItemDragged.gameObject, gameItemExisting.gameObject).GetComponent<GameItems>();
         Destroy(gameItemDragged.gameObject);
@@ -217,4 +225,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         return mergedItem;
     }
+
+    
+
 }

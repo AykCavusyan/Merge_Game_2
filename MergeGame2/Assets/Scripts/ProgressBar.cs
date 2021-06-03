@@ -1,48 +1,52 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ProgressBar : MonoBehaviour
 {
-    [SerializeField] Image _renderer;
-    [Range(0, 1)] [SerializeField] float _currentHealth;
+    Material _barSpriteShader;
+    ScoreManager scoreManager;
+    Text barFillPercent;
 
-    private RectTransform barSprite;
-
-    private float currentXP;
-    private float xpToNextLevel;
-    private float lerpDuration;
-
-    private float progressAmount; 
-    
-    
-    
-
-    
+    private int currentXP;
+    private float currentXPFloat;
 
 
-    
-    float startValue = 0.1f;
-    float endValue = 0.5f;
-    float valueToLerp;
+    private int xpToNextLevel;
+    private float xpToNextLevelFloat;
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        currentXP = 0;
+        xpToNextLevel = 10;
+
+        _barSpriteShader = transform.Find("Bar").transform.Find("BarSprite").GetComponent<Image>().material;
+        _barSpriteShader.SetFloat("_FillRate", currentXP / xpToNextLevel);
+        barFillPercent = transform.Find("Bar").transform.Find("BarFillPercent").gameObject.GetComponent<Text>();
+
+        
+
+        scoreManager = GameObject.Find("ScoreText").GetComponent<ScoreManager>();
+    }
+
+    private void OnEnable()
+    {
+        scoreManager.OnScoreUpdate += UpdateBarFill;
+    }
+
+    private void OnDisable()
+    {
+        scoreManager.OnScoreUpdate -= UpdateBarFill;
+    }
+
     void Start()
     {
+        currentXPFloat = (float)currentXP;
+        xpToNextLevelFloat = (float)xpToNextLevel;
 
-        _renderer = transform.Find("Bar").transform.Find("BarSprite").GetComponent<Image>();
-        _renderer.material.SetFloat("_FillRate", startValue);
-
-        //lerpDuration = 3;
-
-        //_renderer = transform.Find("Bar").transform.Find("BarSprite").GetComponent<Renderer>();
-        //progressBarCurrent = .1f;
-
-        //barSprite.GetComponent<Image>().fillAmount = progressBarCurrent;
-
-
-
+       
     }
 
     // Update is called once per frame
@@ -50,41 +54,42 @@ public class ProgressBar : MonoBehaviour
     {
         
 
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            StartCoroutine(Lerp());
-            
-
-
-
-        }
     }
 
-    void SetBarFill()
+    private void UpdateBarFill(object sender, ScoreManager.OnScoreUpdateEventHandler e)
     {
-        float timeELapsed = 0;
-
-        while (timeELapsed < lerpDuration)
-        {
-            barSprite.GetComponent<Image>().fillAmount += Mathf.Lerp(.1f, .8f, timeELapsed/lerpDuration);
-            timeELapsed += Time.deltaTime;
-        }
-        
+        StartCoroutine (SetBarFll(e.score));
     }
 
-    IEnumerator Lerp()
+
+
+    IEnumerator SetBarFll(int xpGained)
     {
         float timeElapsed = 0;
-        float lerpDuration = 2;
+        float lerpDuration = 0.5f;
+        float xpGainedFloat = (float)xpGained;
+
+        float valueToLerpFrom = currentXPFloat / xpToNextLevelFloat;
+        Debug.Log(valueToLerpFrom);
+        float valueToLerpTo = (currentXPFloat + xpGainedFloat) / xpToNextLevelFloat;
+        Debug.Log(valueToLerpTo);
+
         while (timeElapsed < lerpDuration)
         {
-            _renderer.material.SetFloat("_FillRate", Mathf.Lerp(startValue, endValue, timeElapsed / lerpDuration));
+            float lerpedValue = Mathf.Lerp(valueToLerpFrom, valueToLerpTo, timeElapsed / lerpDuration);
+            _barSpriteShader.SetFloat("_FillRate", lerpedValue);
+
+            float roundedPercentage = (float)Mathf.Round(lerpedValue * 100);
+            barFillPercent.text = "% " + roundedPercentage;
             timeElapsed += Time.deltaTime;
 
             yield return null;
         }
 
-        valueToLerp = endValue;
+        currentXPFloat += xpGainedFloat;
+       
+
+        //tam lerplemediði için en son fiksleme iþi var
     }
 
 
