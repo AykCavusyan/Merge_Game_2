@@ -11,9 +11,12 @@ public class ItemAssets : MonoBehaviour
         Instance = this;
     }
 
-    public Sprite Sword;
-    public Sprite Chicken;
-    public Sprite Sun;
-    public Sprite Potion;
-    public Sprite Heart;
+
+    public Sprite GetAssetSprite(string itemName)
+    {
+        return Resources.Load<Sprite>("Sprites/"+ itemName);
+    }
+
+
+   
 }

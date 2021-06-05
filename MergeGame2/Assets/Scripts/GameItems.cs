@@ -33,6 +33,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public GameItems gameItemDragged;
 
     private RectTransform rectTransform;
+    public int itemLevel;
 
 
      private void Awake()
@@ -47,9 +48,51 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         rectTransform.localScale = new Vector3(1, 1, 1);
     }
 
+    IEnumerator DownsizeItemOnClick(Vector2 oldSize)
+    {
+        Vector2 scaleFactor = new Vector2(.8f, .8f);
+
+        float lerpDuration = .2f;
+        float elapsedTime = 0f;
+
+        while(elapsedTime < lerpDuration)
+        {
+            rectTransform.sizeDelta = Vector2.Lerp(oldSize, oldSize * scaleFactor, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        rectTransform.sizeDelta = oldSize * scaleFactor;
+        StartCoroutine(UpsizeItem(oldSize, lerpDuration));
+    }
+
+    IEnumerator UpsizeItem(Vector2 oldSize, float lerpDuration)
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < lerpDuration)
+        {
+            rectTransform.sizeDelta = Vector2.Lerp(rectTransform.sizeDelta, oldSize, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        rectTransform.sizeDelta = oldSize;
+
+    }
+
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
         startPosition = rectTransform.anchoredPosition;
+        
+        Vector2 oldsize = rectTransform.sizeDelta;
+        StartCoroutine(DownsizeItemOnClick(oldsize));
+
+       
+
+        //rectTransform.sizeDelta = oldsize;
+
+        
     }
 
     public void Update()
@@ -72,6 +115,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         // Puts each dragged item as last sibling on canvas order
         rectTransform.SetAsLastSibling();
+        
 
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
@@ -117,9 +161,10 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
+        
+        // bu çýkaibilir
         Debug.Log(results);
-
-
+        
         GameSlots gameSlot = null;
         gameItemExisting = null;
 
@@ -170,7 +215,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 {
 
 
-                    GameItems mergedItem = Merge(gameItemDragged, gameItemExisting);
+                    GameItems mergedItem = Merge(gameItemDragged, gameItemExisting, gameItemDragged.itemLevel);
 
                     gameSlot.Drop(mergedItem);
                     initialGameSlot.canDrop = true;
@@ -187,7 +232,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     gameSlot.Drop(gameItemDragged);
                     initialGameSlot.Drop(gameItemExisting);
                     
-                    return;
+                    return ;
                 }
                 
             }
@@ -217,9 +262,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         
     }
 
-    public GameItems Merge(GameItems gameItemDragged, GameItems gameItemExisting)
+    public GameItems Merge(GameItems gameItemDragged, GameItems gameItemExisting, int itemLevel)
     {
-        GameItems mergedItem = itemBag.GenerateItem(gameItemDragged.gameObject, gameItemExisting.gameObject).GetComponent<GameItems>();
+        itemLevel++;
+
+        GameItems mergedItem = itemBag.GenerateItem(gameItemDragged.gameObject, gameItemExisting.gameObject, itemLevel).GetComponent<GameItems>();
+        mergedItem.itemLevel = itemLevel;
         Destroy(gameItemDragged.gameObject);
         Destroy(gameItemExisting.gameObject);
 

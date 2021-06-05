@@ -32,14 +32,14 @@ public class ItemBag : MonoBehaviour
         
     }
 
-    public Item GenerateRandomItemType()
-    {
-        // bu item buradan çýkartýlaiblir mi ?---------------------
-        item = new Item();
-        var randomItemName = item.GetRandomObject();
-        return new Item { itemType = randomItemName };
+    //public Item GenerateRandomItemType()
+    //{
+    //    // bu item buradan çýkartýlaiblir mi ?---------------------
+    //   item = new Item();
+    //   var randomItemName = item.CreateItemForRelevatLevel(1);
+    //    return new Item { itemType = randomItemName };
 
-    }
+    //}
 
     public void IdentifyItem(GameObject newGameItem)
     {
@@ -59,21 +59,29 @@ public class ItemBag : MonoBehaviour
         
     }
 
-    public GameObject GenerateItem(GameObject item1 = null, GameObject item2=null)
+    public GameObject GenerateItem(GameObject item1 = null, GameObject item2=null, int itemLevel = 1)
     {
-        if (item1 == null && item2 == null)
-        {
-            item = GenerateRandomItemType();
-        }
-        else
-        {
-            item = new Item { itemType = Item.ItemType.Sun };
-        }
+        //if (item1 == null && item2 == null)
+        //{
+        //    item = GenerateRandomItemType();
+        //}
+        //else
+        //{
+           item = new Item();
+           var itemName = item.CreateItemForRelevatLevel(itemLevel);
+           item = new Item { itemType = itemName };
+
+        //}
 
         GameObject newGameItem = new GameObject();
         newGameItem.transform.SetParent(canvas.transform);      
-        newGameItem.AddComponent<Image>().sprite = item.GetSprite();
+        newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
         newGameItem.AddComponent<GameItems>();
+
+        // belki lazým olmayabilir 
+        newGameItem.GetComponent<GameItems>().itemLevel = item.GetItemLevel();
+        //
+        
         newGameItem.tag = item.itemType.ToString();
         newGameItem.layer = 5;
 
