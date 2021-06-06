@@ -3,16 +3,55 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Item 
+public class Item
 {
-    public static Dictionary<int, ItemType> _itemDictionary = new Dictionary<int, ItemType>
+    public static Dictionary<int, Dictionary<ItemGenre, ItemType>> _itemDictionary = new Dictionary<int, Dictionary<ItemGenre, ItemType>>
     {
-        {1, ItemType.Sword },
-        {2, ItemType.Chicken },
-        {3, ItemType.Sun },
-        {4, ItemType.Potion },
-        {5, ItemType.Heart },
+       {1, 
+        new Dictionary<ItemGenre, ItemType> 
+        {
+            //{ItemGenre.Other, ItemType.Sword },
+            {ItemGenre.Other , ItemType.Chicken },
+            //{ItemGenre.Other, ItemType.Sun },
+            //{ItemGenre.Other, ItemType.Potion },
+            {ItemGenre.Armor, ItemType.Armor_1 },
+            {ItemGenre.Meals, ItemType.Meal_1 }
+        }
+       },
+
+        {2, 
+         new Dictionary<ItemGenre, ItemType>
+          {
+             { ItemGenre.Meals, ItemType.Meal_2 },
+             {ItemGenre.Armor, ItemType.Armor_2 },
+          }
+        },
+
+        {3, 
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals, ItemType.Meal_3 },
+            {ItemGenre.Armor, ItemType.Armor_3},
+          }
+        },
+
+        {4,
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals, ItemType.Meal_4 },
+            {ItemGenre.Armor, ItemType.Armor_4 },
+          }
+        },
+
+        {5,
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals,ItemType.Meal_5 },
+            {ItemGenre.Armor, ItemType.Armor_5 },
+          }
+        },
     };
+
     
 
 
@@ -23,8 +62,26 @@ public class Item
         Sun,
         Potion,
         Heart,
+        Meal_1,
+        Meal_2,
+        Meal_3,
+        Meal_4,
+        Meal_5,
+        Armor_1,
+        Armor_2,
+        Armor_3,
+        Armor_4,
+        Armor_5,
     }
 
+    public enum ItemGenre
+    {
+        Meals,
+        Other,
+        Armor,
+    }
+
+    public ItemGenre itemGenre;
     public ItemType itemType;
     public int itemLevel;
     
@@ -34,9 +91,12 @@ public class Item
         return ItemAssets.Instance.GetAssetSprite(itemTypeName);
     }
 
-    public ItemType CreateItemForRelevatLevel(int itemLevel)
+    public ItemType CreateItemForRelevatLevel(int inputItemLevel, ItemGenre itemGenre)
     {
-        _itemDictionary.TryGetValue(itemLevel, out ItemType generatedItem);
+
+         _itemDictionary.TryGetValue(inputItemLevel, out Dictionary<ItemGenre, ItemType> _innerDictionary);
+        _innerDictionary.TryGetValue(itemGenre, out ItemType generatedItem);
+   
         return generatedItem;
 
         //var enumLenght = Enum.GetNames(typeof(ItemType)).Length;
@@ -44,30 +104,22 @@ public class Item
     }
 
 
+    
 
+  //public ItemGenre GetItemGenre(int itemLevel, ItemType itemType)
+  //  {
+  //      _itemDictionary.TryGetValue(itemLevel, out Dictionary<ItemGenre, ItemType> _innerDictionary);
 
+  //      foreach (KeyValuePair<ItemGenre, ItemType> item in _innerDictionary)
+  //      {
+  //          if (item.Value == itemType )
+  //          {
+  //              return item.Key;
+  //          }
+            
+  //      }
 
+  //      return ItemGenre.Other;
 
-    // belki lazým olmayaiblir 
-    public int GetItemLevel()
-    {
-        foreach (KeyValuePair<int, ItemType> item in _itemDictionary)
-        {
-            return item.Key;
-        }
-
-        return 1;
-
-        //switch (itemType)
-        //{
-        //    default:
-        //    case ItemType.Sword:  return 1;
-        //    case ItemType.Chicken: return 2;
-        //    case ItemType.Sun: return 3;
-        //    case ItemType.Potion: return 4;
-        //    case ItemType.Heart: return 5;
-        //}
-    }
-
-  
+  //  }
 }

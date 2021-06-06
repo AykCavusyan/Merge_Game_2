@@ -9,7 +9,11 @@ public class ItemBag : MonoBehaviour
 {
     private Inventory inventory;
     public Item item;
+    //public GameObject slotsPanel;
+
     public GameObject canvas;
+
+
 
     public GameObject[] gameSlots;
     public GameObject newGameItemIdentified;
@@ -17,29 +21,26 @@ public class ItemBag : MonoBehaviour
     private void Awake()
     {
         inventory = GameObject.Find("Player").GetComponent<Inventory>();
+        //slotsPanel = GameObject.Find("SlotsPanel");
         canvas = GameObject.Find("Canvas");
+        
         gameSlots = GameObject.FindGameObjectsWithTag("Container");
     }
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("gameslots length" + gameSlots.Length);
         Debug.Log(inventory.slots.Length);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+
+        }
     }
-
-    //public Item GenerateRandomItemType()
-    //{
-    //    // bu item buradan çýkartýlaiblir mi ?---------------------
-    //   item = new Item();
-    //   var randomItemName = item.CreateItemForRelevatLevel(1);
-    //    return new Item { itemType = randomItemName };
-
-    //}
 
     public void IdentifyItem(GameObject newGameItem)
     {
@@ -48,40 +49,51 @@ public class ItemBag : MonoBehaviour
 
     public int FindEmptySlotPosition()
     {
-        for (int i = 0; i < gameSlots.Length; i++)
+        for (int i = UnityEngine.Random.Range(0,gameSlots.Length) ; i < gameSlots.Length; i++)
         {
+            Debug.Log("calling i" +i);
             if (gameSlots[i].GetComponent<GameSlots>().canDrop)
+            {  
+             return i;
+            }
+
+            if (i == gameSlots.Length -1)
             {
-                return i;
+                for (int j = i; j >= 0; j--)
+                {
+                    Debug.Log("calling j " + j);
+                    if (gameSlots[j].GetComponent<GameSlots>().canDrop)
+                    {
+                        return j;
+                    }
+
+                }
             }
         }
         return -1;
-        
     }
 
-    public GameObject GenerateItem(GameObject item1 = null, GameObject item2=null, int itemLevel = 1)
-    {
-        //if (item1 == null && item2 == null)
-        //{
-        //    item = GenerateRandomItemType();
-        //}
-        //else
-        //{
-           item = new Item();
-           var itemName = item.CreateItemForRelevatLevel(itemLevel);
-           item = new Item { itemType = itemName };
-
-        //}
+    public GameObject GenerateItem(Item.ItemGenre itemGenre = Item.ItemGenre.Other, int itemLevel = 1)
+    {     
+        
+        item = new Item() ;
+        var itemName = item.CreateItemForRelevatLevel(itemLevel,itemGenre);
+        item = new Item { itemType = itemName, itemGenre = itemGenre , itemLevel = itemLevel};
 
         GameObject newGameItem = new GameObject();
-        newGameItem.transform.SetParent(canvas.transform);      
-        newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
+        //newGameItem.transform.SetParent(slotsPanel.transform);
+
+       newGameItem.transform.SetParent(canvas.transform);      
+        
+        newGameItem.AddComponent<Image>().sprite = item.GetSprite(itemName);
         newGameItem.AddComponent<GameItems>();
 
-        // belki lazým olmayabilir 
-        newGameItem.GetComponent<GameItems>().itemLevel = item.GetItemLevel();
-        //
         
+        newGameItem.GetComponent<GameItems>().itemLevel = itemLevel;
+        newGameItem.GetComponent<GameItems>().itemGenre = itemGenre;
+        newGameItem.GetComponent<GameItems>().itemType = itemName;
+
+
         newGameItem.tag = item.itemType.ToString();
         newGameItem.layer = 5;
 
@@ -89,17 +101,27 @@ public class ItemBag : MonoBehaviour
     }
 
     
+    public void GranaryAddGeneratedItem()
+    {
+        AddGeneratedItem(Item.ItemGenre.Meals);
+    }
 
-     public void AddGeneratedItem()
+    public void ArmoryAddGeneratedItem()
+    {
+        AddGeneratedItem(Item.ItemGenre.Armor);
+    }
+
+
+    public void AddGeneratedItem(Item.ItemGenre itemGenre)
      {
         int i = FindEmptySlotPosition();
 
            if (i >= 0 && i <= gameSlots.Length)
            {
             
-               GameObject newGameItem = GenerateItem();
+               GameObject newGameItem = GenerateItem(itemGenre);
                newGameItem.name = "GameItem" + i + 1;
-               gameSlots[i].GetComponent<GameSlots>().Drop(newGameItem.GetComponent<GameItems>());
+               gameSlots[i].GetComponent<GameSlots>().Drop(newGameItem.GetComponent<GameItems>(), transform.position);
                IdentifyItem(newGameItem);
 
             

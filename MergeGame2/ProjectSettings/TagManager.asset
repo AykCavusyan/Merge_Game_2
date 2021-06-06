@@ -10,6 +10,16 @@ TagManager:
   - Sun
   - Potion
   - Heart
+  - Meal_1
+  - Meal_2
+  - Meal_3
+  - Meal_4
+  - Meal_5
+  - Armor_1
+  - Armor_2
+  - Armor_3
+  - Armor_4
+  - Armor_5
   layers:
   - Default
   - TransparentFX

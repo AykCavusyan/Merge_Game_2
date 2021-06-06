@@ -30,6 +30,7 @@ public class VisualEffects : MonoBehaviour
     {
         particles = GetComponent<ParticleSystem>();
         particles.Stop();
+      
 
         
       
@@ -46,6 +47,7 @@ public class VisualEffects : MonoBehaviour
     private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
     {
         e.gameItem.OnMerged += MergeAnimation;
+       
     }
 
     
@@ -55,9 +57,15 @@ public class VisualEffects : MonoBehaviour
     // Update is called once per frame
     private void MergeAnimation(object sender, GameItems.OnMergedEventArgs e)
     {
+        
+
         particles.gameObject.GetComponent<RectTransform>().position = e.mergePos;
         particles.textureSheetAnimation.SetSprite(0, e.sprite);
         particles.Play();
-        
+       
+
+
     }
+
+   
 }

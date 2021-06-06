@@ -19,13 +19,14 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         public Sprite sprite;
     }
 
+    private Canvas canvas;
 
     public List<MergeConditions> mergeCondisitons = new List<MergeConditions>();
 
     public bool followCursor { get; set; } = true;
     public Vector3 startPosition;
     public bool canDrag { get; set; } = true;
-    private GameSlots initialGameSlot;
+    public GameSlots initialGameSlot;
 
     private ItemBag itemBag;
 
@@ -33,14 +34,17 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public GameItems gameItemDragged;
 
     private RectTransform rectTransform;
-    public int itemLevel;
 
+    public int itemLevel;
+    public Item.ItemGenre itemGenre;
+    public Item.ItemType itemType;
 
      private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         gameItemDragged = this;
         itemBag = GameObject.Find("Button").GetComponent<ItemBag>();
+        canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
     }
 
     private void Start()
@@ -85,23 +89,15 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         startPosition = rectTransform.anchoredPosition;
         
+
         Vector2 oldsize = rectTransform.sizeDelta;
         StartCoroutine(DownsizeItemOnClick(oldsize));
-
-       
-
-        //rectTransform.sizeDelta = oldsize;
-
         
     }
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            Debug.Log("key pressed");
-            
-        }
+        
     }
 
 
@@ -118,14 +114,20 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         
 
         var results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
+        EventSystem.current.RaycastAll(eventData , results);
 
         initialGameSlot = null;
         
         foreach (var result in results)
         {
+            Debug.Log("initial game slot raycast" + results);
+
             initialGameSlot = result.gameObject.GetComponent<GameSlots>();
-            
+
+            if ( initialGameSlot == null)
+            {
+                Debug.Log("slot NULL!");
+            }
         }
 
         OnBeginDragHandler?.Invoke(eventData);
@@ -146,10 +148,10 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         if (followCursor)
         {
-            rectTransform.anchoredPosition += eventData.delta;
+            rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+            
         }
-        
-        //this.transform.position = eventData.position;
+
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -161,10 +163,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
-        
-        // bu çýkaibilir
-        Debug.Log(results);
-        
+
         GameSlots gameSlot = null;
         gameItemExisting = null;
 
@@ -217,7 +216,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                     GameItems mergedItem = Merge(gameItemDragged, gameItemExisting, gameItemDragged.itemLevel);
 
-                    gameSlot.Drop(mergedItem);
+                    gameSlot.Drop(mergedItem, gameItemExisting.transform.position);
                     initialGameSlot.canDrop = true;
                     OnEndDragHandler?.Invoke(eventData, true);
 
@@ -264,10 +263,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public GameItems Merge(GameItems gameItemDragged, GameItems gameItemExisting, int itemLevel)
     {
-        itemLevel++;
+       // itemLevel++;
 
-        GameItems mergedItem = itemBag.GenerateItem(gameItemDragged.gameObject, gameItemExisting.gameObject, itemLevel).GetComponent<GameItems>();
-        mergedItem.itemLevel = itemLevel;
+        GameItems mergedItem = itemBag.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
+        //mergedItem.itemLevel = itemLevel;
+        mergedItem.transform.localScale = default(Vector3);
         Destroy(gameItemDragged.gameObject);
         Destroy(gameItemExisting.gameObject);
 

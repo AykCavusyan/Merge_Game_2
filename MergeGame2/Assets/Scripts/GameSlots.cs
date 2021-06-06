@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+using UnityEngine.UIElements;
 
 public class GameSlots : MonoBehaviour
 {
@@ -47,10 +47,23 @@ public class GameSlots : MonoBehaviour
     }
 
 
-    public void Drop (GameItems gameItem)
-    {  
+    public void Drop (GameItems gameItem, Vector3 itemDroppedPosition = default(Vector3))
+    {
         OnDropHandler?.Invoke(gameItem);
-        PlaceItem(gameItem);
+
+        if (itemDroppedPosition == default)
+        {
+            Debug.Log("sizeItemcalled");
+            itemDroppedPosition = gameItem.transform.position;
+        }
+
+        if (gameItem.transform.localScale == default(Vector3))
+        {
+            SizeItem(gameItem);
+        }
+
+        
+        PlaceItem(gameItem, itemDroppedPosition);
         crossMark.gameObject.SetActive(false);
         canDrop = false;
 
@@ -58,40 +71,112 @@ public class GameSlots : MonoBehaviour
     }
 
    
-    private void PlaceItem(GameItems gameItem)
+    private void SizeItem(GameItems gameItem)
     {
-
-        //bu kýsmý düzenleme lazým
-
-        
-        if (gameItem.transform.position.x == 0 && gameItem.transform.position.y == 0 && gameItem.transform.position.z == 0)
-        {
-            Debug.Log("default called");
-            gameItem.transform.position = transform.position;
-        }
-        else
-        {
-            Debug.Log("lerp called");
-            StartCoroutine(LerpItemPositions(gameItem.transform.position, gameItem));
-        }
-
-
+        StartCoroutine(LerpItemSize(gameItem));
     }
+
+    private void PlaceItem(GameItems gameItem, Vector3 itemDroppedPosition)
+    {
+        gameItem.GetComponent<RectTransform>().sizeDelta = new Vector2(122, 122);
+        StartCoroutine(LerpItemPositions(itemDroppedPosition, gameItem));
+    }
+
+ 
+    IEnumerator LerpItemSize(GameItems gameItem)
+    {
+        float lerpDuration = .5f;
+        float timeElapsed = 0;
+
+        while (timeElapsed < lerpDuration)
+        {
+
+            // bu kýsým daha iyi olabilir
+            gameItem.transform.localScale = Vector3.Lerp(new Vector3(0, 0, 0), new Vector3(1, 1, 1), timeElapsed / lerpDuration);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
 
 
     IEnumerator LerpItemPositions(Vector3 itemDroppedPosition,GameItems gameItem)
     {
-        float lerpDuration = .1f;
+        float lerpDuration = .4f;
         float timeElapsed = 0f;
+        
+        
+      
+        Vector3 lerpAnchorPosiiton = GetLerpAnchorPoint(itemDroppedPosition);
+
 
         while (timeElapsed < lerpDuration)
         {
-            gameItem.transform.position = Vector3.Lerp(itemDroppedPosition, transform.position, timeElapsed/lerpDuration);
+            Vector3 pointBCposition = Vector3.Lerp(lerpAnchorPosiiton, transform.position, timeElapsed / lerpDuration);
+            Vector3 pointABposition = Vector3.Lerp(itemDroppedPosition, lerpAnchorPosiiton, timeElapsed / lerpDuration);
+
+            gameItem.transform.position = Vector3.Lerp(pointABposition, pointBCposition, timeElapsed/lerpDuration);
+
             timeElapsed += Time.deltaTime;
 
             yield return null;
         }
 
         gameItem.transform.position = transform .position;
+    }
+
+    public Vector3 GetLerpAnchorPoint(Vector3 itemDroppedPosition)
+    {
+        float anchorX;
+        float anchorY;
+
+        if (itemDroppedPosition.y == transform.position.y)
+        {
+            anchorY = transform.position.y + 1;
+        }
+
+
+        //float pivotPointX;
+        float dx;
+        float dy;
+
+        if (itemDroppedPosition.x < transform.position.x )
+        {
+           // pivotPointX = transform.position.x;
+             dx = transform.position.x - itemDroppedPosition.x;
+        }
+        else
+        {
+            //pivotPointX = itemDroppedPosition.x;
+             dx =  itemDroppedPosition.x - transform.position.x ;
+        }
+
+       // float pivotPointY ;
+        if (itemDroppedPosition.y < transform.position.y)
+        {
+            //pivotPointY = transform.position.y;
+            dy = transform.position.y - itemDroppedPosition.y;
+        }
+        else
+        {
+            //pivotPointY = itemDroppedPosition.y;
+            dy =  itemDroppedPosition.y - transform.position.y;
+        }
+
+
+
+        // float dx = transform.position.x - itemDroppedPosition.x;
+        // float dy = transform.position.y - itemDroppedPosition.y;
+
+        float lenghtAB = Mathf.Sqrt(Mathf.Pow(dx, 2) + Mathf.Pow(dy, 2));
+        float angleAB = Mathf.Atan(dy / dx);
+
+        Vector3 lerpAnchorPoint = new Vector3();
+        lerpAnchorPoint.x = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.x;
+        lerpAnchorPoint.y = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.y;
+        lerpAnchorPoint.z = 0;
+        Debug.Log(lerpAnchorPoint);
+
+        return lerpAnchorPoint;
     }
 }
