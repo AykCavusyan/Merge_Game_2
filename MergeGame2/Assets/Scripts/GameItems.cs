@@ -17,6 +17,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         public Vector3 mergePos;
         public Sprite sprite;
+        public int itemLevel;
     }
 
     private Canvas canvas;
@@ -221,7 +222,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     OnEndDragHandler?.Invoke(eventData, true);
 
                     // sprite kýsýmý sadeleþebilir !!!
-                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = gameItemExisting.transform.position, sprite=gameItemExisting.GetComponent<Image>().sprite });
+                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = gameItemExisting.transform.position, sprite=gameItemExisting.GetComponent<Image>().sprite, itemLevel = itemLevel });
 
                     return;
                 }
