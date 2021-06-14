@@ -126,7 +126,7 @@ public class ItemBag : MonoBehaviour
 
             
                //would be much better if made with an event - need to und how to pass the variable 
-               gameSlots[i].GetComponent<GameSlots>().canDrop = false;
+               //gameSlots[i].GetComponent<GameSlots>().canDrop = false;
 
                inventory.AddItemToList(item);
            }

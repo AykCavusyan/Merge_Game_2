@@ -7,30 +7,37 @@ public class CameraController : MonoBehaviour
     public static CameraController Instance { get; private set; }
 
     private float shakeTimeRemaining, shakePower, shakeFadeTime;
-    public GameObject[] gameSlots;
+    //public GameObject[] gameSlots;
     private Vector3 position;
+    //private MasterEventListener masterEventListener;
 
     private void Awake()
     {
         Instance = this;
+        //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
     }
 
     private void OnEnable()
     {
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
-        }
+        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
+        //}
+
+        MasterEventListener.Instance.OnMerged += StartShake;
     }
 
     private void OnDisable()
     {
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
-        }
+        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
+        //}
+
+        MasterEventListener.Instance.OnMerged -= StartShake;
+
     }
 
     void Start()
@@ -64,11 +71,11 @@ public class CameraController : MonoBehaviour
         //transform.position = position;
     }
 
-    private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
-    {
-        e.gameItem.OnMerged += StartShake;
+    //private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
+    //{
+    //    e.gameItem.OnMerged += StartShake;
 
-    }
+    //}
 
     private void StartShake(object sender, GameItems.OnMergedEventArgs e)
     {

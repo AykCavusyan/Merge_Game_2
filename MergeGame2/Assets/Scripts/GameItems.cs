@@ -31,8 +31,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     private ItemBag itemBag;
 
-    public GameItems gameItemExisting;
-    public GameItems gameItemDragged;
+    //public GameItems gameItemExisting;
+    //public GameItems gameItemDragged;
 
     private RectTransform rectTransform;
 
@@ -43,7 +43,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
      private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        gameItemDragged = this;
+        //gameItemDragged = this;
         itemBag = GameObject.Find("Button").GetComponent<ItemBag>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
     }
@@ -121,16 +121,10 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         
         foreach (var result in results)
         {
-            Debug.Log("initial game slot raycast" + results);
-
-            initialGameSlot = result.gameObject.GetComponent<GameSlots>();
-
-            if ( initialGameSlot == null)
-            {
-                Debug.Log("slot NULL!");
-            }
+            initialGameSlot = result.gameObject.GetComponent<GameSlots>();        
         }
 
+        initialGameSlot.DischargeSlot();
         OnBeginDragHandler?.Invoke(eventData);
 
         //Debug.Log(eventData);
@@ -166,7 +160,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         EventSystem.current.RaycastAll(eventData, results);
 
         GameSlots gameSlot = null;
-        gameItemExisting = null;
+        //gameItemExisting = null;
 
         foreach (var result in results)
         {
@@ -180,97 +174,131 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         if (gameSlot != null)
         {
+
             if (gameSlot.Accepts(this) && gameSlot.canDrop == true)
             {
-                    gameSlot.Drop(this);
-                    initialGameSlot.canDrop = true;
-                    OnEndDragHandler?.Invoke(eventData, true);
+                
+                initialGameSlot.DischargeSlot();
+                gameSlot.Drop(this);
+
+                //initialGameSlot.canDrop = true;
+
+                OnEndDragHandler?.Invoke(eventData, true);
 
                 return;
             }
 
             else if (gameSlot.Accepts(this) && gameSlot.canDrop == false)
             {
-                var results2 = new List<RaycastResult>();
-                EventSystem.current.RaycastAll(eventData, results2);
-                Debug.Log(results2);
 
-                gameItemExisting = null;
-
-                foreach (var result in results2)
+                if (gameSlot.containedItem != null && AcceptMerge(this, gameSlot))
                 {
-                    
-                    if( result.gameObject.GetInstanceID() == this.gameObject.GetInstanceID())
-                    {
-                        continue;
-                    }
-                    gameItemExisting = result.gameObject.GetComponent<GameItems>();
+                    GameItems mergedItem = Merge(this, gameSlot, this.itemLevel);
+                    gameSlot.Drop(mergedItem, gameSlot.containedItem.transform.position);
+                    initialGameSlot.DischargeSlot();
 
-                    if (gameItemExisting != null)
-                    {
-                        break;
-                    }
-                }
-                if (gameItemExisting != null && AcceptMerge(gameItemDragged, gameItemExisting))
-                {
-
-
-                    GameItems mergedItem = Merge(gameItemDragged, gameItemExisting, gameItemDragged.itemLevel);
-
-                    gameSlot.Drop(mergedItem, gameItemExisting.transform.position);
-                    initialGameSlot.canDrop = true;
                     OnEndDragHandler?.Invoke(eventData, true);
 
                     // sprite kýsýmý sadeleþebilir !!!
-                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = gameItemExisting.transform.position, sprite=gameItemExisting.GetComponent<Image>().sprite, itemLevel = itemLevel });
+                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = gameSlot.containedItem.transform.position, sprite = gameSlot.containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel });
 
                     return;
                 }
                 else
                 {
-                   
-                    gameSlot.Drop(gameItemDragged);
-                    initialGameSlot.Drop(gameItemExisting);
+                    initialGameSlot.Drop(gameSlot.containedItem.GetComponent<GameItems>());
+                    gameSlot.Drop(this);
                     
-                    return ;
+
+                    OnEndDragHandler?.Invoke(eventData, true);
+
+
+                    return;
                 }
-                
             }
         }
-
         Debug.Log("The Item SLot Container is already full or invalid position");
-        rectTransform.anchoredPosition = startPosition;
-        OnEndDragHandler?.Invoke(eventData, false);
+        initialGameSlot.Drop(this);
 
-        //Debug.Log(eventData);
-        //canvasGroup.blocksRaycasts = true;
-        //canvasGroup.alpha = 1f;
+        //rectTransform.anchoredPosition = startPosition;
+        
+        OnEndDragHandler?.Invoke(eventData, false);
     }
 
-    public bool AcceptMerge(GameItems gameItemDragged, GameItems gameItemExisting)
-    {
+    //            var results2 = new List<RaycastResult>();
+    //            EventSystem.current.RaycastAll(eventData, results2);
+    //            Debug.Log(results2);
 
-        if (gameItemDragged.gameObject.tag == gameItemExisting.gameObject.tag)
+    //            gameItemExisting = null;
+
+    //            foreach (var result in results2)
+    //            {
+                    
+    //                if( result.gameObject.GetInstanceID() == this.gameObject.GetInstanceID())
+    //                {
+    //                    continue;
+    //                }
+    //                gameItemExisting = result.gameObject.GetComponent<GameItems>();
+
+    //                if (gameItemExisting != null)
+    //                {
+    //                    break;
+    //                }
+    //            }
+    //            if (gameItemExisting != null && AcceptMerge(gameItemDragged, gameItemExisting))
+    //            {
+
+
+    //                GameItems mergedItem = Merge(gameItemDragged, gameItemExisting, gameItemDragged.itemLevel);
+
+    //                gameSlot.Drop(mergedItem, gameItemExisting.transform.position);
+    //                initialGameSlot.canDrop = true;
+    //                OnEndDragHandler?.Invoke(eventData, true);
+
+    //                // sprite kýsýmý sadeleþebilir !!!
+    //                OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = gameItemExisting.transform.position, sprite=gameItemExisting.GetComponent<Image>().sprite, itemLevel = itemLevel });
+
+    //                return;
+    //            }
+    //            else
+    //            {
+                   
+    //                gameSlot.Drop(gameItemDragged);
+    //                initialGameSlot.Drop(gameItemExisting);
+                    
+    //                return ;
+    //            }
+                
+    //        }
+    //    }
+
+    //    Debug.Log("The Item SLot Container is already full or invalid position");
+    //    rectTransform.anchoredPosition = startPosition;
+    //    OnEndDragHandler?.Invoke(eventData, false);
+
+    //    //Debug.Log(eventData);
+    //    //canvasGroup.blocksRaycasts = true;
+    //    //canvasGroup.alpha = 1f;
+    //}
+
+    public bool AcceptMerge(GameItems gameItemDragged, GameSlots gameSlot )
+    {
+        if (gameItemDragged.gameObject.tag == gameSlot.containedItem.tag)
         {
             return true;
-            
         }
         else
         {
             return false;
-        }
-        
+        }        
     }
 
-    public GameItems Merge(GameItems gameItemDragged, GameItems gameItemExisting, int itemLevel)
+    public GameItems Merge(GameItems gameItemDragged, GameSlots gameSlot, int itemLevel)
     {
-       // itemLevel++;
-
         GameItems mergedItem = itemBag.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
-        //mergedItem.itemLevel = itemLevel;
         mergedItem.transform.localScale = default(Vector3);
         Destroy(gameItemDragged.gameObject);
-        Destroy(gameItemExisting.gameObject);
+        Destroy(gameSlot.containedItem.gameObject);
 
         return mergedItem;
     }

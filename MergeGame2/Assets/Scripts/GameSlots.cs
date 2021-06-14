@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 public class GameSlots : MonoBehaviour
 {
     private Transform crossMark;
-    public bool canDrop;
+    [SerializeField] public bool canDrop { get; private set; }
 
 
     public event EventHandler<OnDroppedEventHandler> OnDropped;
@@ -21,7 +21,8 @@ public class GameSlots : MonoBehaviour
 
     public List<DropConditions> dropConditions = new List<DropConditions>();
     public event Action<GameItems> OnDropHandler;
-    
+
+    [SerializeField] public GameObject containedItem { get; private set; }
     
 
     private void Awake()
@@ -78,10 +79,20 @@ public class GameSlots : MonoBehaviour
 
     private void PlaceItem(GameItems gameItem, Vector3 itemDroppedPosition)
     {
+        // size down the gameItem // this can be done in another way 
         gameItem.GetComponent<RectTransform>().sizeDelta = new Vector2(122, 122);
+        // place the gameobjec in the contained item so that the script knows
+        containedItem = gameItem.gameObject;
+        // smoothly position the item
         StartCoroutine(LerpItemPositions(itemDroppedPosition, gameItem));
     }
 
+
+    public void DischargeSlot()
+    {
+        containedItem = null;
+        canDrop = true;
+    }
  
     IEnumerator LerpItemSize(GameItems gameItem)
     {

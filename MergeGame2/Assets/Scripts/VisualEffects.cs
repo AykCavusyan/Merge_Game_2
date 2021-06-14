@@ -5,35 +5,40 @@ using UnityEngine;
 public class VisualEffects : MonoBehaviour
 {
     private ParticleSystem particles;
-    public GameObject[] gameSlots;
+    //private MasterEventListener masterEventListener;
+
+   // public GameObject[] gameSlots;
     
     
     private void OnEnable()
     {
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
-        }
+        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
+        //}
+
+        MasterEventListener.Instance.OnMerged += MergeAnimation;
     }
 
     private void OnDisable()
     {
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
-        }
+        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
+        //}
+
+        MasterEventListener.Instance.OnMerged -= MergeAnimation;
     }
 
     public void Awake()
     {
+
+        //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
         particles = GetComponent<ParticleSystem>();
         particles.Stop();
-      
 
-        
-      
     }
 
 
@@ -44,11 +49,11 @@ public class VisualEffects : MonoBehaviour
        
     }
 
-    private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
-    {
-        e.gameItem.OnMerged += MergeAnimation;
+    //private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
+    //{
+    //    e.gameItem.OnMerged += MergeAnimation;
        
-    }
+    //}
 
     
 

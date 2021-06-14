@@ -8,11 +8,13 @@ using UnityEngine.UI;
 public class ScoreManager : MonoBehaviour
 {
     //public static ScoreManager instance;
-    public GameObject[] gameSlots;
+    //public GameObject[] gameSlots;
 
 
-    public TMP_Text scoreText;
+    private  TMP_Text scoreText;
     private int score;
+    //private MasterEventListener masterEventListener;
+    
 
     public event EventHandler<OnScoreUpdateEventHandler> OnScoreUpdate;
     public class OnScoreUpdateEventHandler : EventArgs
@@ -22,26 +24,32 @@ public class ScoreManager : MonoBehaviour
 
     private void OnEnable()
     {
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
-        }
+        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
+        //}
+
+        MasterEventListener.Instance.OnMerged += UpdateText;
     }
 
     private void OnDisable()
     {
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
-        }
+        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
+        //}
+
+        MasterEventListener.Instance.OnMerged -= UpdateText;
+
     }
 
     // Start is called before the first frame update
     void Awake ()
     {
         scoreText = GetComponent<TextMeshProUGUI>();
+        //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
     }
 
     private void Start()
@@ -56,10 +64,10 @@ public class ScoreManager : MonoBehaviour
 
     }
 
-    private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
-    {
-        e.gameItem.OnMerged += UpdateText;
-    }
+    //private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
+    //{
+    //    e.gameItem.OnMerged += UpdateText;
+    //}
 
     private void UpdateText(object sender, GameItems.OnMergedEventArgs e)
     {
