@@ -9,7 +9,7 @@ public class ScoreManager : MonoBehaviour
 {
     //public static ScoreManager instance;
     //public GameObject[] gameSlots;
-
+    public GameObject player;
 
     private  TMP_Text scoreText;
     private int score;
@@ -22,7 +22,14 @@ public class ScoreManager : MonoBehaviour
         public int score;
     }
 
-    private void OnEnable()
+    void Awake()
+    {
+        scoreText = GetComponent<TextMeshProUGUI>();
+        player = GameObject.FindGameObjectWithTag("Player");
+        //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
+    }
+
+     void OnEnable()
     {
         //gameSlots = GameObject.FindGameObjectsWithTag("Container");
         //for (int i = 0; i < gameSlots.Length; i++)
@@ -30,10 +37,12 @@ public class ScoreManager : MonoBehaviour
         //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
         //}
 
+        Init();
+
         MasterEventListener.Instance.OnMerged += UpdateText;
     }
 
-    private void OnDisable()
+     void OnDisable()
     {
         //gameSlots = GameObject.FindGameObjectsWithTag("Container");
         //for (int i = 0; i < gameSlots.Length; i++)
@@ -41,18 +50,29 @@ public class ScoreManager : MonoBehaviour
         //    gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
         //}
 
+        
+
         MasterEventListener.Instance.OnMerged -= UpdateText;
 
     }
 
-    // Start is called before the first frame update
-    void Awake ()
+    void Init()
     {
-        scoreText = GetComponent<TextMeshProUGUI>();
-        //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
+        if (MasterEventListener.Instance == null)
+        {
+            Debug.Log("null master event listener - instantiating");
+            Instantiate(player);
+        }
+        else
+        {
+            Debug.Log("instance is already runnig");
+        }
     }
 
-    private void Start()
+    // Start is called before the first frame update
+    
+
+     void Start()
     {
         score = 0;
         scoreText.text = "SCORE : " + score;
@@ -69,7 +89,7 @@ public class ScoreManager : MonoBehaviour
     //    e.gameItem.OnMerged += UpdateText;
     //}
 
-    private void UpdateText(object sender, GameItems.OnMergedEventArgs e)
+     void UpdateText(object sender, GameItems.OnMergedEventArgs e)
     {
         int oldScore = score;
         score++;

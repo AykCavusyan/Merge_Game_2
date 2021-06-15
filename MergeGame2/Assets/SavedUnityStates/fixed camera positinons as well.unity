@@ -173,6 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a298e181c7c2ab64d9d8cff619b991ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
 --- !u!114 &12425631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5403,6 +5404,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011f53a50c61cab40bb90610f47f1e43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
 --- !u!1 &133151320
 GameObject:
   m_ObjectHideFlags: 0
@@ -7047,6 +7049,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3d6904939bc6ab40a1eb54f68da9f94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
 --- !u!1 &521794771
 GameObject:
   m_ObjectHideFlags: 0
@@ -9268,6 +9271,7 @@ GameObject:
   - component: {fileID: 1287036353}
   - component: {fileID: 1287036354}
   - component: {fileID: 1287036355}
+  - component: {fileID: 1287036356}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -9283,7 +9287,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1287036352}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1167.1458, y: 506.40164, z: -323.7}
+  m_LocalPosition: {x: 2.4, y: -5.38, z: -323.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -9314,6 +9318,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 054a277f6978c5847840e903bc629705, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1287036356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1287036352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff10f2b6fc66cdd45b83077f8f1a0bc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emptySlots: []
 --- !u!1 &1344456022
 GameObject:
   m_ObjectHideFlags: 0

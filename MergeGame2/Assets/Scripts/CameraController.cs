@@ -6,6 +6,8 @@ public class CameraController : MonoBehaviour
 {
     public static CameraController Instance { get; private set; }
 
+    public GameObject player;
+
     private float shakeTimeRemaining, shakePower, shakeFadeTime;
     //public GameObject[] gameSlots;
     private Vector3 position;
@@ -14,6 +16,7 @@ public class CameraController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        player = GameObject.FindGameObjectWithTag("Player");
         //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
     }
 
@@ -24,6 +27,8 @@ public class CameraController : MonoBehaviour
         //{
         //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
         //}
+
+        Init();
 
         MasterEventListener.Instance.OnMerged += StartShake;
     }
@@ -38,6 +43,19 @@ public class CameraController : MonoBehaviour
 
         MasterEventListener.Instance.OnMerged -= StartShake;
 
+    }
+
+    void Init()
+    {
+        if (MasterEventListener.Instance == null)
+        {
+            Debug.Log("null master event listener - instantiating");
+            Instantiate(player);
+        }
+        else
+        {
+            Debug.Log("instance is already runnig");
+        }
     }
 
     void Start()

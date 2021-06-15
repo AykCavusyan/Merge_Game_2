@@ -18,12 +18,19 @@ public class GameSlots : MonoBehaviour
         public GameItems gameItem;
     }
 
+    public event EventHandler<OnSlotAvailabilityEventHandler> onSlotFilled;
+    public event EventHandler<OnSlotAvailabilityEventHandler> onSlotDischarged;
+    public class OnSlotAvailabilityEventHandler : EventArgs
+    {
+        public GameObject gameSlot;
+    }
+
 
     public List<DropConditions> dropConditions = new List<DropConditions>();
     public event Action<GameItems> OnDropHandler;
 
     [SerializeField] public GameObject containedItem { get; private set; }
-    
+
 
     private void Awake()
     {
@@ -34,13 +41,13 @@ public class GameSlots : MonoBehaviour
 
     private void Start()
     {
-       
+        if (canDrop == true)
+        {
+            onSlotDischarged?.Invoke(this, new OnSlotAvailabilityEventHandler { gameSlot = this.gameObject });
+        }
     }
 
-    private void Update()
-    {
-        
-    }
+
 
     public bool Accepts (GameItems gameItem)
     {
@@ -68,6 +75,7 @@ public class GameSlots : MonoBehaviour
         crossMark.gameObject.SetActive(false);
         canDrop = false;
 
+        onSlotFilled?.Invoke(this, new OnSlotAvailabilityEventHandler { gameSlot = this.gameObject});
         OnDropped?.Invoke(this, new OnDroppedEventHandler { gameItem = gameItem });
     }
 
@@ -92,6 +100,8 @@ public class GameSlots : MonoBehaviour
     {
         containedItem = null;
         canDrop = true;
+
+        onSlotDischarged?.Invoke(this, new OnSlotAvailabilityEventHandler { gameSlot = this.gameObject });
     }
  
     IEnumerator LerpItemSize(GameItems gameItem)
@@ -123,8 +133,9 @@ public class GameSlots : MonoBehaviour
 
         while (timeElapsed < lerpDuration)
         {
-            Vector3 pointBCposition = Vector3.Lerp(lerpAnchorPosiiton, transform.position, timeElapsed / lerpDuration);
+           
             Vector3 pointABposition = Vector3.Lerp(itemDroppedPosition, lerpAnchorPosiiton, timeElapsed / lerpDuration);
+            Vector3 pointBCposition = Vector3.Lerp(lerpAnchorPosiiton, transform.position, timeElapsed / lerpDuration);
 
             gameItem.transform.position = Vector3.Lerp(pointABposition, pointBCposition, timeElapsed/lerpDuration);
 
@@ -144,6 +155,7 @@ public class GameSlots : MonoBehaviour
         if (itemDroppedPosition.y == transform.position.y)
         {
             anchorY = transform.position.y + 1;
+            
         }
 
 

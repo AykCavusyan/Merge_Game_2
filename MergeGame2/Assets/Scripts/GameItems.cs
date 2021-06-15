@@ -194,7 +194,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 if (gameSlot.containedItem != null && AcceptMerge(this, gameSlot))
                 {
                     GameItems mergedItem = Merge(this, gameSlot, this.itemLevel);
-                    gameSlot.Drop(mergedItem, gameSlot.containedItem.transform.position);
+                    Vector3 mergePosition = gameSlot.containedItem.transform.position;
+                    gameSlot.Drop(mergedItem, mergePosition);
+                    
                     initialGameSlot.DischargeSlot();
 
                     OnEndDragHandler?.Invoke(eventData, true);

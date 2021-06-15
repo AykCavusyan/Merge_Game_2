@@ -29,8 +29,7 @@ public class ItemBag : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("gameslots length" + gameSlots.Length);
-        Debug.Log(inventory.slots.Length);
+        
     }
 
     // Update is called once per frame

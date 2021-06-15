@@ -5,12 +5,25 @@ using UnityEngine;
 public class VisualEffects : MonoBehaviour
 {
     private ParticleSystem particles;
+    public GameObject player;
+
     //private MasterEventListener masterEventListener;
 
-   // public GameObject[] gameSlots;
-    
-    
-    private void OnEnable()
+    // public GameObject[] gameSlots;
+
+
+    public void Awake()
+    {
+
+        //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
+        particles = GetComponent<ParticleSystem>();
+        particles.Stop();
+        player = GameObject.FindGameObjectWithTag("Player");
+
+    }
+
+
+     void OnEnable()
     {
         //gameSlots = GameObject.FindGameObjectsWithTag("Container");
         //for (int i = 0; i < gameSlots.Length; i++)
@@ -18,10 +31,12 @@ public class VisualEffects : MonoBehaviour
         //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
         //}
 
+        Init();
+
         MasterEventListener.Instance.OnMerged += MergeAnimation;
     }
 
-    private void OnDisable()
+     void OnDisable()
     {
         //gameSlots = GameObject.FindGameObjectsWithTag("Container");
         //for (int i = 0; i < gameSlots.Length; i++)
@@ -32,19 +47,23 @@ public class VisualEffects : MonoBehaviour
         MasterEventListener.Instance.OnMerged -= MergeAnimation;
     }
 
-    public void Awake()
+    void Init()
     {
-
-        //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
-        particles = GetComponent<ParticleSystem>();
-        particles.Stop();
-
+        if (MasterEventListener.Instance == null)
+        {
+            Debug.Log("null master event listener - instantiating");
+            Instantiate(player);
+        }
+        else
+        {
+            Debug.Log("instance is already runnig");
+        }
     }
 
 
 
     // Start is called before the first frame update
-    public void Start()
+     void Start()
     {
        
     }
@@ -60,7 +79,7 @@ public class VisualEffects : MonoBehaviour
 
 
     // Update is called once per frame
-    private void MergeAnimation(object sender, GameItems.OnMergedEventArgs e)
+     void MergeAnimation(object sender, GameItems.OnMergedEventArgs e)
     {
         
 

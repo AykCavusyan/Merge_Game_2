@@ -19,11 +19,15 @@ public class MasterEventListener : MonoBehaviour
             if ( Instance == null)
             {
               Instance = this;
+              DontDestroyOnLoad(gameObject);
             }
             else if ( Instance != this)
             {
               Destroy(gameObject);
+              Debug.Log("Found another , destroying instance");
             }
+            
+
 
             gameSlots = GameObject.FindGameObjectsWithTag("Container");
             //visualEffects = GameObject.FindGameObjectWithTag("ParticleSystem").GetComponent<VisualEffects>() ;
@@ -41,9 +45,12 @@ public class MasterEventListener : MonoBehaviour
 
         void OnDisable()
         {
-            for (int i = 0; i < gameSlots.Length; i++)
+            if (gameSlots != null)
             {
+              for (int i = 0; i < gameSlots.Length; i++)
+              {
                 gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
+              }
             }
         }
       
