@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler,IEndDragHandler, IDragHandler
+public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler,IEndDragHandler, IDragHandler, IPointerDownHandler,IPointerUpHandler
 {
 
     public event Action<PointerEventData> OnBeginDragHandler;
@@ -29,7 +29,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public bool canDrag { get; set; } = true;
     public GameSlots initialGameSlot;
 
-    private ItemBag itemBag;
+    //private ItemBag itemBag;
+
+    //false olacak ve startta tipe göre true olacak
+    private bool isSpawner = true;
+    private bool canSpawn = false;
+    public bool isMoving = false;
+    public GameObject player;
 
     //public GameItems gameItemExisting;
     //public GameItems gameItemDragged;
@@ -43,9 +49,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
      private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        //gameItemDragged = this;
-        itemBag = GameObject.Find("Button").GetComponent<ItemBag>();
+        //itemBag = GameObject.Find("Button").GetComponent<ItemBag>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+    }
+
+    private void OnEnable()
+    {
+      Init();
     }
 
     private void Start()
@@ -86,6 +96,16 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     }
 
+
+    void Init()
+    {
+        if (ItemBag.Instance == null)
+        {
+            Instantiate(player);
+        }
+    }
+
+
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
         startPosition = rectTransform.anchoredPosition;
@@ -96,13 +116,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         
     }
 
-    public void Update()
-    {
-        
-    }
-
-
-
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!canDrag)
@@ -110,28 +123,28 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
-        // Puts each dragged item as last sibling on canvas order
         rectTransform.SetAsLastSibling();
-        
-
-        var results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData , results);
-
-        initialGameSlot = null;
-        
-        foreach (var result in results)
-        {
-            initialGameSlot = result.gameObject.GetComponent<GameSlots>();        
-        }
-
+        isMoving = true;
         initialGameSlot.DischargeSlot();
         OnBeginDragHandler?.Invoke(eventData);
+
+        #region
+        //var results = new List<RaycastResult>();
+        //EventSystem.current.RaycastAll(eventData , results);
+
+        //initialGameSlot = null;
+
+        //foreach (var result in results)
+        //{
+        //    initialGameSlot = result.gameObject.GetComponent<GameSlots>();        
+        //}
+
 
         //Debug.Log(eventData);
         //canvasGroup.blocksRaycasts = false;
         //canvasGroup.alpha = .6f;
+        #endregion
     }
-
     public void OnDrag(PointerEventData eventData)
     {
         if (!canDrag)
@@ -144,9 +157,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         if (followCursor)
         {
             rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
-            
         }
-
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -178,7 +189,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             if (gameSlot.Accepts(this) && gameSlot.canDrop == true)
             {
                 
-                initialGameSlot.DischargeSlot();
+                //initialGameSlot.DischargeSlot();
                 gameSlot.Drop(this);
 
                 //initialGameSlot.canDrop = true;
@@ -193,11 +204,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                 if (gameSlot.containedItem != null && AcceptMerge(this, gameSlot))
                 {
-                    GameItems mergedItem = Merge(this, gameSlot, this.itemLevel);
                     Vector3 mergePosition = gameSlot.containedItem.transform.position;
+                    GameItems mergedItem = Merge(this, gameSlot, this.itemLevel);
                     gameSlot.Drop(mergedItem, mergePosition);
                     
-                    initialGameSlot.DischargeSlot();
+                    //initialGameSlot.DischargeSlot();
 
                     OnEndDragHandler?.Invoke(eventData, true);
 
@@ -297,7 +308,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public GameItems Merge(GameItems gameItemDragged, GameSlots gameSlot, int itemLevel)
     {
-        GameItems mergedItem = itemBag.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
+        GameItems mergedItem = ItemBag.Instance.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
         mergedItem.transform.localScale = default(Vector3);
         Destroy(gameItemDragged.gameObject);
         Destroy(gameSlot.containedItem.gameObject);
@@ -305,6 +316,38 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         return mergedItem;
     }
 
-    
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        StartCoroutine(InputListener()); 
+    }
 
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (canSpawn == true)
+        {
+            if (isSpawner == true)
+            {
+                ItemBag.Instance.AddGeneratedItem(itemGenre, transform.position);
+
+                Debug.Log(transform.position + "gameitem transform position");
+                Debug.Log(initialGameSlot.transform.position + "gameslot transform position");
+                Debug.Log(rectTransform.anchoredPosition + "gameitem anchored position");
+                Debug.Log(transform.localPosition + "gameitem localposition");
+            }
+        }
+    }
+
+    IEnumerator InputListener()
+    {
+        float validClickLimit = .35f;
+        float timeElapsed = 0;
+
+        while (timeElapsed < validClickLimit && isMoving == false)
+        {
+            canSpawn = true;
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+        canSpawn = false;
+    }
 }

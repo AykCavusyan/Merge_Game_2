@@ -2,17 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SlotsCounter : MonoBehaviour
+public sealed  class SlotsCounter : MonoBehaviour
 {
-    // Start is called before the first frame update
-    private GameObject[] gameSlots;
 
+    private static SlotsCounter _instance;
+    public static SlotsCounter Instance { get { return _instance; } }
+    private static readonly object _lock = new object();
+
+    private GameObject[] gameSlots;
 
     // bunu private get yapacaktým ama debugda bile listenin içeriði gözükmedi !!
     public List<GameObject> emptySlots;
 
     private void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            lock (_lock)
+            {
+                if(_instance == null)
+                {
+                    _instance = this;
+                    DontDestroyOnLoad(this.gameObject);
+                }
+            }
+        }
+
         emptySlots = new List<GameObject>();
         gameSlots = GameObject.FindGameObjectsWithTag("Container");
     }
@@ -23,7 +42,6 @@ public class SlotsCounter : MonoBehaviour
         {
             gameSlots[i].GetComponent<GameSlots>().onSlotDischarged += AddToEmptySlotList; 
             gameSlots[i].GetComponent<GameSlots>().onSlotFilled += RemoveFromEmptySlotList;
-            Debug.Log("slots are filling");
         }
     }
 
@@ -34,7 +52,6 @@ public class SlotsCounter : MonoBehaviour
        // SlotTracker();
     }
 
-    // Update is called once per frame
     void Update()
     {
         
@@ -55,12 +72,10 @@ public class SlotsCounter : MonoBehaviour
     void AddToEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
     {
         emptySlots.Add(e.gameSlot);
-        Debug.Log(emptySlots);
     }
 
     void RemoveFromEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
     {
         emptySlots.Remove(e.gameSlot);
-        Debug.Log("remove event  called");
     }
 }

@@ -22,6 +22,9 @@ TagManager:
   - Armor_5
   - ParticleSystem
   - ScoreManager
+  - Panel_Button
+  - Panel_Inventory
+  - Canvas
   layers:
   - Default
   - TransparentFX

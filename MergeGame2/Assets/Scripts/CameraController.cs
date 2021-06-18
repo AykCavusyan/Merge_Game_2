@@ -97,8 +97,8 @@ public class CameraController : MonoBehaviour
 
     private void StartShake(object sender, GameItems.OnMergedEventArgs e)
     {
-        shakeTimeRemaining = e.itemLevel;
-        shakePower = e.itemLevel;
+        shakeTimeRemaining = e.itemLevel / (e.itemLevel*2f) ;
+        shakePower = e.itemLevel / (e.itemLevel*2f);
 
         shakeFadeTime = e.itemLevel / e.itemLevel *2;
     }

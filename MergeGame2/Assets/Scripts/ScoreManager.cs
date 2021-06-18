@@ -7,14 +7,15 @@ using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
+    #region
     //public static ScoreManager instance;
     //public GameObject[] gameSlots;
-    public GameObject player;
+    //private MasterEventListener masterEventListener;
+    #endregion
 
+    public GameObject player;
     private  TMP_Text scoreText;
     private int score;
-    //private MasterEventListener masterEventListener;
-    
 
     public event EventHandler<OnScoreUpdateEventHandler> OnScoreUpdate;
     public class OnScoreUpdateEventHandler : EventArgs
@@ -26,34 +27,37 @@ public class ScoreManager : MonoBehaviour
     {
         scoreText = GetComponent<TextMeshProUGUI>();
         player = GameObject.FindGameObjectWithTag("Player");
+
+        #region
         //masterEventListener = GameObject.FindGameObjectWithTag("Player").GetComponent<MasterEventListener>();
+        #endregion
     }
 
-     void OnEnable()
+    void OnEnable()
     {
+        #region
         //gameSlots = GameObject.FindGameObjectsWithTag("Container");
         //for (int i = 0; i < gameSlots.Length; i++)
         //{
         //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
         //}
+        #endregion
 
         Init();
-
         MasterEventListener.Instance.OnMerged += UpdateText;
     }
 
      void OnDisable()
     {
+        #region
         //gameSlots = GameObject.FindGameObjectsWithTag("Container");
         //for (int i = 0; i < gameSlots.Length; i++)
         //{
         //    gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
         //}
-
-        
+        #endregion
 
         MasterEventListener.Instance.OnMerged -= UpdateText;
-
     }
 
     void Init()
@@ -69,19 +73,10 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    
-
      void Start()
     {
         score = 0;
         scoreText.text = "SCORE : " + score;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     //private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
@@ -94,8 +89,7 @@ public class ScoreManager : MonoBehaviour
         int oldScore = score;
         score++;
         scoreText.text = "SCORE : "  + score;
-        OnScoreUpdate?.Invoke(this, new OnScoreUpdateEventHandler { score = score - oldScore});
-            
+        OnScoreUpdate?.Invoke(this, new OnScoreUpdateEventHandler { score = score - oldScore});   
     }
 
 

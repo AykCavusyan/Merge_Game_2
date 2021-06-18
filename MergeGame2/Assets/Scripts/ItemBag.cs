@@ -5,71 +5,112 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class ItemBag : MonoBehaviour
+public sealed class ItemBag : MonoBehaviour
 {
-    private Inventory inventory;
-    public Item item;
-    //public GameObject slotsPanel;
 
+    private static ItemBag _instance;
+    public static ItemBag Instance { get { return _instance; } }
+    private static readonly object _lock = new object();
+
+
+    //private GameObject player;
+    public Item item;
     public GameObject canvas;
 
-
-
-    public GameObject[] gameSlots;
-    public GameObject newGameItemIdentified;
+    //public GameObject[] gameSlots;
+    //public GameObject newGameItemIdentified;
 
     private void Awake()
     {
-        inventory = GameObject.Find("Player").GetComponent<Inventory>();
-        //slotsPanel = GameObject.Find("SlotsPanel");
-        canvas = GameObject.Find("Canvas");
-        
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.U))
+        if ( _instance != null && _instance != this)
         {
-
+            Destroy(this.gameObject);
         }
-    }
 
-    public void IdentifyItem(GameObject newGameItem)
-    {
-        newGameItemIdentified = newGameItem;
-    }
-
-    public int FindEmptySlotPosition()
-    {
-        for (int i = UnityEngine.Random.Range(0,gameSlots.Length) ; i < gameSlots.Length; i++)
+        else
         {
-            Debug.Log("calling i" +i);
-            if (gameSlots[i].GetComponent<GameSlots>().canDrop)
-            {  
-             return i;
-            }
-
-            if (i == gameSlots.Length -1)
+            lock (_lock)
             {
-                for (int j = i; j >= 0; j--)
+                if (_instance == null)
                 {
-                    Debug.Log("calling j " + j);
-                    if (gameSlots[j].GetComponent<GameSlots>().canDrop)
-                    {
-                        return j;
-                    }
-
+                    _instance = this;
+                    DontDestroyOnLoad(this.gameObject);
                 }
             }
         }
-        return -1;
+
+        //player = GameObject.FindGameObjectWithTag("Player");
+        canvas = GameObject.Find("Canvas");
+    }
+    private void OnEnable()
+    {
+        //Init();
+    }
+
+    private void Start()
+    {
+        
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            GranaryAddGeneratedItem();
+        }
+
+        else if (Input.GetKeyDown(KeyCode.O))
+        {
+            ArmoryAddGeneratedItem();
+        }
+    }
+
+    //void Init()
+    //{
+    //     if (SlotsCounter.Instance == null)
+    //    {
+    //        Instantiate(player);
+    //    }
+    //}
+
+    //public void IdentifyItem(GameObject newGameItem)
+    //{
+    //    newGameItemIdentified = newGameItem;
+    //}
+
+    public GameSlots FindEmptySlotPosition()
+    {
+        GameSlots currentEmptyGameSlot = null;
+
+        if(SlotsCounter.Instance.emptySlots.Count > 0)
+        { 
+            currentEmptyGameSlot = SlotsCounter.Instance.emptySlots[UnityEngine.Random.Range(0, SlotsCounter.Instance.emptySlots.Count)].GetComponent<GameSlots>();
+        }
+        return currentEmptyGameSlot;
+        #region
+        //for (int i = UnityEngine.Random.Range(0,gameSlots.Length) ; i < gameSlots.Length; i++)
+        //{
+        //    Debug.Log("calling i" +i);
+        //    if (gameSlots[i].GetComponent<GameSlots>().canDrop)
+        //    {  
+        //     return i;
+        //    }
+
+        //    if (i == gameSlots.Length -1)
+        //    {
+        //        for (int j = i; j >= 0; j--)
+        //        {
+        //            Debug.Log("calling j " + j);
+        //            if (gameSlots[j].GetComponent<GameSlots>().canDrop)
+        //            {
+        //                return j;
+        //            }
+
+        //        }
+        //    }
+        //}
+        //return -1;
+        #endregion
     }
 
     public GameObject GenerateItem(Item.ItemGenre itemGenre = Item.ItemGenre.Other, int itemLevel = 1)
@@ -82,12 +123,10 @@ public class ItemBag : MonoBehaviour
         GameObject newGameItem = new GameObject();
         //newGameItem.transform.SetParent(slotsPanel.transform);
 
-       newGameItem.transform.SetParent(canvas.transform);      
+        newGameItem.transform.SetParent(canvas.transform);      
         
         newGameItem.AddComponent<Image>().sprite = item.GetSprite(itemName);
         newGameItem.AddComponent<GameItems>();
-
-        
         newGameItem.GetComponent<GameItems>().itemLevel = itemLevel;
         newGameItem.GetComponent<GameItems>().itemGenre = itemGenre;
         newGameItem.GetComponent<GameItems>().itemType = itemName;
@@ -111,30 +150,45 @@ public class ItemBag : MonoBehaviour
     }
 
 
-    public void AddGeneratedItem(Item.ItemGenre itemGenre)
+    public void AddGeneratedItem(Item.ItemGenre itemGenre, Vector3 itemGeneratedPosition =default(Vector3))
      {
-        int i = FindEmptySlotPosition();
-
-           if (i >= 0 && i <= gameSlots.Length)
-           {
-            
-               GameObject newGameItem = GenerateItem(itemGenre);
-               newGameItem.name = "GameItem" + i + 1;
-               gameSlots[i].GetComponent<GameSlots>().Drop(newGameItem.GetComponent<GameItems>(), transform.position);
-               IdentifyItem(newGameItem);
-
-            
-               //would be much better if made with an event - need to und how to pass the variable 
-               //gameSlots[i].GetComponent<GameSlots>().canDrop = false;
-
-               inventory.AddItemToList(item);
-           }
-           else
-           {
+        GameSlots currentEmptyGameSlot = FindEmptySlotPosition();
+        if (currentEmptyGameSlot != null)
+        {
+            Debug.Log("addgenerated item working ");
+            GameObject newGameItem = GenerateItem(itemGenre);
+            newGameItem.name = "GameItem" + 1;
+            currentEmptyGameSlot.Drop(newGameItem.GetComponent<GameItems>(), itemGeneratedPosition);
+            //IdentifyItem(newGameItem);
+        }
+        else
+        {
             Debug.Log("There is no place left!");
-           }
-        
-     }
+        }
+
+        #region
+        //int i = FindEmptySlotPosition();
+
+        //   if (i >= 0 && i <= gameSlots.Length)
+        //   {
+
+        //       GameObject newGameItem = GenerateItem(itemGenre);
+        //       newGameItem.name = "GameItem" + i + 1;
+        //       gameSlots[i].GetComponent<GameSlots>().Drop(newGameItem.GetComponent<GameItems>(), transform.position);
+        //       IdentifyItem(newGameItem);
+
+
+        //       //would be much better if made with an event - need to und how to pass the variable 
+        //       //gameSlots[i].GetComponent<GameSlots>().canDrop = false;
+
+        //       inventory.AddItemToList(item);
+        //   }
+        //   else
+        //   {
+        //    Debug.Log("There is no place left!");
+        //   }
+        #endregion
+    }
 
 
 }

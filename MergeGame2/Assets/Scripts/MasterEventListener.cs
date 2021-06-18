@@ -3,67 +3,75 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MasterEventListener : MonoBehaviour
+public sealed class MasterEventListener : MonoBehaviour
 {
-        public static MasterEventListener Instance = null;
+    private static MasterEventListener _instance;
 
-        private GameObject[] gameSlots;
-        //private VisualEffects visualEffects;
-        //private ScoreManager scoreManager;
+    public static MasterEventListener Instance { get { return _instance; } }
+    private static readonly object _lock = new object();
 
-        public event EventHandler<GameItems.OnMergedEventArgs> OnMerged;
+    private GameObject[] gameSlots;
+        
+    public event EventHandler<GameItems.OnMergedEventArgs> OnMerged;
 
-
-        void Awake()
+    #region
+    //private VisualEffects visualEffects;
+    //private ScoreManager scoreManager;
+    #endregion
+    void Awake()
+    {
+    
+        if (_instance != null & _instance != this)
         {
-            if ( Instance == null)
-            {
-              Instance = this;
-              DontDestroyOnLoad(gameObject);
-            }
-            else if ( Instance != this)
-            {
-              Destroy(gameObject);
-              Debug.Log("Found another , destroying instance");
-            }
-            
-
-
-            gameSlots = GameObject.FindGameObjectsWithTag("Container");
-            //visualEffects = GameObject.FindGameObjectWithTag("ParticleSystem").GetComponent<VisualEffects>() ;
-            //scoreManager = GameObject.FindGameObjectWithTag("ScoreManager").GetComponent<ScoreManager>();
-            Debug.Log("static working");
+            Destroy(this.gameObject);
         }
-
-        void OnEnable()
+        else
         {
-            for (int i = 0; i < gameSlots.Length; i++)
+            lock (_lock)
             {
-                gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
+                if (_instance == null)
+                {
+                    _instance = this;
+                    DontDestroyOnLoad(this.gameObject);
+                }
             }
         }
 
-        void OnDisable()
-        {
-            if (gameSlots != null)
-            {
-              for (int i = 0; i < gameSlots.Length; i++)
-              {
-                gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
-              }
-            }
-        }
+      gameSlots = GameObject.FindGameObjectsWithTag("Container");
+
+      #region
+        //visualEffects = GameObject.FindGameObjectWithTag("ParticleSystem").GetComponent<VisualEffects>() ;
+        //scoreManager = GameObject.FindGameObjectWithTag("ScoreManager").GetComponent<ScoreManager>();
+        //Debug.Log("static working");
+        #endregion
+    }
+    void OnEnable()
+    {
+       for (int i = 0; i < gameSlots.Length; i++)
+       {
+          gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
+       }
+    }
+
+    void OnDisable()
+    {
+       if (gameSlots != null)
+       {
+          for (int i = 0; i < gameSlots.Length; i++)
+          {
+             gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
+          }
+       }
+    }
       
+    void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
+    {
+        e.gameItem.OnMerged += MergeEvent;
+    }
 
-
-        void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
-        {
-            e.gameItem.OnMerged += MergeEvent;
-        }
-
-        void MergeEvent(object sender, GameItems.OnMergedEventArgs e)
-        {
-            OnMerged?.Invoke(sender, e);
-        }
+    void MergeEvent(object sender, GameItems.OnMergedEventArgs e)
+    {
+       OnMerged?.Invoke(sender, e);
+    }
     
 }

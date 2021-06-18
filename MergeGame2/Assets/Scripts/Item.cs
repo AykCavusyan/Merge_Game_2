@@ -50,6 +50,46 @@ public class Item
             {ItemGenre.Armor, ItemType.Armor_5 },
           }
         },
+
+        {6,
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals,ItemType.Meal_6 },
+            {ItemGenre.Armor, ItemType.Armor_6 },
+          }
+        },
+
+        {7,
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals,ItemType.Meal_7 },
+            {ItemGenre.Armor, ItemType.Armor_7 },
+          }
+        },
+
+        {8,
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals,ItemType.Meal_8 },
+            {ItemGenre.Armor, ItemType.Armor_8 },
+          }
+        },
+
+        {9,
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals,ItemType.Meal_9 },
+            {ItemGenre.Armor, ItemType.Armor_9 },
+          }
+        },
+
+        {10,
+          new Dictionary<ItemGenre, ItemType>
+          {
+            { ItemGenre.Meals,ItemType.Meal_10 },
+            {ItemGenre.Armor, ItemType.Armor_10 },
+          }
+        },
     };
 
     
@@ -67,11 +107,21 @@ public class Item
         Meal_3,
         Meal_4,
         Meal_5,
+        Meal_6,
+        Meal_7,
+        Meal_8,
+        Meal_9,
+        Meal_10,
         Armor_1,
         Armor_2,
         Armor_3,
         Armor_4,
         Armor_5,
+        Armor_6,
+        Armor_7,
+        Armor_8,
+        Armor_9,
+        Armor_10
     }
 
     public enum ItemGenre
@@ -79,6 +129,12 @@ public class Item
         Meals,
         Other,
         Armor,
+        Sword,
+        Axe,
+        Hammer,
+        Staff,
+        Mace,
+        Ranged
     }
 
     public ItemGenre itemGenre;

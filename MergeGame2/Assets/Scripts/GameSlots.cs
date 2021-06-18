@@ -9,8 +9,11 @@ using UnityEngine.UIElements;
 public class GameSlots : MonoBehaviour
 {
     private Transform crossMark;
+    public List<DropConditions> dropConditions = new List<DropConditions>();
     [SerializeField] public bool canDrop { get; private set; }
+    [SerializeField] public GameObject containedItem { get; private set; }
 
+    public event Action<GameItems> OnDropHandler;
 
     public event EventHandler<OnDroppedEventHandler> OnDropped;
     public class OnDroppedEventHandler : EventArgs
@@ -25,11 +28,6 @@ public class GameSlots : MonoBehaviour
         public GameObject gameSlot;
     }
 
-
-    public List<DropConditions> dropConditions = new List<DropConditions>();
-    public event Action<GameItems> OnDropHandler;
-
-    [SerializeField] public GameObject containedItem { get; private set; }
 
 
     private void Awake()
@@ -48,7 +46,6 @@ public class GameSlots : MonoBehaviour
     }
 
 
-
     public bool Accepts (GameItems gameItem)
     {
         return dropConditions.TrueForAll(cond => cond.Check(gameItem));
@@ -59,7 +56,7 @@ public class GameSlots : MonoBehaviour
     {
         OnDropHandler?.Invoke(gameItem);
 
-        if (itemDroppedPosition == default)
+        if (itemDroppedPosition == default(Vector3))
         {
             Debug.Log("sizeItemcalled");
             itemDroppedPosition = gameItem.transform.position;
@@ -72,6 +69,7 @@ public class GameSlots : MonoBehaviour
 
         
         PlaceItem(gameItem, itemDroppedPosition);
+        UpdateItemParentSlot(gameItem);
         crossMark.gameObject.SetActive(false);
         canDrop = false;
 
@@ -95,6 +93,10 @@ public class GameSlots : MonoBehaviour
         StartCoroutine(LerpItemPositions(itemDroppedPosition, gameItem));
     }
 
+    void UpdateItemParentSlot(GameItems gameItem)
+    {
+        gameItem.initialGameSlot = this;
+    }
 
     public void DischargeSlot()
     {
@@ -144,6 +146,7 @@ public class GameSlots : MonoBehaviour
             yield return null;
         }
 
+        gameItem.isMoving = false;
         gameItem.transform.position = transform .position;
     }
 
