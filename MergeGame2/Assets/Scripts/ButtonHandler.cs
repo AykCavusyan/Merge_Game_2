@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 //using System.Numerics;
@@ -12,9 +13,17 @@ public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     private Vector3 downScaleFactor;
     private Vector3 upScaleFactor;
     private float lerpDuration = .12f;
+   
+    public int buttonlIndex;
 
-    private GameObject inventory_Panel;
-    private Transform canvas;
+    public event EventHandler<OnButtonPressedEventArgs> OnButtonPressed;
+    public class OnButtonPressedEventArgs : EventArgs
+    {
+        public int buttonIndex;
+    }
+
+    //private GameObject backgroundPanel;
+    //private Transform canvas;
 
     private void Awake()
     {
@@ -23,8 +32,9 @@ public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         downScaleFactor = new Vector3(0.9f, 0.9f, 1);
         upScaleFactor = new Vector3(1.1f, 1.1f, 1);
 
-        canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Transform>();
-        inventory_Panel = canvas.Find("Inventory_Panel").gameObject;
+        
+        //canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Transform>();
+        //backgroundPanel = canvas.Find("Background_PanelHolder").gameObject;
     }
 
     private void Update()
@@ -94,17 +104,20 @@ public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        Debug.Log("pointerdown on menu button");
         ButtonClicked();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-
+        OnButtonPressed?.Invoke(this, new OnButtonPressedEventArgs { buttonIndex = this.buttonlIndex });
+        
+        
         Debug.Log("called again pointerUP");
-        if (inventory_Panel.activeSelf == false)
-        {
-            inventory_Panel.SetActive(true);
-        }
+        //if (backgroundPanel.activeSelf == false)
+        //{
+        //    backgroundPanel.SetActive(true);
+        //}
         
     }
 }

@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\DropConditions.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_AutoStopLoopedEffect.cs" />
     <Compile Include="Assets\Scripts\GameSlots.cs" />
+    <Compile Include="Assets\Scripts\ButtonHandler.cs" />
     <Compile Include="Assets\Scripts\ProgressBar.cs" />
     <Compile Include="Assets\Scripts\VisualEffects.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
@@ -80,10 +81,13 @@
     <Compile Include="Assets\Scripts\MergeConditions.cs" />
     <Compile Include="Assets\Scripts\GameItems.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_Translate.cs" />
+    <Compile Include="Assets\Scripts\Panel_Invetory.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
-    <Compile Include="Assets\Scripts\ButtonHandler.cs" />
-    <Compile Include="Assets\Scripts\Panel_Invetory.cs" />
+    <Compile Include="Assets\Scripts\Panel_BackgroundPanelHolder.cs" />
+    <Compile Include="Assets\Scripts\Ribbon_Panel.cs" />
+    <Compile Include="Assets\Scripts\XButton_Panel.cs" />
+    <Compile Include="Assets\Scripts\UI_ParticleEffects.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

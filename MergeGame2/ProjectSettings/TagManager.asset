@@ -25,6 +25,12 @@ TagManager:
   - Panel_Button
   - Panel_Inventory
   - Canvas
+  - Panel_Background
+  - Button UI
+  - Panel_BackToGame
+  - Panel_Shop
+  - Panel_Tasklist
+  - Panel_UI
   layers:
   - Default
   - TransparentFX
