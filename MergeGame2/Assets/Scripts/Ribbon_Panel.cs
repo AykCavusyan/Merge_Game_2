@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Ribbon_Panel : MonoBehaviour
+public class Ribbon_Panel : MonoBehaviour ,  IPointerDownHandler,IPointerUpHandler
 {
     private RectTransform rectTransform;
     //private Vector3 originalPosition;
@@ -138,5 +139,15 @@ public class Ribbon_Panel : MonoBehaviour
         {
             image.enabled = false;
         }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        //necessary otherwise ribbon is transferring the click event to the background ;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        //necessary otherwise ribbon is transferring the click event to the background 
     }
 }

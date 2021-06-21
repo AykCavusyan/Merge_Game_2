@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class XButton_Panel : MonoBehaviour
+public class XButton_Panel : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
 {
     private RectTransform rectTransform;
     private Vector3 startingPosition;
@@ -13,6 +15,8 @@ public class XButton_Panel : MonoBehaviour
 
     Vector3 lerpedSize;
     Vector3 originalScale;
+
+    public event Action onXButtonPressed;
 
     private void Awake()
     {
@@ -122,5 +126,15 @@ public class XButton_Panel : MonoBehaviour
         {
             image.enabled = false;
         }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        onXButtonPressed?.Invoke();
     }
 }

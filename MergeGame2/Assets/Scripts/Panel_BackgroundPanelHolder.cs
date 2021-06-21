@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+
 public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
 {
     private float lerpDuration = .2f;
@@ -17,6 +18,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     //private GameObject[] buttonPanels;
 
     private int activePanel;
+    private XButton_Panel[] xButton;
 
     public event EventHandler<OnEnableVisibilityEventArgs> OnenableVisibility;
     public event EventHandler<OnDisableVisibilityEventArgs> OnDisableVisibility;
@@ -42,6 +44,9 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
         finalColorValue = new Color(imageToFade.color.r, imageToFade.color.g, imageToFade.color.b, .6f);
 
         lowerButtons = GameObject.FindGameObjectsWithTag("Button UI");
+
+        // can use lambda here just for testing and securing 
+        xButton = transform.GetComponentsInChildren<XButton_Panel>();
         //buttonPanels = GameObject.FindGameObjectsWithTag("Panel_UI");
         
     }
@@ -56,6 +61,12 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
         {
             lowerButtons[i].GetComponent<ButtonHandler>().OnButtonPressed += EnableVisibility;
         }
+
+        for (int i = 0; i < xButton.Length; i++)
+        {
+            xButton[i].onXButtonPressed += DisableVisibility;
+        }
+
     }
 
     void OnDisable()
@@ -63,6 +74,11 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
         for (int i = 0; i < lowerButtons.Length; i++)
         {
             lowerButtons[i].GetComponent<ButtonHandler>().OnButtonPressed -= EnableVisibility;
+        }
+
+        for (int i = 0; i < xButton.Length; i++)
+        {
+            xButton[i].onXButtonPressed -= DisableVisibility;
         }
     }
 
@@ -91,6 +107,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        Debug.Log("on pointer up called");
         DisableVisibility();
     }
 

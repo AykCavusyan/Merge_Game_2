@@ -3,52 +3,109 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
-    //public bool[] canDrop ;
-    public GameObject[] slots;
-    private List<Item> itemList;
-   
+    private Transform inner_Panel_Container;
+    public GameObject player;
 
-    
+    private int currentSlotAmount;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
-        //slots = GameObject.FindGameObjectsWithTag("Container");
-        //canDrop = new bool[slots.Length];
-        ////for (int i = 0; i < canDrop.Length; i++)
-        //{
-        //    canDrop[i] = slots[i].GetComponent<GameSlots>().canDrop;
-        //}
+        player = GameObject.FindGameObjectWithTag("Player");
+        inner_Panel_Container = transform.Find("Inner_Panel_Container");  
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        //Debug.Log(itemList.Count);
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            PurchaseSLot();
+        }
     }
 
-    public Inventory()
+    private void OnEnable()
     {
-        itemList = new List<Item>();
+        Init();
     }
 
-
-
-    public void AddItemToList(Item item)
+    private void Start()
     {
-        itemList.Add(item);
+        currentSlotAmount = PlayerInfo.Instance.currentInventorySlotAmount;
+
+        if (currentSlotAmount > 0)
+        {
+            InstantiateSlots();
+        }
         
     }
 
-   // public bool CanAdd(int i)
-   // {
-    //    return slots[i].GetComponent<GameSlots>().canDrop;
-   // }
 
-  
+    void Init()
+    {
+        if(PlayerInfo.Instance == null)
+        {
+            Instantiate(player);
+        }
+        else
+        {
 
+        }
+    }
 
+    void InstantiateSlots()
+    {
+        for (int i = 0; i < currentSlotAmount; i++)
+        {
+            CreateNewSlot(true);
+        }
+
+        CreateNewSlot(false);
+
+        DisableChildrenImages();
+    }
+
+     void CreateNewSlot(bool isActive)
+    {
+        GameObject newSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotBackgroundActive"));
+
+        newSlot.transform.SetParent(inner_Panel_Container, false);
+        newSlot.AddComponent<InventorySlots>().isActive = isActive;
+
+        if(isActive == false)
+        {
+            ListenInactiveSlot(newSlot);
+        }
+    } 
+
+    
+
+    void DisableChildrenImages()
+    {
+        var childrenToDisable = inner_Panel_Container.GetComponentsInChildren<Image>();
+        foreach (var childToDisable in childrenToDisable)
+        {
+            childToDisable.enabled = false;
+        }
+    }
+
+    void ListenInactiveSlot(GameObject newSLot)
+    {
+        newSLot.GetComponent<InventorySlots>().onSlotPurchaseAttempt += PurchaseSLot;
+    }
+
+    void PurchaseSLot()
+    {
+
+        currentSlotAmount++;
+        PlayerInfo.Instance.AugmentCurrentInventorySlotAmount(currentSlotAmount);
+
+        if (PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
+        {
+            CreateNewSlot(false);
+
+        }
+    }
 }
