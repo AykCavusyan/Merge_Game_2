@@ -39,10 +39,10 @@ public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            ButtonClicked();
-        }
+        //if (Input.GetKeyDown(KeyCode.P))
+        //{
+        //    ButtonClicked();
+        //}
     }
 
 

@@ -11,19 +11,22 @@ public class Inventory : MonoBehaviour
     public GameObject player;
 
     private int currentSlotAmount;
+    private GameObject currentNewSlot;
+
+    private int slotIDNumber = 0;
 
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        inner_Panel_Container = transform.Find("Inner_Panel_Container");  
+        inner_Panel_Container = GameObject.Find("Inner_Panel_Container").GetComponent<Transform>();  
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            PurchaseSLot();
-        }
+        //if (Input.GetKeyDown(KeyCode.Q))
+        //{
+        //    PurchaseSLot();
+        //}
     }
 
     private void OnEnable()
@@ -67,16 +70,20 @@ public class Inventory : MonoBehaviour
         DisableChildrenImages();
     }
 
-     void CreateNewSlot(bool isActive)
+     void CreateNewSlot(bool isActive, bool isPurchasedOnSession = false)
     {
-        GameObject newSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotBackgroundActive"));
+        currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotBackgroundActive"));
 
-        newSlot.transform.SetParent(inner_Panel_Container, false);
-        newSlot.AddComponent<InventorySlots>().isActive = isActive;
+        currentNewSlot.transform.SetParent(inner_Panel_Container, false);
+        currentNewSlot.AddComponent<InventorySlots>().isActive = isActive ;
+
+        slotIDNumber++;
+        currentNewSlot.GetComponent<InventorySlots>().slotIDNumber = slotIDNumber;
+        currentNewSlot.GetComponent<InventorySlots>().isPurchasedOnSession = isPurchasedOnSession;
 
         if(isActive == false)
         {
-            ListenInactiveSlot(newSlot);
+            ListenInactiveSlot(currentNewSlot);
         }
     } 
 
@@ -91,21 +98,33 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void ListenInactiveSlot(GameObject newSLot)
+    void ListenInactiveSlot(GameObject currentNewSlot)
     {
-        newSLot.GetComponent<InventorySlots>().onSlotPurchaseAttempt += PurchaseSLot;
+        currentNewSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt += PurchaseSlot;
     }
 
-    void PurchaseSLot()
+    void StopListeningPreviousSlot(GameObject oldSlot)
     {
+        oldSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt -= PurchaseSlot;
+    }
 
+    void PurchaseSlot(GameObject sender)
+    {
+        StopListeningPreviousSlot(sender);
+
+        // burda potansiyel bir hata var currenti arttýýrrken if e bakmýyoruz
         currentSlotAmount++;
         PlayerInfo.Instance.AugmentCurrentInventorySlotAmount(currentSlotAmount);
 
         if (PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
         {
-            CreateNewSlot(false);
+            CreateNewSlot(false,true);
 
         }
+    }
+
+    private void OnDisable()
+    {
+        currentNewSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt -= PurchaseSlot;
     }
 }

@@ -39,7 +39,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     private void Awake()
     {
-        backgroundPanel = transform.parent.transform.parent.gameObject;
+        backgroundPanel = GameObject.Find("Background_PanelHolder");
 
 
         imageToDisable = GetComponent<Image>();

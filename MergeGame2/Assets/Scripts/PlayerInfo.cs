@@ -18,7 +18,7 @@ public sealed class PlayerInfo : MonoBehaviour
 
     private void Awake()
     {
-        //if (_instance != null && _instance != this)
+        //if (_instance != null && _instance != this) BUNU SINGLETON PATLADIÐI ÝÇÝN SÝLDÝM - YAPMAK LAZIM
         //{
         //    Destroy(this.gameObject);
         //}

@@ -10,16 +10,19 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private RectTransform rectTransform;
     private float lerpDuration = .1f;
     private GameObject parentPanel;
-    private Image image;
+    private Image image; // bu kalkabililr gibi duruyor 
     [SerializeField] private Image[] childImage;
     private Color originalColor;
 
     public bool isActive;
 
+    public int slotIDNumber;
+    public bool isPurchasedOnSession;
+
     Vector3 lerpedSize;
     Vector3 originalScale;
 
-    public event Action onSlotPurchaseAttempt; 
+    public event Action <GameObject> onSlotPurchaseAttempt; 
 
     private void Awake()
     {
@@ -27,7 +30,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         childImage = transform.GetComponentsInChildren<Image>(true);
         rectTransform = GetComponent<RectTransform>();
         originalColor = transform.GetChild(0).GetComponent<Image>().color;
-        
+
 
         // bu kýsma daha sonra bakarýz, sadece geüvenlik
         //if (image.enabled == true)
@@ -36,19 +39,21 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         //}
 
-        parentPanel = transform.parent.parent.gameObject;
+        parentPanel = GameObject.Find("Panel_BackToGame");
         originalScale = new Vector3(0f, 0f, 0f);
         lerpedSize = new Vector3(1f, 1f, 1f);
     }
     private void OnEnable()
     {
         parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceSlots;
+        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceSlots;
     }
 
 
     private void OnDisable()
     {
         parentPanel.GetComponent<Panel_Invetory>().OnPanelSized -= PlaceSlots;
+        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceSlots;
 
     }
 
@@ -62,28 +67,39 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     void PlaceSlots(object sender, Panel_Invetory.OnPanelSizedEventArgs e)
     {
+        int slotAppearOrder = slotIDNumber;
+
         if (isActive== false)
         {
             Image childImageToFade = transform.GetChild(0).GetComponent<Image>();
             childImageToFade.color = new Color(.5f, .5f, .5f, .5f);
 
             transform.Find("Lock").gameObject.SetActive(true);
+            
+            if (isPurchasedOnSession)
+            {
+                slotAppearOrder = slotAppearOrder / slotIDNumber;
+            }
         }
 
 
-        StartCoroutine(SlotsUpSize());
+        StartCoroutine(SlotsUpSize(slotAppearOrder));
     }
 
-    void DeplaceSlots(object  sender, Panel_Invetory.OnPanelSizedEventArgs e)
+    void DeplaceSlots(object  sender, Panel_Invetory.OnPanelDisappearEventArgs e)
     {
-        //StartCoroutine(SlotsDownSize());
+        StartCoroutine(SlotsDownSize());
+        if (isPurchasedOnSession)
+        {
+            isPurchasedOnSession = false;
+        }
     }
 
-    IEnumerator SlotsUpSize()
+    IEnumerator SlotsUpSize(int slotAppearOrder)
     {
         float elapsedTime = 0f;
 
-        yield return new WaitForSeconds(.15f);
+        yield return new WaitForSeconds(slotAppearOrder * .05f);
 
         //image.enabled = true;
 
@@ -104,6 +120,26 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         }
 
         rectTransform.localScale = lerpedSize;
+    }
+
+    IEnumerator SlotsDownSize()
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < lerpDuration)
+        {
+            rectTransform.localScale = Vector3.Lerp(lerpedSize, originalScale, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        rectTransform.localScale = originalScale;
+
+        for (int i = 0; i < childImage.Length; i++)
+        {
+            childImage[i].enabled = false;
+        }
     }
 
    void ActivateSlot()
@@ -127,7 +163,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         if ( isActive == false)
         {
             ActivateSlot();
-            onSlotPurchaseAttempt?.Invoke();
+            onSlotPurchaseAttempt?.Invoke(this.gameObject);
         }
 
     }
