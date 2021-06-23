@@ -16,6 +16,8 @@ public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
    
     public int buttonlIndex;
 
+
+
     public event EventHandler<OnButtonPressedEventArgs> OnButtonPressed;
     public class OnButtonPressedEventArgs : EventArgs
     {
@@ -31,20 +33,25 @@ public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         originalScale = new Vector3(rectTransform.localScale.x, rectTransform.localScale.y, rectTransform.localScale.y);
         downScaleFactor = new Vector3(0.9f, 0.9f, 1);
         upScaleFactor = new Vector3(1.1f, 1.1f, 1);
-
         
+        if (buttonlIndex == 1) 
+        {
+            GetInventoryStatus();
+        }
+
         //canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Transform>();
         //backgroundPanel = canvas.Find("Background_PanelHolder").gameObject;
     }
 
-    private void Update()
+    void GetInventoryStatus()
     {
-        //if (Input.GetKeyDown(KeyCode.P))
-        //{
-        //    ButtonClicked();
-        //}
+        //BURASI YAPILACAK
     }
 
+    void SendItemToEmptySlot() 
+    {
+        //BURASI YAPILACAK
+    }
 
     void ButtonClicked()
     {

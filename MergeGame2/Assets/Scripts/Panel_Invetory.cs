@@ -13,6 +13,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private Vector3 upScaleFactor;
     private Vector3 originalScale;
     private float lerpDuration = .09f;
+    [SerializeField] private int panelIndex;
 
     private Image imageToDisable;
 
@@ -34,7 +35,6 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     }
 
 
-    public int panelIndex;
     private GameObject backgroundPanel;
 
     private void Awake()
@@ -53,8 +53,8 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         originalScale = new Vector3(rectTransform.localScale.x, rectTransform.localScale.y, rectTransform.localScale.z);
         downscaleFactor = new Vector3(.3f, .3f, 1);
         upScaleFactor = new Vector3(1.2f, 1.2f, 1);
-        ribbonAnchorPoint = transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
-        xButtonAnchorPoint = transform.parent.transform.Find("XButtonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
+        //ribbonAnchorPoint = transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
+        //xButtonAnchorPoint = transform.parent.transform.Find("XButtonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
 
     }
 
@@ -79,6 +79,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     {
         if (panelIndex == e.panelIndex)
         {
+            StopAllCoroutines();
             imageToDisable.enabled = true;
 
             Vector3 startingScale = Vector3.Scale(originalScale, downscaleFactor);
@@ -90,14 +91,11 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     void DisableVisibility(object sender, Panel_BackgroundPanelHolder.OnDisableVisibilityEventArgs e)
     {
-        if (imageToDisable.enabled == true)
+        if (panelIndex == e.activePanel)
         {
-            if (panelIndex == e.activePanel)
-            {
-                OnPanelDisappear?.Invoke(this , new OnPanelDisappearEventArgs { });
-                StartCoroutine(DownsizePanel());
-                
-            }
+            StopAllCoroutines();
+            OnPanelDisappear?.Invoke(this , new OnPanelDisappearEventArgs { });
+            StartCoroutine(DownsizePanel());   
         }
     }
 

@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 
 public class GameSlots : MonoBehaviour
 {
+    public GameObject panel_Gameslots;
     private Transform crossMark;
     public List<DropConditions> dropConditions = new List<DropConditions>();
     [SerializeField] public bool canDrop { get; private set; }
@@ -34,6 +35,7 @@ public class GameSlots : MonoBehaviour
     {
         canDrop = true;
         crossMark = transform.Find("CrossMark");
+        panel_Gameslots = GameObject.Find("Panel_GameSlots");
 
     }
 
@@ -89,6 +91,9 @@ public class GameSlots : MonoBehaviour
         gameItem.GetComponent<RectTransform>().sizeDelta = new Vector2(122, 122);
         // place the gameobjec in the contained item so that the script knows
         containedItem = gameItem.gameObject;
+        //set the parent back to slots panel
+        gameItem.GetComponent<RectTransform>().SetParent(panel_Gameslots.transform);
+        gameItem.GetComponent<RectTransform>().SetAsLastSibling();
         // smoothly position the item
         StartCoroutine(LerpItemPositions(itemDroppedPosition, gameItem));
     }

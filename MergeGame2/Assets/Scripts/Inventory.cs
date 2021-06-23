@@ -66,7 +66,6 @@ public class Inventory : MonoBehaviour
         }
 
         CreateNewSlot(false);
-
         DisableChildrenImages();
     }
 
@@ -76,10 +75,11 @@ public class Inventory : MonoBehaviour
 
         currentNewSlot.transform.SetParent(inner_Panel_Container, false);
         currentNewSlot.AddComponent<InventorySlots>().isActive = isActive ;
-
         slotIDNumber++;
         currentNewSlot.GetComponent<InventorySlots>().slotIDNumber = slotIDNumber;
         currentNewSlot.GetComponent<InventorySlots>().isPurchasedOnSession = isPurchasedOnSession;
+
+        PlayerInfo.Instance.ListenInventorySlots(currentNewSlot.GetComponent<InventorySlots>());
 
         if(isActive == false)
         {
@@ -111,6 +111,8 @@ public class Inventory : MonoBehaviour
     void PurchaseSlot(GameObject sender)
     {
         StopListeningPreviousSlot(sender);
+        PlayerInfo.Instance.ListenInventorySlots(sender.GetComponent<InventorySlots>());
+
 
         // burda potansiyel bir hata var currenti arttýýrrken if e bakmýyoruz
         currentSlotAmount++;

@@ -20,6 +20,8 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     private int activePanel;
     private XButton_Panel[] xButton;
 
+    private bool CR_Running = false;
+
     public event EventHandler<OnEnableVisibilityEventArgs> OnenableVisibility;
     public event EventHandler<OnDisableVisibilityEventArgs> OnDisableVisibility;
     public class OnEnableVisibilityEventArgs : EventArgs
@@ -85,8 +87,6 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     IEnumerator IncrementPanelAlpha()
     {
         float elapsedTime = 0f;
-        
-
         while (elapsedTime < lerpDuration)
         {
             imageToFade.color = Color.Lerp(initialColorValue, finalColorValue, elapsedTime / lerpDuration);
@@ -96,6 +96,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
         }
 
         imageToFade.color = finalColorValue;
+
     }
 
 
@@ -108,37 +109,47 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     public void OnPointerUp(PointerEventData eventData)
     {
         Debug.Log("on pointer up called");
+        //imageToFade.raycastTarget = false; // to stop clicks which comes before image is faded by decrementalpha corooutine
+        
+        
         DisableVisibility();
+        
     }
 
     void EnableVisibility(object sender, ButtonHandler.OnButtonPressedEventArgs e)
     {
         Debug.Log("event heard");
 
-        imageToFade.enabled = true;
-        StartCoroutine(IncrementPanelAlpha());
+        if ( imageToFade.enabled == false)
+        {
 
-        //for (int i = 0; i < buttonPanels.Length; i++)
-        //{
-        //    if (buttonPanels[i].GetComponent<Panel_Invetory>().panelIndex == e.buttonIndex)
-        //    {
-        //        continue;
-        //    }
-        activePanel = e.buttonIndex;
-        OnenableVisibility?.Invoke(this, new OnEnableVisibilityEventArgs { panelIndex = this.activePanel });
-        //}
+            imageToFade.enabled = true;
+        
+            StopAllCoroutines();
+            CR_Running = false;
+        
+            StartCoroutine(IncrementPanelAlpha());
+            activePanel = e.buttonIndex;
+            OnenableVisibility?.Invoke(this, new OnEnableVisibilityEventArgs { panelIndex = this.activePanel });
+        }
 
     }
 
     void DisableVisibility()
     {
-        StartCoroutine(DecrementPanelAlpha());
-
-        OnDisableVisibility?.Invoke(this, new OnDisableVisibilityEventArgs { activePanel = this.activePanel });
+        if (CR_Running == false)
+        {
+            StopAllCoroutines();
+            StartCoroutine(DecrementPanelAlpha());
+            OnDisableVisibility?.Invoke(this, new OnDisableVisibilityEventArgs { activePanel = this.activePanel });
+        }
+        
     }
 
     IEnumerator DecrementPanelAlpha()
     {
+        CR_Running = true;
+
         float elapsedTime = 0f;
         Debug.Log("decrementing");
 
@@ -152,6 +163,10 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
 
         imageToFade.color = initialColorValue;
         imageToFade.enabled = false;
+
+        CR_Running = false;
+
+        //imageToFade.raycastTarget = true; // reenabe raycast which is disabled in onpointer up callback
     }
 
 }

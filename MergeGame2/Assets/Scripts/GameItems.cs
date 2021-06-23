@@ -21,6 +21,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     }
 
     private Canvas canvas;
+   // public GameObject panel_Gameslots;
 
     public List<MergeConditions> mergeCondisitons = new List<MergeConditions>();
 
@@ -51,6 +52,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         rectTransform = GetComponent<RectTransform>();
         //itemBag = GameObject.Find("Button").GetComponent<ItemBag>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        //panel_Gameslots = GameObject.Find("Panel_GameSlots");
     }
 
     private void OnEnable()
@@ -123,7 +125,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
+        rectTransform.SetParent(canvas.transform);
         rectTransform.SetAsLastSibling();
+        
         isMoving = true;
         initialGameSlot.DischargeSlot();
         OnBeginDragHandler?.Invoke(eventData);
@@ -171,19 +175,22 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         EventSystem.current.RaycastAll(eventData, results);
 
         GameSlots gameSlot = null;
+        ButtonHandler inventoryButton = null;
         //gameItemExisting = null;
 
         foreach (var result in results)
         {
             gameSlot = result.gameObject.GetComponent<GameSlots>();
+            inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
 
-            if (gameSlot != null)
+            if (gameSlot != null || inventoryButton != null && inventoryButton.buttonlIndex == 1) 
             {
+
                 break;
             }
         }
 
-        if (gameSlot != null)
+        if (gameSlot != null )
         {
 
             if (gameSlot.Accepts(this) && gameSlot.canDrop == true)
@@ -198,6 +205,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                 return;
             }
+
+            
 
             else if (gameSlot.Accepts(this) && gameSlot.canDrop == false)
             {
@@ -230,11 +239,48 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 }
             }
         }
+
+        else if (inventoryButton != null && inventoryButton.buttonlIndex == 1 )
+        {
+
+            if (PlayerInfo.Instance.GetRemainingInventorySLotAmount() > 0)
+            {
+                canDrag = false;
+                int targetSlotIDNumber = 0;
+                targetSlotIDNumber = PlayerInfo.Instance.GetDictionaryAmount() + 1;
+
+                InventorySlots[] inventorySlots = (InventorySlots[])GameObject.FindObjectsOfType(typeof(InventorySlots));
+
+                foreach (InventorySlots item in inventorySlots)
+                {
+                    if (item.slotIDNumber == targetSlotIDNumber)
+                    {
+                        item.Drop(this);
+                    }
+                }
+            }
+            else
+            {
+                SetItemBack(eventData);
+            }
+
+            
+
+            //GameObject trialSlot = GameObject.Find("SlotBackgroundActive(Clone)");
+            //trialSlot.GetComponent<InventorySlots>().Drop(this);
+
+            return;
+        }
+
+
+        SetItemBack(eventData);
+    }
+
+
+    void SetItemBack(PointerEventData eventData)
+    {
         Debug.Log("The Item SLot Container is already full or invalid position");
         initialGameSlot.Drop(this);
-
-        //rectTransform.anchoredPosition = startPosition;
-        
         OnEndDragHandler?.Invoke(eventData, false);
     }
 

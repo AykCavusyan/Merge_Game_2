@@ -15,6 +15,9 @@ public sealed class ItemBag : MonoBehaviour
 
     //private GameObject player;
     public Item item;
+
+    public GameObject panel_Gameslots;
+
     public GameObject canvas;
 
     //public GameObject[] gameSlots;
@@ -41,6 +44,7 @@ public sealed class ItemBag : MonoBehaviour
 
         //player = GameObject.FindGameObjectWithTag("Player");
         canvas = GameObject.Find("Canvas");
+        panel_Gameslots = GameObject.Find("Panel_GameSlots");
     }
     private void OnEnable()
     {
@@ -123,7 +127,7 @@ public sealed class ItemBag : MonoBehaviour
         GameObject newGameItem = new GameObject();
         //newGameItem.transform.SetParent(slotsPanel.transform);
 
-        newGameItem.transform.SetParent(canvas.transform);      
+        newGameItem.transform.SetParent(panel_Gameslots.transform);      
         
         newGameItem.AddComponent<Image>().sprite = item.GetSprite(itemName);
         newGameItem.AddComponent<GameItems>();

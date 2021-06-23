@@ -10,11 +10,14 @@ public class Ribbon_Panel : MonoBehaviour ,  IPointerDownHandler,IPointerUpHandl
     //private Vector3 originalPosition;
     private Vector3 startingPosition;
     private float lerpDuration = .05f;
-    private GameObject parentPanel;
+    private GameObject backgroundPanelHolder;
     private Image image;
+    [SerializeField] private int panelIndex;
 
     Vector3 lerpedSize;
     Vector3 originalScale;
+
+    private Vector3 ribbonAnchorPoint;
 
     private void Awake()
     {
@@ -26,28 +29,26 @@ public class Ribbon_Panel : MonoBehaviour ,  IPointerDownHandler,IPointerUpHandl
 
         rectTransform = GetComponent<RectTransform>();
         startingPosition = rectTransform.anchoredPosition;
+
         //Debug.Log(rectTransform.anchoredPosition);
-        parentPanel = transform.parent.transform.Find("Panel_BackToGame").gameObject;
+        backgroundPanelHolder = GameObject.Find("Background_PanelHolder");
+        ribbonAnchorPoint = transform.parent.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
         //originalPosition = this.transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
         originalScale = rectTransform.localScale;
-        lerpedSize = new Vector3(1.2f, .85f, 1f);
+        lerpedSize = new Vector3(1.2f, .5f, 1f);
     }
 
-    void Start()
-    {
-        //Debug.Log(rectTransform.anchoredPosition);
-    }
 
     private void OnEnable()
     {
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceRibbon;
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceRibbon;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnenableVisibility += PlaceRibbon;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnDisableVisibility += DeplaceRibbon;
     }
 
     private void OnDisable()
     {
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelSized -= PlaceRibbon;
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceRibbon;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnenableVisibility -= PlaceRibbon;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnDisableVisibility -= DeplaceRibbon;
 
     }
 
@@ -56,27 +57,36 @@ public class Ribbon_Panel : MonoBehaviour ,  IPointerDownHandler,IPointerUpHandl
         
     }
 
-    void PlaceRibbon(object sender, Panel_Invetory.OnPanelSizedEventArgs e)
+    void PlaceRibbon(object sender, Panel_BackgroundPanelHolder.OnEnableVisibilityEventArgs e)
     {
-        //Debug.Log(rectTransform.anchoredPosition);
-        if (image.enabled == false)
+        if (panelIndex == e.panelIndex)
         {
-            image.enabled = true;
-        }
+            StopAllCoroutines(); // gerekli mi deðil mi belli deðil ??
+                                 //Debug.Log(rectTransform.anchoredPosition);
+            if (image.enabled == false)
+            {
+                image.enabled = true;
+            }
 
-        StartCoroutine(RibbonMove(e.ribbonAnchorPoint));
+            StartCoroutine(RibbonMove(ribbonAnchorPoint));
+        }
+        
     }
 
-    void DeplaceRibbon(object sender, Panel_Invetory.OnPanelDisappearEventArgs e)
+    void DeplaceRibbon(object sender, Panel_BackgroundPanelHolder.OnDisableVisibilityEventArgs e)
     {
-        StartCoroutine(RibbonDisappear());
-        Debug.Log("ribbondisappear called");
-        
+        if(panelIndex == e.activePanel)
+        {
+            StopAllCoroutines(); // gerekli mi deðil mi belli deðil ??
+            StartCoroutine(RibbonDisappear());
+        }
+
     }
 
     IEnumerator RibbonMove(Vector3 ribbonAnchorPoint)
     {
         float elapsedTime = 0f;
+        yield return new WaitForSeconds(.15f);
 
         while (elapsedTime < lerpDuration)
         {
@@ -128,7 +138,8 @@ public class Ribbon_Panel : MonoBehaviour ,  IPointerDownHandler,IPointerUpHandl
 
         while (elapsedTime < lerpDuration)
         {
-            rectTransform.anchoredPosition = Vector3.Lerp(rectTransform.anchoredPosition, startingPosition, elapsedTime / lerpDuration);
+            rectTransform.anchoredPosition = Vector3.Lerp(rectTransform.position, startingPosition, elapsedTime / lerpDuration);
+            
             elapsedTime += Time.deltaTime;
 
             yield return null;

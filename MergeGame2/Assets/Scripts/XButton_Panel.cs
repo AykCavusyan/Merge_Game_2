@@ -10,13 +10,16 @@ public class XButton_Panel : MonoBehaviour, IPointerDownHandler,IPointerUpHandle
     private RectTransform rectTransform;
     private Vector3 startingPosition;
     private float lerpDuration = .05f;
-    private GameObject parentPanel;
+    private GameObject backgroundPanelHolder;
     private Image image;
 
     Vector3 lerpedSize;
     Vector3 originalScale;
 
+    Vector3 xButtonAnchorPoint;
+
     public event Action onXButtonPressed;
+    [SerializeField] private int panelIndex;
 
     private void Awake()
     {
@@ -29,7 +32,8 @@ public class XButton_Panel : MonoBehaviour, IPointerDownHandler,IPointerUpHandle
         rectTransform = GetComponent<RectTransform>();
         startingPosition = rectTransform.anchoredPosition;
         //Debug.Log(rectTransform.anchoredPosition);
-        parentPanel = transform.parent.transform.Find("Panel_BackToGame").gameObject;
+        backgroundPanelHolder = GameObject.Find("Background_PanelHolder");
+        xButtonAnchorPoint = transform.parent.Find("XButtonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
         //originalPosition = this.transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
         originalScale = rectTransform.localScale;
         lerpedSize = new Vector3(.85f, 1.2f, 1f);
@@ -37,29 +41,42 @@ public class XButton_Panel : MonoBehaviour, IPointerDownHandler,IPointerUpHandle
 
     private void OnEnable()
     {
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceXButton;
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceXButton;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnenableVisibility += PlaceXButton;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnDisableVisibility += DeplaceXButton;
     }
 
     private void OnDisable()
     {
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelSized -= PlaceXButton;
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceXButton;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnenableVisibility -= PlaceXButton;
+        backgroundPanelHolder.GetComponent<Panel_BackgroundPanelHolder>().OnDisableVisibility -= DeplaceXButton;
     }
 
-    void PlaceXButton(object sender, Panel_Invetory.OnPanelSizedEventArgs e)
+    void PlaceXButton(object sender, Panel_BackgroundPanelHolder.OnEnableVisibilityEventArgs e)
     {
-        if (image.enabled == false)
+        Debug.Log("placeitem X button called");
+        if (panelIndex == e.panelIndex)
         {
-            image.enabled = true;
+            StopAllCoroutines();
+            if (image.enabled == false)
+            {
+                image.enabled = true;
+            }
+
+            StartCoroutine(XButtonMove(xButtonAnchorPoint));
+        }
+    }
+
+        
+
+    void DeplaceXButton(object sender, Panel_BackgroundPanelHolder.OnDisableVisibilityEventArgs e)
+    {
+        if ( panelIndex == e.activePanel)
+        {
+            StopAllCoroutines();
+            StartCoroutine(XButtonDisappear());
         }
 
-        StartCoroutine(XButtonMove(e.xButtonAnchorPoint));
-    }
-
-    void DeplaceXButton(object sender, Panel_Invetory.OnPanelDisappearEventArgs e)
-    {
-        StartCoroutine(XButtonDisappear());
+        
     }
 
     IEnumerator XButtonMove(Vector3 xButtonAnchorPoint)

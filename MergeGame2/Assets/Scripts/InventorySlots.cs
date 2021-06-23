@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,10 +12,13 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private float lerpDuration = .1f;
     private GameObject parentPanel;
     private Image image; // bu kalkabililr gibi duruyor 
-    [SerializeField] private Image[] childImage;
+    [SerializeField] private List<Image> childImage;
     private Color originalColor;
 
     public bool isActive;
+
+    private bool isFree;
+    private GameObject slot_Item_Holder;
 
     public int slotIDNumber;
     public bool isPurchasedOnSession;
@@ -22,12 +26,18 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     Vector3 lerpedSize;
     Vector3 originalScale;
 
-    public event Action <GameObject> onSlotPurchaseAttempt; 
+    public event Action <GameObject> onSlotPurchaseAttempt;
+    public event EventHandler<OnInventoryItemPlacedEventArgs> onInventoryPlacedItem;
+    public class OnInventoryItemPlacedEventArgs
+    {
+        public GameItems gameItem;
+        public int slotIDNumber;
+    }
 
     private void Awake()
     {
         image = GetComponent<Image>();
-        childImage = transform.GetComponentsInChildren<Image>(true);
+        childImage = transform.GetComponentsInChildren<Image>(true).ToList();
         rectTransform = GetComponent<RectTransform>();
         originalColor = transform.GetChild(0).GetComponent<Image>().color;
 
@@ -42,6 +52,10 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         parentPanel = GameObject.Find("Panel_BackToGame");
         originalScale = new Vector3(0f, 0f, 0f);
         lerpedSize = new Vector3(1f, 1f, 1f);
+        
+        isFree = true;
+        slot_Item_Holder = transform.GetChild(0).GetChild(0).gameObject;
+
     }
     private void OnEnable()
     {
@@ -65,8 +79,35 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         }
     }
 
+    public void Drop(GameItems gameItem)
+    {
+        Debug.Log("Inventory slots drop called");
+        PlaceItem(gameItem);
+
+        onInventoryPlacedItem?.Invoke(this, new OnInventoryItemPlacedEventArgs { slotIDNumber = slotIDNumber, gameItem = gameItem });
+
+        isFree = false;
+        //UpdateSlotStatus(this); BUNA DAHA SONRA GELECEÐÝZ
+    }
+
+    void PlaceItem(GameItems gameItem)
+    {
+        RectTransform rt = gameItem.GetComponent<RectTransform>();
+        childImage.Add(gameItem.GetComponent<Image>());
+        gameItem.GetComponent<Image>().enabled = false;
+        rt.SetParent(slot_Item_Holder.transform);
+        rt.sizeDelta = slot_Item_Holder.GetComponent<RectTransform>().sizeDelta;
+        rt.localScale = new Vector3(1, 1, 1);
+        rt.SetAsLastSibling();
+        rt.anchoredPosition = slot_Item_Holder.GetComponent<RectTransform>().anchoredPosition;
+
+
+    }
+
     void PlaceSlots(object sender, Panel_Invetory.OnPanelSizedEventArgs e)
     {
+        StopAllCoroutines();
+
         int slotAppearOrder = slotIDNumber;
 
         if (isActive== false)
@@ -88,6 +129,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     void DeplaceSlots(object  sender, Panel_Invetory.OnPanelDisappearEventArgs e)
     {
+        StopAllCoroutines();
         StartCoroutine(SlotsDownSize());
         if (isPurchasedOnSession)
         {
@@ -103,7 +145,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         //image.enabled = true;
 
-        for (int i = 0; i < childImage.Length; i++)
+        for (int i = 0; i < childImage.Count; i++)
         {
             childImage[i].enabled = true;
         }
@@ -111,8 +153,6 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         while (elapsedTime < lerpDuration)
         {
-            
-
             rectTransform.localScale = Vector3.Lerp(originalScale, lerpedSize, elapsedTime / lerpDuration);
             elapsedTime += Time.deltaTime;
 
@@ -136,7 +176,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         rectTransform.localScale = originalScale;
 
-        for (int i = 0; i < childImage.Length; i++)
+        for (int i = 0; i < childImage.Count; i++)
         {
             childImage[i].enabled = false;
         }
