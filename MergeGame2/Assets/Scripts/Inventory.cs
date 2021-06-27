@@ -111,15 +111,16 @@ public class Inventory : MonoBehaviour
     void PurchaseSlot(GameObject sender)
     {
         StopListeningPreviousSlot(sender);
-        PlayerInfo.Instance.ListenInventorySlots(sender.GetComponent<InventorySlots>());
 
-
+        //PlayerInfo.Instance.ListenInventorySlots(sender.GetComponent<InventorySlots>());
         // burda potansiyel bir hata var currenti arttýýrrken if e bakmýyoruz
-        currentSlotAmount++;
-        PlayerInfo.Instance.AugmentCurrentInventorySlotAmount(currentSlotAmount);
+        
 
         if (PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
         {
+            currentSlotAmount++;
+            PlayerInfo.Instance.AugmentCurrentInventorySlotAmount(currentSlotAmount);
+
             CreateNewSlot(false,true);
 
         }

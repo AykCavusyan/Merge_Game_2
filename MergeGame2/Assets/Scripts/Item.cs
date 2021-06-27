@@ -5,17 +5,62 @@ using UnityEngine;
 
 public class Item
 {
+    public ItemGenre itemGenre { get; private set; }
+    public ItemType itemType { get; private set; }
+    public int itemLevel { get; private set; }
+    public bool givesXP { get; private set; } = false;
+    public bool isSpawner { get; private set; } = false;
+    public bool isCollectible { get; private set; } = false;
+    public int xpValue { get; private set; } = 0;
+    public bool isMergeable { get; private set; } = true; // bunu daha sonra yapýcaz!!
+    public int itemPanelID { get; private set; } = 0;
+
+    public Item(ItemGenre itemGenre, int itemLevel)
+    {
+
+        this.itemType = CreateItemForRelevatLevel(itemLevel, itemGenre);
+        this.itemGenre = itemGenre;
+        this.itemLevel = itemLevel;
+        if (itemLevel >= 5 && itemGenre!= ItemGenre.Star)
+        {
+            givesXP = true;
+            isSpawner = true;
+        }
+        else if(itemGenre == ItemGenre.Star)
+        {
+            isCollectible = true;
+            SetXpValue(itemLevel);
+            itemPanelID = 1;
+        }
+    }
+
+    private void SetXpValue(int itemLevel)
+    {
+        switch (itemLevel) {
+            case 1:   xpValue = 1;
+                break;
+            case 2:   xpValue = 3;
+                break;
+            case 3:   xpValue = 8;
+                break;
+            case 4:   xpValue = 20;
+                break;
+            case 5:   xpValue = 50;
+                break;
+            default:  xpValue = 0;
+                break;       
+       }
+        
+    }
+
     public static Dictionary<int, Dictionary<ItemGenre, ItemType>> _itemDictionary = new Dictionary<int, Dictionary<ItemGenre, ItemType>>
     {
        {1, 
         new Dictionary<ItemGenre, ItemType> 
         {
-            //{ItemGenre.Other, ItemType.Sword },
-            {ItemGenre.Other , ItemType.Chicken },
-            //{ItemGenre.Other, ItemType.Sun },
-            //{ItemGenre.Other, ItemType.Potion },
             {ItemGenre.Armor, ItemType.Armor_1 },
-            {ItemGenre.Meals, ItemType.Meal_1 }
+            {ItemGenre.Meals, ItemType.Meal_1 },
+            {ItemGenre.Star, ItemType.Star_1 },
         }
        },
 
@@ -24,6 +69,7 @@ public class Item
           {
              { ItemGenre.Meals, ItemType.Meal_2 },
              {ItemGenre.Armor, ItemType.Armor_2 },
+             {ItemGenre.Star, ItemType.Star_2 },
           }
         },
 
@@ -32,14 +78,16 @@ public class Item
           {
             { ItemGenre.Meals, ItemType.Meal_3 },
             {ItemGenre.Armor, ItemType.Armor_3},
+            {ItemGenre.Star, ItemType.Star_3 },
           }
         },
 
         {4,
           new Dictionary<ItemGenre, ItemType>
           {
-            { ItemGenre.Meals, ItemType.Meal_4 },
+            {ItemGenre.Meals, ItemType.Meal_4 },
             {ItemGenre.Armor, ItemType.Armor_4 },
+            {ItemGenre.Star, ItemType.Star_4 },
           }
         },
 
@@ -48,6 +96,7 @@ public class Item
           {
             { ItemGenre.Meals,ItemType.Meal_5 },
             {ItemGenre.Armor, ItemType.Armor_5 },
+            {ItemGenre.Star, ItemType.Star_5 },
           }
         },
 
@@ -92,16 +141,13 @@ public class Item
         },
     };
 
-    
-
-
     public enum ItemType
     {
-        Sword,
-        Chicken,
-        Sun,
-        Potion,
-        Heart,
+        Star_1,
+        Star_2,
+        Star_3,
+        Star_4,
+        Star_5,
         Meal_1,
         Meal_2,
         Meal_3,
@@ -126,6 +172,7 @@ public class Item
 
     public enum ItemGenre
     {
+        Star,
         Meals,
         Other,
         Armor,
@@ -137,10 +184,6 @@ public class Item
         Ranged
     }
 
-    public ItemGenre itemGenre;
-    public ItemType itemType;
-    public int itemLevel;
-    
     public Sprite GetSprite(ItemType itemType)
     {
         string itemTypeName = Enum.GetName(typeof(ItemType),(int)itemType);
@@ -149,18 +192,12 @@ public class Item
 
     public ItemType CreateItemForRelevatLevel(int inputItemLevel, ItemGenre itemGenre)
     {
-
-         _itemDictionary.TryGetValue(inputItemLevel, out Dictionary<ItemGenre, ItemType> _innerDictionary);
+        _itemDictionary.TryGetValue(inputItemLevel, out Dictionary<ItemGenre, ItemType> _innerDictionary);
         _innerDictionary.TryGetValue(itemGenre, out ItemType generatedItem);
-   
+
         return generatedItem;
 
-        //var enumLenght = Enum.GetNames(typeof(ItemType)).Length;
-        //return (ItemType)UnityEngine.Random.Range(0, enumLenght);
     }
-
-
-    
 
   //public ItemGenre GetItemGenre(int itemLevel, ItemType itemType)
   //  {

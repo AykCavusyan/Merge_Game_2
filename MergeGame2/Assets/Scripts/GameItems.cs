@@ -12,6 +12,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public event Action<PointerEventData> OnDragHandler;
     public event Action<PointerEventData, bool> OnEndDragHandler;
 
+    public event Action<GameItems> OnItemDestroyed;
     public event EventHandler<OnMergedEventArgs> OnMerged;
     public class OnMergedEventArgs : EventArgs
     {
@@ -20,8 +21,14 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         public int itemLevel;
     }
 
+    public event EventHandler<OnItemCollectedEventArgs> OnItemCollected;
+    public class OnItemCollectedEventArgs : EventArgs
+    {
+        public int xpValue;
+    }
+
+    private TopPanelID[] topPanels;
     private Canvas canvas;
-   // public GameObject panel_Gameslots;
 
     public List<MergeConditions> mergeCondisitons = new List<MergeConditions>();
 
@@ -30,22 +37,36 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public bool canDrag { get; set; } = true;
     public GameSlots initialGameSlot;
 
-    //private ItemBag itemBag;
+    private bool cr_Running = false;
 
-    //false olacak ve startta tipe göre true olacak
-    private bool isSpawner = true;
-    private bool canSpawn = false;
+    [SerializeField] private bool isSpawner = false;
+    private bool canReactToClicl = false;
     public bool isMoving = false;
     public GameObject player;
 
-    //public GameItems gameItemExisting;
-    //public GameItems gameItemDragged;
 
     private RectTransform rectTransform;
 
-    public int itemLevel;
-    public Item.ItemGenre itemGenre;
-    public Item.ItemType itemType;
+    [SerializeField] private int itemLevel;
+    [SerializeField] private Item.ItemGenre itemGenre;
+    [SerializeField] private Item.ItemType itemType;
+    [SerializeField] private bool givesXP;
+    [SerializeField] private bool isCollectible;
+    [SerializeField] private int xpValue;
+    [SerializeField] private int itemPanelID;
+
+    public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int itemPanelIDIn)
+    {
+        
+        itemLevel = itemLevelIn;
+        itemGenre = itemGenreIn;
+        itemType = itemTypeIn;
+        givesXP = givesXPIn;
+        isSpawner = isSpawnerIn;
+        isCollectible = isCollectibleIn;
+        xpValue = xpValueIn;
+        itemPanelID = itemPanelIDIn;
+    }
 
      private void Awake()
     {
@@ -53,6 +74,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         //itemBag = GameObject.Find("Button").GetComponent<ItemBag>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         //panel_Gameslots = GameObject.Find("Panel_GameSlots");
+        topPanels = GameObject.FindObjectsOfType<TopPanelID>();
     }
 
     private void OnEnable()
@@ -64,40 +86,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         rectTransform.localScale = new Vector3(1, 1, 1);
     }
-
-    IEnumerator DownsizeItemOnClick(Vector2 oldSize)
-    {
-        Vector2 scaleFactor = new Vector2(.8f, .8f);
-
-        float lerpDuration = .2f;
-        float elapsedTime = 0f;
-
-        while(elapsedTime < lerpDuration)
-        {
-            rectTransform.sizeDelta = Vector2.Lerp(oldSize, oldSize * scaleFactor, elapsedTime / lerpDuration);
-            elapsedTime += Time.deltaTime;
-
-            yield return null;
-        }
-
-        rectTransform.sizeDelta = oldSize * scaleFactor;
-        StartCoroutine(UpsizeItem(oldSize, lerpDuration));
-    }
-
-    IEnumerator UpsizeItem(Vector2 oldSize, float lerpDuration)
-    {
-        float elapsedTime = 0f;
-        while (elapsedTime < lerpDuration)
-        {
-            rectTransform.sizeDelta = Vector2.Lerp(rectTransform.sizeDelta, oldSize, elapsedTime / lerpDuration);
-            elapsedTime += Time.deltaTime;
-
-            yield return null;
-        }
-        rectTransform.sizeDelta = oldSize;
-
-    }
-
 
     void Init()
     {
@@ -111,11 +99,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {
         startPosition = rectTransform.anchoredPosition;
-        
-
-        Vector2 oldsize = rectTransform.sizeDelta;
-        StartCoroutine(DownsizeItemOnClick(oldsize));
-        
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -246,8 +229,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             if (PlayerInfo.Instance.GetRemainingInventorySLotAmount() > 0)
             {
                 canDrag = false;
-                int targetSlotIDNumber = 0;
-                targetSlotIDNumber = PlayerInfo.Instance.GetDictionaryAmount() + 1;
+                
+                int targetSlotIDNumber = PlayerInfo.Instance.GetDictionaryAmount() + 1;
 
                 InventorySlots[] inventorySlots = (InventorySlots[])GameObject.FindObjectsOfType(typeof(InventorySlots));
 
@@ -263,12 +246,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             {
                 SetItemBack(eventData);
             }
-
-            
-
-            //GameObject trialSlot = GameObject.Find("SlotBackgroundActive(Clone)");
-            //trialSlot.GetComponent<InventorySlots>().Drop(this);
-
             return;
         }
 
@@ -342,7 +319,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public bool AcceptMerge(GameItems gameItemDragged, GameSlots gameSlot )
     {
-        if (gameItemDragged.gameObject.tag == gameSlot.containedItem.tag)
+        if (gameItemDragged.itemType== gameSlot.containedItem.GetComponent<GameItems>().itemType)
         {
             return true;
         }
@@ -356,30 +333,45 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         GameItems mergedItem = ItemBag.Instance.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
         mergedItem.transform.localScale = default(Vector3);
-        Destroy(gameItemDragged.gameObject);
-        Destroy(gameSlot.containedItem.gameObject);
+
+        DestroyItem(gameItemDragged.gameObject);
+        DestroyItem(gameSlot.containedItem);
+
+        //Destroy(gameItemDragged.gameObject);
+        //Destroy(gameSlot.containedItem.gameObject);
 
         return mergedItem;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        StartCoroutine(InputListener()); 
+        //Vector2 oldsize = rectTransform.sizeDelta;
+        if(cr_Running==false)StartCoroutine(DownsizeItemOnClick());
+
+        if (canReactToClicl == true)
+        {
+            Debug.Log("collect on double click working");
+            CollectItem();
+        }
+
+        if (isSpawner == true || isCollectible == true)
+        {
+            StartCoroutine(InputListener());
+        }
+
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (canSpawn == true)
+        if (canReactToClicl == true && isSpawner == true)
         {
-            if (isSpawner == true)
-            {
-                ItemBag.Instance.AddGeneratedItem(itemGenre, transform.position);
-
-                Debug.Log(transform.position + "gameitem transform position");
-                Debug.Log(initialGameSlot.transform.position + "gameslot transform position");
-                Debug.Log(rectTransform.anchoredPosition + "gameitem anchored position");
-                Debug.Log(transform.localPosition + "gameitem localposition");
-            }
+            ItemBag.Instance.AddGeneratedItem(itemGenre, transform.position);
+            #region
+            //Debug.Log(transform.position + "gameitem transform position");
+            //Debug.Log(initialGameSlot.transform.position + "gameslot transform position");
+            //Debug.Log(rectTransform.anchoredPosition + "gameitem anchored position");
+            //Debug.Log(transform.localPosition + "gameitem localposition");
+            #endregion
         }
     }
 
@@ -390,10 +382,105 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         while (timeElapsed < validClickLimit && isMoving == false)
         {
-            canSpawn = true;
+            canReactToClicl = true;
             timeElapsed += Time.deltaTime;
             yield return null;
         }
-        canSpawn = false;
+        canReactToClicl = false;
+    }
+
+    IEnumerator DownsizeItemOnClick()
+    {
+        cr_Running = true;
+
+        Vector2 oldSize = rectTransform.sizeDelta;
+        Vector2 scaleFactor = new Vector2(.8f, .8f);
+
+        float lerpDuration = .2f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < lerpDuration)
+        {
+            rectTransform.sizeDelta = Vector2.Lerp(oldSize, oldSize * scaleFactor, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        rectTransform.sizeDelta = oldSize * scaleFactor;
+        StartCoroutine(UpsizeItem(oldSize, lerpDuration));
+    }
+
+    IEnumerator UpsizeItem(Vector2 oldSize, float lerpDuration)
+    {
+        float elapsedTime = 0f;
+        while (elapsedTime < lerpDuration)
+        {
+            rectTransform.sizeDelta = Vector2.Lerp(rectTransform.sizeDelta, oldSize, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        rectTransform.sizeDelta = oldSize;
+
+        cr_Running = false;
+    }
+
+    void CollectItem()
+    {
+        //move the item up to the relevant position
+
+        initialGameSlot.DischargeSlot();
+        OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs { xpValue = this.xpValue });
+        MoveItemToTopPanel();
+    }
+
+    void MoveItemToTopPanel()
+    {
+        GameObject panelToMove = ChoosePanelToMove(itemPanelID);
+        StartCoroutine(MoveItemToPanelEnum(panelToMove));
+    }
+
+    private GameObject ChoosePanelToMove(int itemPanelID)
+    {
+        for (int i = 0; i < topPanels.Length; i++)
+        {
+            if (topPanels[i].panelID == itemPanelID)
+            {
+                return topPanels[i].gameObject;
+            }
+        }
+        return null;
+    }
+
+    IEnumerator MoveItemToPanelEnum(GameObject paneltoMove)
+    {
+        Debug.Log("move item tp panel worked");
+        float elapsedTime = 0f;
+        float lerpDuration = .5f;
+
+        Vector2 originalPosition = GetComponent<RectTransform>().position;
+        Vector2 lerpPosition = paneltoMove.transform.GetChild(0).GetComponent<RectTransform>().position;
+        Vector2 oldSize = GetComponent<RectTransform>().sizeDelta;
+        Vector2 lerpSizeFactor = new Vector2(.6f, .6f);
+
+
+        while (elapsedTime < lerpDuration)
+        {
+            GetComponent<RectTransform>().position = Vector2.Lerp(originalPosition, lerpPosition, elapsedTime / lerpDuration);
+            GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(oldSize, oldSize * lerpSizeFactor, elapsedTime / lerpDuration);
+            GetComponent<RectTransform>().localEulerAngles += new Vector3(0, 0, 10f);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        transform.position = lerpPosition;
+        DestroyItem(this.gameObject);
+    }
+
+    void DestroyItem(GameObject gameItem)
+    {
+        //OnItemDestroyed?.Invoke(this); daha sonra yapýlacak, maksat master listerer ölmüþ itemleri dinlemeye çalýþmasýn
+        Destroy(gameItem);
     }
 }

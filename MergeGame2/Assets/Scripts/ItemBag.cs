@@ -67,6 +67,10 @@ public sealed class ItemBag : MonoBehaviour
         {
             ArmoryAddGeneratedItem();
         }
+        else if (Input.GetKeyDown(KeyCode.U))
+        {
+            AddGeneratedItem(Item.ItemGenre.Star);
+        }
     }
 
     //void Init()
@@ -117,32 +121,7 @@ public sealed class ItemBag : MonoBehaviour
         #endregion
     }
 
-    public GameObject GenerateItem(Item.ItemGenre itemGenre = Item.ItemGenre.Other, int itemLevel = 1)
-    {     
-        
-        item = new Item() ;
-        var itemName = item.CreateItemForRelevatLevel(itemLevel,itemGenre);
-        item = new Item { itemType = itemName, itemGenre = itemGenre , itemLevel = itemLevel};
 
-        GameObject newGameItem = new GameObject();
-        //newGameItem.transform.SetParent(slotsPanel.transform);
-
-        newGameItem.transform.SetParent(panel_Gameslots.transform);      
-        
-        newGameItem.AddComponent<Image>().sprite = item.GetSprite(itemName);
-        newGameItem.AddComponent<GameItems>();
-        newGameItem.GetComponent<GameItems>().itemLevel = itemLevel;
-        newGameItem.GetComponent<GameItems>().itemGenre = itemGenre;
-        newGameItem.GetComponent<GameItems>().itemType = itemName;
-
-
-        newGameItem.tag = item.itemType.ToString();
-        newGameItem.layer = 5;
-
-        return newGameItem;
-    }
-
-    
     public void GranaryAddGeneratedItem()
     {
         AddGeneratedItem(Item.ItemGenre.Meals);
@@ -152,6 +131,45 @@ public sealed class ItemBag : MonoBehaviour
     {
         AddGeneratedItem(Item.ItemGenre.Armor);
     }
+
+
+
+    public GameObject GenerateItem(Item.ItemGenre itemGenre , int itemLevel = 1)
+    {
+        item = new Item(itemGenre, itemLevel);
+
+
+        //item = new Item() ;
+        //var itemName = item.CreateItemForRelevatLevel(itemLevel,itemGenre);
+        //item = new Item { itemType = itemName, itemGenre = itemGenre , itemLevel = itemLevel};
+
+        GameObject newGameItem = new GameObject();
+
+        newGameItem.transform.SetParent(panel_Gameslots.transform);
+        
+        newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
+        newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID);
+        
+        if (item.givesXP == true)
+        {
+            AddGeneratedItem(Item.ItemGenre.Star);
+        }
+        
+        
+        //newGameItem.GetComponent<GameItems>()
+        //newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
+        //newGameItem.AddComponent<GameItems>();
+        //newGameItem.GetComponent<GameItems>().itemLevel = item.itemLevel;
+        //newGameItem.GetComponent<GameItems>().itemGenre = item.itemGenre;
+        //newGameItem.GetComponent<GameItems>().itemType = item.itemType;
+        //newGameItem.GetComponent<GameItems>().givesXP = item.givesXP;
+        //newGameItem.tag = item.itemType.ToString();
+        
+        newGameItem.layer = 5;
+
+        return newGameItem;
+    }
+
 
 
     public void AddGeneratedItem(Item.ItemGenre itemGenre, Vector3 itemGeneratedPosition =default(Vector3))

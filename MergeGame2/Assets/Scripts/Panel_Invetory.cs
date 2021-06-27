@@ -12,6 +12,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private Vector3 downscaleFactor;
     private Vector3 upScaleFactor;
     private Vector3 originalScale;
+    private Vector3 zeroScale;
     private float lerpDuration = .09f;
     [SerializeField] private int panelIndex;
 
@@ -36,11 +37,14 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
 
     private GameObject backgroundPanel;
+    private GameObject panelTextBox;
 
     private void Awake()
     {
         backgroundPanel = GameObject.Find("Background_PanelHolder");
+        panelTextBox = transform.GetChild(0).gameObject;
 
+        panelTextBox.SetActive(false);
 
         imageToDisable = GetComponent<Image>();
 
@@ -53,6 +57,9 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         originalScale = new Vector3(rectTransform.localScale.x, rectTransform.localScale.y, rectTransform.localScale.z);
         downscaleFactor = new Vector3(.3f, .3f, 1);
         upScaleFactor = new Vector3(1.2f, 1.2f, 1);
+
+        zeroScale = new Vector3(0, 0, 0);
+        rectTransform.localScale = zeroScale;
         //ribbonAnchorPoint = transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
         //xButtonAnchorPoint = transform.parent.transform.Find("XButtonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
 
@@ -82,6 +89,8 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
             StopAllCoroutines();
             imageToDisable.enabled = true;
 
+            panelTextBox.SetActive(true);
+
             Vector3 startingScale = Vector3.Scale(originalScale, downscaleFactor);
             rectTransform.localScale = startingScale;
 
@@ -94,6 +103,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         if (panelIndex == e.activePanel)
         {
             StopAllCoroutines();
+            panelTextBox.SetActive(true);
             OnPanelDisappear?.Invoke(this , new OnPanelDisappearEventArgs { });
             StartCoroutine(DownsizePanel());   
         }
@@ -137,7 +147,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     IEnumerator DownsizePanel()
     {
         float elapsedTime = 0f;
-        Vector3 zeroScale = new Vector3(0, 0, 0);
+        
 
         while (elapsedTime < lerpDuration)
         {

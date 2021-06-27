@@ -13,6 +13,7 @@ public sealed class MasterEventListener : MonoBehaviour
     private GameObject[] gameSlots;
         
     public event EventHandler<GameItems.OnMergedEventArgs> OnMerged;
+    public event EventHandler<GameItems.OnItemCollectedEventArgs> OnItemCollectted;
 
     #region
     //private VisualEffects visualEffects;
@@ -67,11 +68,23 @@ public sealed class MasterEventListener : MonoBehaviour
     void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
     {
         e.gameItem.OnMerged += MergeEvent;
+        e.gameItem.OnItemCollected += ItemCollectEvent;
+        //e.gameItem.OnItemDestroyed += OnGameItemDestroyed;
+    }
+
+    void OnGameItemDestroyed(GameItems gameItem)
+    {
+        // stop listening to gameitems
     }
 
     void MergeEvent(object sender, GameItems.OnMergedEventArgs e)
     {
        OnMerged?.Invoke(sender, e);
     }
-    
+
+    void ItemCollectEvent(object sender, GameItems.OnItemCollectedEventArgs e)
+    {
+        OnItemCollectted?.Invoke(sender, e);
+    }
+
 }
