@@ -32,7 +32,8 @@ public class Ribbon_Panel : MonoBehaviour ,  IPointerDownHandler,IPointerUpHandl
 
         //Debug.Log(rectTransform.anchoredPosition);
         backgroundPanelHolder = GameObject.Find("Background_PanelHolder");
-        ribbonAnchorPoint = transform.parent.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
+        //ribbonAnchorPoint = transform.parent.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
+        ribbonAnchorPoint = transform.parent.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
         //originalPosition = this.transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
         originalScale = rectTransform.localScale;
         lerpedSize = new Vector3(1.2f, .5f, 1f);

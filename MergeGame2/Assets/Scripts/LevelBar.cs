@@ -9,7 +9,7 @@ public class LevelBar : MonoBehaviour
     private Image bar;
     private Text levelText;
     private GameObject levelIcon;
-    private ParticleSystem particleSystem;
+    // private ParticleSystem particleSystem;
 
     private bool cr_Running = false;
 

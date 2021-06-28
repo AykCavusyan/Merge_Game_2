@@ -14,26 +14,27 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private Vector3 originalScale;
     private Vector3 zeroScale;
     private float lerpDuration = .09f;
-    [SerializeField] private int panelIndex;
+    public int panelIndex; // bunun public olmasýna sonra çare bulalým 
 
     private Image imageToDisable;
 
-    private bool validForDisable = false;
+    //private bool validForDisable = false;
 
 
-    public Vector3 ribbonAnchorPoint;
-    public Vector3 xButtonAnchorPoint;
-    public event EventHandler<OnPanelSizedEventArgs> OnPanelSized;
-    public event EventHandler<OnPanelDisappearEventArgs> OnPanelDisappear;
-    public class OnPanelSizedEventArgs : EventArgs
-    {
-        public Vector3 ribbonAnchorPoint;
-        public Vector3 xButtonAnchorPoint;
-    }
-    public class OnPanelDisappearEventArgs
-    {
+    //public Vector3 ribbonAnchorPoint;
+    //public Vector3 xButtonAnchorPoint;
+    
+    public event EventHandler<EventArgs> OnPanelSized;
+    public event EventHandler<EventArgs> OnPanelDisappear;
+    //public class OnPanelSizedEventArgs : EventArgs
+    //{
+    //    public Vector3 ribbonAnchorPoint;
+    //    public Vector3 xButtonAnchorPoint;
+    //}
+    //public class OnPanelDisappearEventArgs
+    //{
 
-    }
+    //}
 
 
     private GameObject backgroundPanel;
@@ -104,7 +105,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         {
             StopAllCoroutines();
             panelTextBox.SetActive(true);
-            OnPanelDisappear?.Invoke(this , new OnPanelDisappearEventArgs { });
+            OnPanelDisappear?.Invoke(this , EventArgs.Empty);
             StartCoroutine(DownsizePanel());   
         }
     }
@@ -141,7 +142,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         }
         rectTransform.localScale = originalScale;
 
-        OnPanelSized?.Invoke(this, new OnPanelSizedEventArgs { ribbonAnchorPoint = ribbonAnchorPoint, xButtonAnchorPoint =xButtonAnchorPoint} );
+        OnPanelSized?.Invoke(this, EventArgs.Empty );
     }
 
     IEnumerator DownsizePanel()
@@ -164,12 +165,12 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     public void OnPointerDown(PointerEventData eventData)
     {
         //StartCoroutine(InputListener());
-        Debug.Log("pointer down ");
+        //Debug.Log("pointer down ");
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        Debug.Log("pointer up");
+        //Debug.Log("pointer up");
         //if (validForDisable == true)
         //{
         //    imageToDisable.enabled = false;

@@ -6,54 +6,55 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
-public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandler
 {
-    private RectTransform rectTransform;
+    //private RectTransform rectTransform;
     private Vector3 originalScale;
     private Vector3 downScaleFactor;
     private Vector3 upScaleFactor;
     private float lerpDuration = .12f;
    
-    public int buttonlIndex;
+    //public int buttonlIndex;
 
 
 
-    public event EventHandler<OnButtonPressedEventArgs> OnButtonPressed;
-    public class OnButtonPressedEventArgs : EventArgs
-    {
-        public int buttonIndex;
-    }
+    //public event EventHandler<OnButtonPressedEventArgs> OnButtonPressed;
+    //public class OnButtonPressedEventArgs : EventArgs
+    //{
+      //  public int buttonIndex;
+    //}
 
     //private GameObject backgroundPanel;
     //private Transform canvas;
 
-    private void Awake()
+    protected override void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
+        base.Awake();
+        //rectTransform = GetComponent<RectTransform>();
         originalScale = new Vector3(rectTransform.localScale.x, rectTransform.localScale.y, rectTransform.localScale.y);
         downScaleFactor = new Vector3(0.9f, 0.9f, 1);
         upScaleFactor = new Vector3(1.1f, 1.1f, 1);
         
-        if (buttonlIndex == 1) 
-        {
-            GetInventoryStatus();
-        }
+        //if (buttonlIndex == 1) 
+        //{
+        //    GetInventoryStatus();
+        //}
 
         //canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Transform>();
         //backgroundPanel = canvas.Find("Background_PanelHolder").gameObject;
     }
 
-    void GetInventoryStatus()
-    {
-        //BURASI YAPILACAK
-    }
+    //void GetInventoryStatus()
+    //{
+    //    //BURASI YAPILACAK
+    //}
 
-    void SendItemToEmptySlot() 
-    {
-        //BURASI YAPILACAK
-    }
+    //void SendItemToEmptySlot() 
+    //{
+    //    //BURASI YAPILACAK
+    //}
 
-    void ButtonClicked()
+    private void ButtonClicked()
     {
         StartCoroutine(DownSizeButton());
     }
@@ -109,18 +110,18 @@ public class ButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public new void OnPointerDown(PointerEventData eventData)
     {
         Debug.Log("pointerdown on menu button");
         ButtonClicked();
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    public new void OnPointerUp(PointerEventData eventData)
     {
-        OnButtonPressed?.Invoke(this, new OnButtonPressedEventArgs { buttonIndex = this.buttonlIndex });
+        //OnButtonPressed?.Invoke(this, new Button_Base.OnButtonPressedEventArgs { buttonIndex = this.buttonlIndex });
+        RaiseOnButtonPressed(new OnButtonPressedEventArgs { buttonIndex = this.buttonlIndex});
         
-        
-        Debug.Log("called again pointerUP");
+        //Debug.Log("called again pointerUP");
         //if (backgroundPanel.activeSelf == false)
         //{
         //    backgroundPanel.SetActive(true);

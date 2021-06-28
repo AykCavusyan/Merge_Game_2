@@ -18,16 +18,10 @@ public class Inventory : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        inner_Panel_Container = GameObject.Find("Inner_Panel_Container").GetComponent<Transform>();  
+        //inner_Panel_Container = GameObject.Find("Inner_Panel_Container").GetComponent<Transform>();
+        inner_Panel_Container = transform.GetChild(1).GetChild(0).GetComponent<Transform>();
     }
 
-    private void Update()
-    {
-        //if (Input.GetKeyDown(KeyCode.Q))
-        //{
-        //    PurchaseSLot();
-        //}
-    }
 
     private void OnEnable()
     {

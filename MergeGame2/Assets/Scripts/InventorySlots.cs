@@ -49,7 +49,8 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         //}
 
-        parentPanel = GameObject.Find("Panel_BackToGame");
+        //parentPanel = GameObject.Find("Panel_BackToGame");
+        parentPanel = transform.parent.parent.parent.gameObject;
         originalScale = new Vector3(0f, 0f, 0f);
         lerpedSize = new Vector3(1f, 1f, 1f);
         
@@ -59,16 +60,21 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     }
     private void OnEnable()
     {
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceSlots;
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceSlots;
+        if (parentPanel.GetComponent<Panel_Invetory>().panelIndex == 1)
+        {
+            parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceSlots;
+            parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceSlots;
+        }      
     }
 
 
     private void OnDisable()
     {
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelSized -= PlaceSlots;
-        parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceSlots;
-
+        if (parentPanel.GetComponent<Panel_Invetory>().panelIndex == 1)
+        {
+            parentPanel.GetComponent<Panel_Invetory>().OnPanelSized -= PlaceSlots;
+            parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceSlots;
+        }
     }
 
     private void Start()
@@ -104,7 +110,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     }
 
-    void PlaceSlots(object sender, Panel_Invetory.OnPanelSizedEventArgs e)
+    void PlaceSlots(object sender,EventArgs e)
     {
         StopAllCoroutines();
 
@@ -127,7 +133,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         StartCoroutine(SlotsUpSize(slotAppearOrder));
     }
 
-    void DeplaceSlots(object  sender, Panel_Invetory.OnPanelDisappearEventArgs e)
+    void DeplaceSlots(object  sender, EventArgs e)
     {
         StopAllCoroutines();
         StartCoroutine(SlotsDownSize());

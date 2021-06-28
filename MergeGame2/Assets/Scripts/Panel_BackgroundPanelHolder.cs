@@ -61,7 +61,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     {
         for (int i = 0; i < lowerButtons.Length ; i++)
         {
-            lowerButtons[i].GetComponent<ButtonHandler>().OnButtonPressed += EnableVisibility;
+            lowerButtons[i].GetComponent<Button_Base>().OnButtonPressed += EnableVisibility;
         }
 
         for (int i = 0; i < xButton.Length; i++)
@@ -75,7 +75,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     {
         for (int i = 0; i < lowerButtons.Length; i++)
         {
-            lowerButtons[i].GetComponent<ButtonHandler>().OnButtonPressed -= EnableVisibility;
+            lowerButtons[i].GetComponent<Button_Base>().OnButtonPressed -= EnableVisibility;
         }
 
         for (int i = 0; i < xButton.Length; i++)

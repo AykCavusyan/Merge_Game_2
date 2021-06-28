@@ -33,7 +33,8 @@ public class XButton_Panel : MonoBehaviour, IPointerDownHandler,IPointerUpHandle
         startingPosition = rectTransform.anchoredPosition;
         //Debug.Log(rectTransform.anchoredPosition);
         backgroundPanelHolder = GameObject.Find("Background_PanelHolder");
-        xButtonAnchorPoint = transform.parent.Find("XButtonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
+        //xButtonAnchorPoint = transform.parent.Find("XButtonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
+        xButtonAnchorPoint = transform.parent.GetChild(1).GetComponent<RectTransform>().anchoredPosition;
         //originalPosition = this.transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
         originalScale = rectTransform.localScale;
         lerpedSize = new Vector3(.85f, 1.2f, 1f);
