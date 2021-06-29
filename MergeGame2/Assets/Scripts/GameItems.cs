@@ -429,7 +429,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     void CollectItem()
     {
         //move the item up to the relevant position
-
+        Debug.Log("trying to collevt");
         initialGameSlot.DischargeSlot();
         OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs { xpValue = this.xpValue });
         MoveItemToTopPanel();

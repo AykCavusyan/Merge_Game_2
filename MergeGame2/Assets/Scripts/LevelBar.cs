@@ -45,7 +45,7 @@ public class LevelBar : MonoBehaviour
     {
         if(PlayerInfo.Instance == null)
         {
-            Instantiate(player);
+            Instantiate(player); 
         }
     }
 
@@ -161,6 +161,7 @@ public class LevelBar : MonoBehaviour
 
     public void ResetBarFill(object sender, PlayerInfo.OnLevelChangedEventArgs e)
     {
+
         if (runningCoroutine == null && cr_Running == false)
         {
             runningCoroutine = ResetBarFillEnum();
@@ -175,6 +176,7 @@ public class LevelBar : MonoBehaviour
 
     IEnumerator ResetBarFillEnum()
     {
+
         cr_Running = true;
 
         Debug.Log("bar fill amount reached");

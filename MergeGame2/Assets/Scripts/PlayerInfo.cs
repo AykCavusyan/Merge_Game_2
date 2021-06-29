@@ -17,8 +17,8 @@ public sealed class PlayerInfo : MonoBehaviour
     public int maxInventorySlotAmount { get; private set; }
 
 
-    private int currentXP;
-    private int XPToNextLevel;
+    public int currentXP { get; private set; }
+    public int XPToNextLevel { get; private set; }
     public int currentLevel { get; private set; }
     //private GameObject levelBar;
     
@@ -133,18 +133,20 @@ public sealed class PlayerInfo : MonoBehaviour
 
         while (currentXP >= XPToNextLevel)
         {
+
             OnLevelNumberChanged?.Invoke(this, new OnLevelChangedEventArgs {xpToNextLevel= XPToNextLevel, currentXP = XPToNextLevel });
             //levelBar.GetComponent<LevelBar>().UpdateBarFill();
             currentXP -= XPToNextLevel;
             UpdateLevel(currentLevel);
 
-            OnLevelTextChanged?.Invoke(this, new OnLevelChangedEventArgs { levelText = currentLevel.ToString() });
+            OnLevelTextChanged?.Invoke(this, new OnLevelChangedEventArgs { levelText = currentLevel.ToString() }); // bunu
 
             OnResetBar?.Invoke(this, null);
             //levelBar.GetComponent<LevelBar>().ResetBarFill();
             //levelBar.GetComponent<LevelBar>().ResetBarFillAmount();
         }
 
+        Debug.Log("xp being added on event");
         OnLevelNumberChanged?.Invoke(this, new OnLevelChangedEventArgs { xpToNextLevel = XPToNextLevel, currentXP =currentXP});
         //levelBar.GetComponent<LevelBar>().UpdateBarFill( XPToNextLevel, currentXP);
 
