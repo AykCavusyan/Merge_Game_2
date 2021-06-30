@@ -19,7 +19,7 @@ public class Inventory : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         //inner_Panel_Container = GameObject.Find("Inner_Panel_Container").GetComponent<Transform>();
-        inner_Panel_Container = transform.GetChild(1).GetChild(0).GetComponent<Transform>();
+        inner_Panel_Container = transform.GetChild(1).GetChild(0).GetComponent<Transform>(); // bu transform burada gerekli mi ???
     }
 
 

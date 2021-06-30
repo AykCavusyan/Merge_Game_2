@@ -16,7 +16,7 @@ public class GameSlots : MonoBehaviour
 
     public event Action<GameItems> OnDropHandler;
 
-    public event EventHandler<OnDroppedEventHandler> OnDropped;
+    //public event EventHandler<OnDroppedEventHandler> OnDropped;
     public class OnDroppedEventHandler : EventArgs
     {
         public GameItems gameItem;
@@ -76,7 +76,7 @@ public class GameSlots : MonoBehaviour
         canDrop = false;
 
         onSlotFilled?.Invoke(this, new OnSlotAvailabilityEventHandler { gameSlot = this.gameObject});
-        OnDropped?.Invoke(this, new OnDroppedEventHandler { gameItem = gameItem });
+        //OnDropped?.Invoke(this, new OnDroppedEventHandler { gameItem = gameItem });
     }
 
    
@@ -86,7 +86,7 @@ public class GameSlots : MonoBehaviour
     }
 
     private void PlaceItem(GameItems gameItem, Vector3 itemDroppedPosition)
-    {
+    { 
         // size down the gameItem // this can be done in another way 
         gameItem.GetComponent<RectTransform>().sizeDelta = new Vector2(122, 122);
         // place the gameobjec in the contained item so that the script knows
@@ -157,7 +157,7 @@ public class GameSlots : MonoBehaviour
 
     public Vector3 GetLerpAnchorPoint(Vector3 itemDroppedPosition)
     {
-        float anchorX;
+        //float anchorX;
         float anchorY;
 
         if (itemDroppedPosition.y == transform.position.y)

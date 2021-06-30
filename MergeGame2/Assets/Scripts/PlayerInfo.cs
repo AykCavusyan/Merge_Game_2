@@ -130,6 +130,7 @@ public sealed class PlayerInfo : MonoBehaviour
         
         currentXP += e.xpValue;
         Debug.Log("xp came from star is" + e.xpValue);
+        Debug.Log("current xp is " + currentXP);
 
         while (currentXP >= XPToNextLevel)
         {

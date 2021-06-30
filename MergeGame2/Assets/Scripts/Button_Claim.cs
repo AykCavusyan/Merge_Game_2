@@ -26,7 +26,7 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
     {
         button = transform.GetChild(1).GetComponent<Image>();
         notificationBubble = transform.GetChild(3).GetComponent<Image>();
-        notificationText = notificationBubble.GetComponentInChildren<Text>();
+        notificationText = notificationBubble.GetComponentInChildren<Text>(true);
 
         notificationBubble.gameObject.SetActive(false);
 

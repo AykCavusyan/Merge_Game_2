@@ -6,11 +6,13 @@ using UnityEngine;
 public sealed class MasterEventListener : MonoBehaviour
 {
     private static MasterEventListener _instance;
-
     public static MasterEventListener Instance { get { return _instance; } }
     private static readonly object _lock = new object();
 
-    private GameObject[] gameSlots;
+    //private GameObject player;
+    //private GameObject[] gameSlots;
+
+    private ItemBag itemBag;
         
     public event EventHandler<GameItems.OnMergedEventArgs> OnMerged;
     public event EventHandler<GameItems.OnItemCollectedEventArgs> OnItemCollectted;
@@ -21,7 +23,6 @@ public sealed class MasterEventListener : MonoBehaviour
     #endregion
     void Awake()
     {
-    
         if (_instance != null & _instance != this)
         {
             Destroy(this.gameObject);
@@ -38,7 +39,10 @@ public sealed class MasterEventListener : MonoBehaviour
             }
         }
 
-      gameSlots = GameObject.FindGameObjectsWithTag("Container");
+      
+
+      //player = GameObject.FindGameObjectWithTag("Player");
+      //gameSlots = GameObject.FindGameObjectsWithTag("Container");
 
       #region
         //visualEffects = GameObject.FindGameObjectWithTag("ParticleSystem").GetComponent<VisualEffects>() ;
@@ -48,34 +52,52 @@ public sealed class MasterEventListener : MonoBehaviour
     }
     void OnEnable()
     {
-       for (int i = 0; i < gameSlots.Length; i++)
-       {
-          gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
-       }
+        //Init();
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //   gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
+        //}
     }
+
+
 
     void OnDisable()
     {
-       if (gameSlots != null)
-       {
-          for (int i = 0; i < gameSlots.Length; i++)
-          {
-             gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
-          }
-       }
+
+        ItemBag.Instance.OnGameItemCreated -= OnGameItemAdded;
+
+        //if (gameSlots != null)
+        //{
+        //   for (int i = 0; i < gameSlots.Length; i++)
+        //   {
+        //      gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
+        //   }
+        //}
     }
-      
-    void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
+
+    private void Start()
+    {
+        itemBag = GetComponent<ItemBag>();
+        ItemBag.Instance.OnGameItemCreated += OnGameItemAdded;
+    }
+
+    //void Init()
+    //{
+    //    if (itemBag == null)
+    //    {
+    //        gameObject.AddComponent<ItemBag>();
+    //    }
+    //}
+
+    void OnGameItemAdded(object sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
         e.gameItem.OnMerged += MergeEvent;
         e.gameItem.OnItemCollected += ItemCollectEvent;
+        e.gameItem.OnItemDestroyed += StopListeningDeadGameIteEvent;
+
         //e.gameItem.OnItemDestroyed += OnGameItemDestroyed;
     }
 
-    void OnGameItemDestroyed(GameItems gameItem)
-    {
-        // stop listening to gameitems
-    }
 
     void MergeEvent(object sender, GameItems.OnMergedEventArgs e)
     {
@@ -84,7 +106,16 @@ public sealed class MasterEventListener : MonoBehaviour
 
     void ItemCollectEvent(object sender, GameItems.OnItemCollectedEventArgs e)
     {
+        Debug.Log("xp value sent is" + e.xpValue);
         OnItemCollectted?.Invoke(sender, e);
+        
+    }
+
+    void StopListeningDeadGameIteEvent(object sender, GameItems.OnItemDestroyedEventArgs e)
+    {
+        e.gameItems.OnMerged -= MergeEvent;
+        e.gameItems.OnItemCollected -= ItemCollectEvent;
+        e.gameItems.OnItemDestroyed -= StopListeningDeadGameIteEvent;
     }
 
 }

@@ -12,6 +12,7 @@ public class XButton_Panel : MonoBehaviour, IPointerDownHandler,IPointerUpHandle
     private float lerpDuration = .05f;
     private GameObject backgroundPanelHolder;
     private Image image;
+    
 
     Vector3 lerpedSize;
     Vector3 originalScale;

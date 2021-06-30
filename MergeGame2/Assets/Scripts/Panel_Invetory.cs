@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-//using UnityEngine.UIElements;
 using UnityEngine.UI;
 
 public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
@@ -16,43 +15,21 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private float lerpDuration = .09f;
     public int panelIndex; // bunun public olmasýna sonra çare bulalým 
 
-    private Image imageToDisable;
-
-    //private bool validForDisable = false;
-
-
-    //public Vector3 ribbonAnchorPoint;
-    //public Vector3 xButtonAnchorPoint;
-    
     public event EventHandler<EventArgs> OnPanelSized;
     public event EventHandler<EventArgs> OnPanelDisappear;
-    //public class OnPanelSizedEventArgs : EventArgs
-    //{
-    //    public Vector3 ribbonAnchorPoint;
-    //    public Vector3 xButtonAnchorPoint;
-    //}
-    //public class OnPanelDisappearEventArgs
-    //{
 
-    //}
-
+    private Image[] childImagesToEnable;
+    private Text[] textToEnable;
 
     private GameObject backgroundPanel;
-    private GameObject panelTextBox;
+    //private GameObject panelTextBox;
 
     private void Awake()
     {
         backgroundPanel = GameObject.Find("Background_PanelHolder");
-        panelTextBox = transform.GetChild(0).gameObject;
 
-        panelTextBox.SetActive(false);
-
-        imageToDisable = GetComponent<Image>();
-
-        if (imageToDisable.enabled == true)
-        {
-            imageToDisable.enabled = false;
-        }
+        textToEnable = transform.GetComponentsInChildren<Text>(true);
+        childImagesToEnable = transform.GetComponentsInChildren<Image>(true);
 
         rectTransform = GetComponent<RectTransform>();
         originalScale = new Vector3(rectTransform.localScale.x, rectTransform.localScale.y, rectTransform.localScale.z);
@@ -61,8 +38,6 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         zeroScale = new Vector3(0, 0, 0);
         rectTransform.localScale = zeroScale;
-        //ribbonAnchorPoint = transform.parent.transform.Find("RibbonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
-        //xButtonAnchorPoint = transform.parent.transform.Find("XButtonAnchorPoint").GetComponent<RectTransform>().anchoredPosition;
 
     }
 
@@ -81,16 +56,14 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     void Start()
     {
-       
+        ChildEnablerDisabler(false);
     }
     void EnableVisibility(object sender, Panel_BackgroundPanelHolder.OnEnableVisibilityEventArgs e)
     {
         if (panelIndex == e.panelIndex)
         {
             StopAllCoroutines();
-            imageToDisable.enabled = true;
-
-            panelTextBox.SetActive(true);
+            ChildEnablerDisabler(true);
 
             Vector3 startingScale = Vector3.Scale(originalScale, downscaleFactor);
             rectTransform.localScale = startingScale;
@@ -104,7 +77,6 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         if (panelIndex == e.activePanel)
         {
             StopAllCoroutines();
-            panelTextBox.SetActive(true);
             OnPanelDisappear?.Invoke(this , EventArgs.Empty);
             StartCoroutine(DownsizePanel());   
         }
@@ -159,37 +131,32 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         }
 
         rectTransform.localScale = zeroScale;
-        imageToDisable.enabled = false;
+
+        ChildEnablerDisabler(false);
+    }
+
+    void ChildEnablerDisabler(bool condition)
+    {
+        for (int i = 0; i < textToEnable.Length; i++)
+        {
+            textToEnable[i].gameObject.SetActive(condition);
+        }
+
+        for (int i = 0; i < childImagesToEnable.Length; i++)
+        {
+            childImagesToEnable[i].enabled = condition;
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        //StartCoroutine(InputListener());
-        //Debug.Log("pointer down ");
+    
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        //Debug.Log("pointer up");
-        //if (validForDisable == true)
-        //{
-        //    imageToDisable.enabled = false;
-        //}
+     
     }
 
-    //IEnumerator InputListener()
-    //{
-    //    float validClickLimit = 1f;
-    //    float elapsedTime = 0f;
 
-    //    while (elapsedTime < validClickLimit)
-    //    {
-    //        validForDisable = true;
-    //        elapsedTime += Time.deltaTime;
-    //        yield return null;
-    //    }
-
-    //    validForDisable = false;
-
-    //}
 }

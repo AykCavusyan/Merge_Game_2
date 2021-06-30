@@ -15,7 +15,6 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     private Image imageToFade;
 
     private GameObject[] lowerButtons;
-    //private GameObject[] buttonPanels;
 
     private int activePanel;
     private XButton_Panel[] xButton;
@@ -46,10 +45,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
         finalColorValue = new Color(imageToFade.color.r, imageToFade.color.g, imageToFade.color.b, .6f);
 
         lowerButtons = GameObject.FindGameObjectsWithTag("Button UI");
-
-        // can use lambda here just for testing and securing 
         xButton = transform.GetComponentsInChildren<XButton_Panel>();
-        //buttonPanels = GameObject.FindGameObjectsWithTag("Panel_UI");
         
     }
     void Start()
@@ -86,7 +82,10 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
 
     IEnumerator IncrementPanelAlpha()
     {
+        CR_Running = true;
+
         float elapsedTime = 0f;
+
         while (elapsedTime < lerpDuration)
         {
             imageToFade.color = Color.Lerp(initialColorValue, finalColorValue, elapsedTime / lerpDuration);
@@ -97,6 +96,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
 
         imageToFade.color = finalColorValue;
 
+        CR_Running = false;
     }
 
 
@@ -107,32 +107,26 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
     }
 
     public void OnPointerUp(PointerEventData eventData)
-    {
-        Debug.Log("on pointer up called");
-        //imageToFade.raycastTarget = false; // to stop clicks which comes before image is faded by decrementalpha corooutine
-        
-        
+    {       
         DisableVisibility();
-        
     }
 
     void EnableVisibility(object sender, ButtonHandler.OnButtonPressedEventArgs e)
     {
-        Debug.Log("event heard");
-
         if ( imageToFade.enabled == false)
         {
+            if (CR_Running == false)
+            {
+               
+                imageToFade.enabled = true;
 
-            imageToFade.enabled = true;
-        
-            StopAllCoroutines();
-            CR_Running = false;
-        
-            StartCoroutine(IncrementPanelAlpha());
-            activePanel = e.buttonIndex;
-            OnenableVisibility?.Invoke(this, new OnEnableVisibilityEventArgs { panelIndex = this.activePanel });
+                StopAllCoroutines();
+                StartCoroutine(IncrementPanelAlpha());
+
+                activePanel = e.buttonIndex;
+                OnenableVisibility?.Invoke(this, new OnEnableVisibilityEventArgs { panelIndex = this.activePanel });
+            }
         }
-
     }
 
     void DisableVisibility()
@@ -151,7 +145,7 @@ public class Panel_BackgroundPanelHolder : MonoBehaviour, IPointerDownHandler,IP
         CR_Running = true;
 
         float elapsedTime = 0f;
-        Debug.Log("decrementing");
+        
 
         while (elapsedTime < lerpDuration)
         {

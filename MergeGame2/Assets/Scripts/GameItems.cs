@@ -12,7 +12,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public event Action<PointerEventData> OnDragHandler;
     public event Action<PointerEventData, bool> OnEndDragHandler;
 
-    public event Action<GameItems> OnItemDestroyed;
+    public event EventHandler<OnItemDestroyedEventArgs> OnItemDestroyed;
+    public class OnItemDestroyedEventArgs : EventArgs
+    {
+        public GameItems gameItems;
+    }
+
     public event EventHandler<OnMergedEventArgs> OnMerged;
     public class OnMergedEventArgs : EventArgs
     {
@@ -159,7 +164,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         GameSlots gameSlot = null;
         ButtonHandler inventoryButton = null;
-        //gameItemExisting = null;
 
         foreach (var result in results)
         {
@@ -178,14 +182,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
             if (gameSlot.Accepts(this) && gameSlot.canDrop == true)
             {
-                
-                //initialGameSlot.DischargeSlot();
-                gameSlot.Drop(this);
+                canDrag = false;
 
-                //initialGameSlot.canDrop = true;
+                gameSlot.Drop(this);
 
                 OnEndDragHandler?.Invoke(eventData, true);
 
+                canDrag = true; 
                 return;
             }
 
@@ -196,28 +199,32 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                 if (gameSlot.containedItem != null && AcceptMerge(this, gameSlot))
                 {
+                    canDrag = false;
+
                     Vector3 mergePosition = gameSlot.containedItem.transform.position;
                     GameItems mergedItem = Merge(this, gameSlot, this.itemLevel);
+
+                    DestroyItem(gameSlot.containedItem);
+
                     gameSlot.Drop(mergedItem, mergePosition);
-                    
-                    //initialGameSlot.DischargeSlot();
 
                     OnEndDragHandler?.Invoke(eventData, true);
-
                     // sprite kýsýmý sadeleþebilir !!!
                     OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = gameSlot.containedItem.transform.position, sprite = gameSlot.containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel });
+
+                    DestroyItem(this.gameObject);
+                    
 
                     return;
                 }
                 else
                 {
+                    canDrag = false;
                     initialGameSlot.Drop(gameSlot.containedItem.GetComponent<GameItems>());
                     gameSlot.Drop(this);
-                    
 
                     OnEndDragHandler?.Invoke(eventData, true);
-
-
+                    canDrag = true;
                     return;
                 }
             }
@@ -256,9 +263,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     void SetItemBack(PointerEventData eventData)
     {
+        canDrag = false;
         Debug.Log("The Item SLot Container is already full or invalid position");
         initialGameSlot.Drop(this);
         OnEndDragHandler?.Invoke(eventData, false);
+        canDrag = true;
     }
 
     //            var results2 = new List<RaycastResult>();
@@ -334,8 +343,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         GameItems mergedItem = ItemBag.Instance.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
         mergedItem.transform.localScale = default(Vector3);
 
-        DestroyItem(gameItemDragged.gameObject);
-        DestroyItem(gameSlot.containedItem);
+        //DestroyItem(gameItemDragged.gameObject);
+        //DestroyItem(gameSlot.containedItem);
 
         //Destroy(gameItemDragged.gameObject);
         //Destroy(gameSlot.containedItem.gameObject);
@@ -428,8 +437,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     void CollectItem()
     {
-        //move the item up to the relevant position
-        Debug.Log("trying to collevt");
+        canDrag = false;
+
         initialGameSlot.DischargeSlot();
         OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs { xpValue = this.xpValue });
         MoveItemToTopPanel();
@@ -455,7 +464,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     IEnumerator MoveItemToPanelEnum(GameObject paneltoMove)
     {
-        Debug.Log("move item tp panel worked");
         float elapsedTime = 0f;
         float lerpDuration = .5f;
 
@@ -480,7 +488,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     void DestroyItem(GameObject gameItem)
     {
-        //OnItemDestroyed?.Invoke(this); daha sonra yapýlacak, maksat master listerer ölmüþ itemleri dinlemeye çalýþmasýn
+        OnItemDestroyed?.Invoke(this , new OnItemDestroyedEventArgs { gameItems =gameItem.GetComponent<GameItems>()} ); 
         Destroy(gameItem);
     }
 }

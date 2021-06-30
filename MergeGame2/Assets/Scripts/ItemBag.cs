@@ -10,15 +10,20 @@ public sealed class ItemBag : MonoBehaviour
 
     private static ItemBag _instance;
     public static ItemBag Instance { get { return _instance; } }
+
     private static readonly object _lock = new object();
 
 
     //private GameObject player;
     public Item item;
-
     public GameObject panel_Gameslots;
-
     public GameObject canvas;
+
+    public event EventHandler<OnGameItemCreatedEventArgs> OnGameItemCreated;
+    public class OnGameItemCreatedEventArgs
+    {
+        public GameItems gameItem;
+    }
 
     //public GameObject[] gameSlots;
     //public GameObject newGameItemIdentified;
@@ -167,6 +172,8 @@ public sealed class ItemBag : MonoBehaviour
         
         newGameItem.layer = 5;
 
+        OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
+
         return newGameItem;
     }
 
@@ -181,7 +188,8 @@ public sealed class ItemBag : MonoBehaviour
             GameObject newGameItem = GenerateItem(itemGenre);
             newGameItem.name = "GameItem" + 1;
             currentEmptyGameSlot.Drop(newGameItem.GetComponent<GameItems>(), itemGeneratedPosition);
-            //IdentifyItem(newGameItem);
+
+           
         }
         else
         {
