@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\SlotsCounter.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDir.cs" />
+    <Compile Include="Assets\Scripts\Rewards_LevelUp.cs" />
     <Compile Include="Assets\Scripts\MasterEventListener.cs" />
     <Compile Include="Assets\Scripts\InventorySlots.cs" />
     <Compile Include="Assets\Scripts\PlayerInfo.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Assets\Scripts\Panel_BackgroundPanelHolder.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
     <Compile Include="Assets\Scripts\Button_Base.cs" />
+    <Compile Include="Assets\Scripts\Rewards.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDirectionTranslate.cs" />
     <Compile Include="Assets\Scripts\Panel_Base.cs" />
     <Compile Include="Assets\Scripts\MergeConditions.cs" />
@@ -94,8 +96,7 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\Rewards_LevelUp.cs" />
-    <Compile Include="Assets\Scripts\Rewards.cs" />
+    <Compile Include="Assets\Scripts\RewardSlots.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -7,9 +7,13 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4355331513083575142, guid: 87b373af860364c4f8988fd31632221b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4985882650703387677, guid: 87b373af860364c4f8988fd31632221b, type: 3}
       propertyPath: m_Name
-      value: SlotBackgroundActive
+      value: SlotRewards
       objectReference: {fileID: 0}
     - target: {fileID: 4985882650703387678, guid: 87b373af860364c4f8988fd31632221b, type: 3}
       propertyPath: m_Pivot.x

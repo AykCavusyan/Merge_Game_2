@@ -13,10 +13,10 @@ public class Rewards_LevelUp
         {1,
            new List<Item.ItemGenre>(3)
            {
-             Item.ItemGenre.Armor,
              Item.ItemGenre.Meals,
              Item.ItemGenre.Meals,
-            }
+             Item.ItemGenre.Meals,
+           }
         },
 
         {2,
@@ -25,8 +25,26 @@ public class Rewards_LevelUp
              Item.ItemGenre.Armor,
              Item.ItemGenre.Meals,
              Item.ItemGenre.Meals,
+            }
+        },
+
+        {3,
+           new List<Item.ItemGenre>(3)
+           {
+             Item.ItemGenre.Meals,
+             Item.ItemGenre.Meals,
+             Item.ItemGenre.Meals,
            }
-        },  
+        },
+
+        {4,
+           new List<Item.ItemGenre>(3)
+           {
+             Item.ItemGenre.Armor,
+             Item.ItemGenre.Armor,
+             Item.ItemGenre.Armor,
+           }
+        },
     };
         
     public Rewards_LevelUp(int playerLevel)

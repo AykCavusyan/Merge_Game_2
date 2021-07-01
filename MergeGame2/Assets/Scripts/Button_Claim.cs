@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,6 +21,8 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
     private int newLevel;
     private int levelToClaim;
     private bool canClaim = false;
+
+    public event Action<EventArgs> OnClaimed;
 
 
     private void Awake()
@@ -95,7 +98,7 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
             oldLevel += 1;
             CalculateTevelToClaim(newLevel);
         }
-
+        OnClaimed?.Invoke(EventArgs.Empty);
     }
 
     void SetButtonVisibility(Color buttonColor)

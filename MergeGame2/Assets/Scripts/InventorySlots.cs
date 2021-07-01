@@ -24,7 +24,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     public bool isPurchasedOnSession;
 
     Vector3 lerpedSize;
-    Vector3 originalScale;
+    Vector3 originalSize;
 
     public event Action <GameObject> onSlotPurchaseAttempt;
     public event EventHandler<OnInventoryItemPlacedEventArgs> onInventoryPlacedItem;
@@ -51,7 +51,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         //parentPanel = GameObject.Find("Panel_BackToGame");
         parentPanel = transform.parent.parent.parent.gameObject;
-        originalScale = new Vector3(0f, 0f, 0f);
+        originalSize = new Vector3(0f, 0f, 0f);
         lerpedSize = new Vector3(1f, 1f, 1f);
         
         isFree = true;
@@ -159,7 +159,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         while (elapsedTime < lerpDuration)
         {
-            rectTransform.localScale = Vector3.Lerp(originalScale, lerpedSize, elapsedTime / lerpDuration);
+            rectTransform.localScale = Vector3.Lerp(originalSize, lerpedSize, elapsedTime / lerpDuration);
             elapsedTime += Time.deltaTime;
 
             yield return null;
@@ -174,13 +174,13 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         while (elapsedTime < lerpDuration)
         {
-            rectTransform.localScale = Vector3.Lerp(lerpedSize, originalScale, elapsedTime / lerpDuration);
+            rectTransform.localScale = Vector3.Lerp(lerpedSize, originalSize, elapsedTime / lerpDuration);
             elapsedTime += Time.deltaTime;
 
             yield return null;
         }
 
-        rectTransform.localScale = originalScale;
+        rectTransform.localScale = originalSize;
 
         for (int i = 0; i < childImage.Count; i++)
         {
