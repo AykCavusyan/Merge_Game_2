@@ -51,19 +51,13 @@ public class Rewards_LevelUp
     {
         this.rewardLevel = playerLevel;
         this.rewardList = GenerateRewardList(rewardLevel);
-
     }
-
-
-  
 
     public List<Item.ItemGenre> GenerateRewardList(int level)
     {
         _rewardsDictionary.TryGetValue(rewardLevel, out List<Item.ItemGenre> _rewardList);
 
         rewardList = _rewardList;
-        Debug.Log(rewardLevel + "rewardslevel is");
-        Debug.Log(rewardList.Count + "generate list amount ");
 
         return rewardList;
 

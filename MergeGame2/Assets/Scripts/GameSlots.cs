@@ -17,16 +17,17 @@ public class GameSlots : MonoBehaviour
     public event Action<GameItems> OnDropHandler;
 
     //public event EventHandler<OnDroppedEventHandler> OnDropped;
-    public class OnDroppedEventHandler : EventArgs
-    {
-        public GameItems gameItem;
-    }
+    //public class OnDroppedEventHandler : EventArgs
+    //{
+    //    public GameItems gameItem;
+    //}
 
     public event EventHandler<OnSlotAvailabilityEventHandler> onSlotFilled;
     public event EventHandler<OnSlotAvailabilityEventHandler> onSlotDischarged;
     public class OnSlotAvailabilityEventHandler : EventArgs
     {
         public GameObject gameSlot;
+        public GameItems gameItem;
     }
 
 
@@ -56,7 +57,7 @@ public class GameSlots : MonoBehaviour
 
     public void Drop (GameItems gameItem, Vector3 itemDroppedPosition = default(Vector3))
     {
-        OnDropHandler?.Invoke(gameItem);
+        OnDropHandler?.Invoke(gameItem); // is there even a listener ??
 
         if (itemDroppedPosition == default(Vector3))
         {
@@ -75,7 +76,7 @@ public class GameSlots : MonoBehaviour
         crossMark.gameObject.SetActive(false);
         canDrop = false;
 
-        onSlotFilled?.Invoke(this, new OnSlotAvailabilityEventHandler { gameSlot = this.gameObject});
+        onSlotFilled?.Invoke(this, new OnSlotAvailabilityEventHandler { gameSlot = this.gameObject, gameItem=containedItem.GetComponent<GameItems>()});
         //OnDropped?.Invoke(this, new OnDroppedEventHandler { gameItem = gameItem });
     }
 
@@ -100,7 +101,7 @@ public class GameSlots : MonoBehaviour
 
     void UpdateItemParentSlot(GameItems gameItem)
     {
-        gameItem.initialGameSlot = this;
+        gameItem.initialGameSlot = this.gameObject;
     }
 
     public void DischargeSlot()

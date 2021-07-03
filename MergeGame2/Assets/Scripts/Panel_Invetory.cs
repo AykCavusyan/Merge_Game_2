@@ -45,19 +45,23 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     {
         backgroundPanel.GetComponent<Panel_BackgroundPanelHolder>().OnenableVisibility += EnableVisibility;
         backgroundPanel.GetComponent<Panel_BackgroundPanelHolder>().OnDisableVisibility += DisableVisibility;
+        
     }
 
     void OnDisable()
     {
         backgroundPanel.GetComponent<Panel_BackgroundPanelHolder>().OnenableVisibility -= EnableVisibility;
         backgroundPanel.GetComponent<Panel_BackgroundPanelHolder>().OnDisableVisibility -= DisableVisibility;
+        
     }
 
 
     void Start()
     {
         ChildEnablerDisabler(false);
+        Debug.Log(childImagesToEnable.Length);
     }
+
     void EnableVisibility(object sender, Panel_BackgroundPanelHolder.OnEnableVisibilityEventArgs e)
     {
         if (panelIndex == e.panelIndex)
@@ -135,8 +139,18 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         ChildEnablerDisabler(false);
     }
 
+    //void UpdateChildImagesArray() 
+    //{
+    //    childImagesToEnable = transform.GetComponentsInChildren<Image>(true);
+
+    //}
+
     void ChildEnablerDisabler(bool condition)
     {
+       // UpdateChildImagesArray();
+        Debug.Log(childImagesToEnable.Length);
+
+
         for (int i = 0; i < textToEnable.Length; i++)
         {
             textToEnable[i].gameObject.SetActive(condition);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Rewards : MonoBehaviour
 {
@@ -11,9 +12,9 @@ public class Rewards : MonoBehaviour
     private Button_Claim claimButton;
 
 
-    //private int slotIDNumber = 0;
+    private int slotIDNumber = 0;
     private Rewards_LevelUp rewardsLevelUp;
-    private List<List<Item.ItemGenre>> rewardsList = new List<List<Item.ItemGenre>>();
+    public List<List<Item.ItemGenre>> rewardsList = new List<List<Item.ItemGenre>>();
     private List<GameObject> currentRewardSlots = new List<GameObject>();
 
     private int playerLevel;
@@ -79,10 +80,12 @@ public class Rewards : MonoBehaviour
 
         for (int i = 0; i < rewardsList[0].Count; i++)
         {
-            int slotIDNumber = 0;
             slotIDNumber++;
             currentRewardSlots.Add(CreateNewSLot(slotIDNumber,rewardsList[0] ,i));
         }
+        slotIDNumber = 0;
+
+        DisableChildrenImages();
     }
 
 
@@ -91,15 +94,22 @@ public class Rewards : MonoBehaviour
         GameObject currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotRewards"));
 
         currentNewSlot.transform.SetParent(inner_Panel_Container, false);
-        
         currentNewSlot.AddComponent<RewardSlots>().slotIDNumber = slotIDNumberIN;
 
-         
         GameObject itemToAdd = ItemBag.Instance.GenerateItem(list[listIndex], playerLevel);
         currentNewSlot.GetComponent<RewardSlots>().Drop(itemToAdd.GetComponent<GameItems>());
 
 
         return currentNewSlot;
+    }
+
+    void DisableChildrenImages()
+    {
+        var childrenToDisable = inner_Panel_Container.GetComponentsInChildren<Image>();
+        foreach (var childToDisable in childrenToDisable)
+        {
+            childToDisable.enabled = false;
+        }
     }
 
     void ClaimReward(EventArgs e)

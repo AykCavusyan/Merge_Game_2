@@ -9,6 +9,8 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
 {
     private GameObject player;
     private GameObject parentPanel;
+    private List<Item.ItemGenre> rewardList;
+
 
     private Image button;
     private Image notificationBubble;
@@ -93,12 +95,23 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
 
     void Claim()
     {
-        if (levelToClaim > 0)
+        rewardList = parentPanel.GetComponent<Rewards>().rewardsList[0];
+        Debug.Log(rewardList.Count);
+
+        if (levelToClaim > 0 )
         {
-            oldLevel += 1;
-            CalculateTevelToClaim(newLevel);
+            if (PlayerInfo.Instance.remainingInventorySlotAmount >= rewardList.Count)
+            {
+                oldLevel += 1;
+                CalculateTevelToClaim(newLevel);
+                OnClaimed?.Invoke(EventArgs.Empty);
+            }
+            else
+            {
+                Debug.Log("no inventory slots buy more"); // and a popup will say this with button to the inventory!!
+            }
         }
-        OnClaimed?.Invoke(EventArgs.Empty);
+        
     }
 
     void SetButtonVisibility(Color buttonColor)

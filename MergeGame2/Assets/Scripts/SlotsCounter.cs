@@ -12,7 +12,11 @@ public sealed  class SlotsCounter : MonoBehaviour
     private GameObject[] gameSlots;
 
     // bunu private get yapacaktým ama debugda bile listenin içeriði gözükmedi !!
-    public List<GameObject> emptySlots;
+    public  List<GameObject> emptySlots = new List<GameObject>();
+
+    private  Dictionary<GameObject, GameItems> slotDictionary = new Dictionary<GameObject, GameItems>();
+    //public int emptySlots = 0;
+
 
     private void Awake()
     {
@@ -32,7 +36,7 @@ public sealed  class SlotsCounter : MonoBehaviour
             }
         }
 
-        emptySlots = new List<GameObject>();
+        //emptySlots = new List<GameObject>();
         gameSlots = GameObject.FindGameObjectsWithTag("Container");
     }
 
@@ -40,22 +44,12 @@ public sealed  class SlotsCounter : MonoBehaviour
     {
         for (int i = 0; i < gameSlots.Length; i++)
         {
-            gameSlots[i].GetComponent<GameSlots>().onSlotDischarged += AddToEmptySlotList; 
-            gameSlots[i].GetComponent<GameSlots>().onSlotFilled += RemoveFromEmptySlotList;
+            slotDictionary.Add(gameSlots[i], null);
+            gameSlots[i].GetComponent<GameSlots>().onSlotDischarged += RemoveFromDictonary; 
+            gameSlots[i].GetComponent<GameSlots>().onSlotFilled += AddTodictionary;
         }
     }
 
-    
-
-    void Start()
-    {
-       // SlotTracker();
-    }
-
-    void Update()
-    {
-        
-    }
 
     //void SlotTracker()
     //{
@@ -69,13 +63,39 @@ public sealed  class SlotsCounter : MonoBehaviour
     //    }
     //}
 
-    void AddToEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
+    //void AddToEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
+    //{
+    //    emptySlots.Add(e.gameSlot.get);
+    //}
+
+    //void RemoveFromEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
+    //{
+    //    emptySlots.Remove(e.gameSlot);
+    //}
+
+   void AddTodictionary(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
     {
-        emptySlots.Add(e.gameSlot);
+        slotDictionary[e.gameSlot] = e.gameItem;
+        GenerateEMptySlotList();
     }
 
-    void RemoveFromEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
+    void RemoveFromDictonary(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
     {
-        emptySlots.Remove(e.gameSlot);
+        slotDictionary[e.gameSlot] = null;
+        GenerateEMptySlotList();
+    }
+
+    void GenerateEMptySlotList()
+    {
+        emptySlots.Clear();
+
+        foreach (KeyValuePair<GameObject,GameItems> entries  in slotDictionary)
+        {
+            if (entries.Value == null)
+            {
+                emptySlots.Add(entries.Key);
+            }
+        }
+        
     }
 }

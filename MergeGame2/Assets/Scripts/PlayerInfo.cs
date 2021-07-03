@@ -10,9 +10,10 @@ public sealed class PlayerInfo : MonoBehaviour
     public static PlayerInfo Instance { get { return _instance; } }
     private static readonly object _lock = new object();
 
-    private Dictionary<int, GameItems> inventory = new Dictionary<int, GameItems>();
+    private Dictionary<InventorySlots, GameItems> inventory = new Dictionary<InventorySlots, GameItems>();
+    public List<InventorySlots> emptySlots = new List<InventorySlots>();
 
-    private int remainingInventorySlotAmount;
+    public int remainingInventorySlotAmount;
     public int currentInventorySlotAmount { get; private set; }
     public int maxInventorySlotAmount { get; private set; }
 
@@ -55,7 +56,7 @@ public sealed class PlayerInfo : MonoBehaviour
 
         currentInventorySlotAmount = 5;
         maxInventorySlotAmount = 28;
-        GetRemainingInventorySLotAmount();
+        //GetRemainingInventorySLotAmount(); // bu gerekli mi þu an belli deðil?? ileride bakýlacak
 
         SetCurrentLevel();
         //levelBar = GameObject.Find("Level_BG_Bar");
@@ -72,12 +73,13 @@ public sealed class PlayerInfo : MonoBehaviour
         MasterEventListener.Instance.OnItemCollectted -= UpdateXpPoints;
     }
 
-    public int GetRemainingInventorySLotAmount()
-    {
-        remainingInventorySlotAmount = currentInventorySlotAmount - GetDictionaryAmount();
+    //public int GetRemainingInventorySLotAmount()
+    //{
+    //    remainingInventorySlotAmount = currentInventorySlotAmount - GetDictionaryAmount();
 
-        return remainingInventorySlotAmount;
-    }
+    //    Debug.Log(remainingInventorySlotAmount);
+    //    return remainingInventorySlotAmount;
+    //}
 
     public int GetDictionaryAmount()
     {
@@ -88,24 +90,50 @@ public sealed class PlayerInfo : MonoBehaviour
     public void AugmentCurrentInventorySlotAmount(int updatedCurrentInventorySLotAmount)
     {
         currentInventorySlotAmount = updatedCurrentInventorySLotAmount;
-
+        //GetRemainingInventorySLotAmount();
         //OnAugmentedMaxInventorySize?.Invoke();
     }
 
     public void ListenInventorySlots(InventorySlots inventorySlots)
     {
         inventorySlots.onInventoryPlacedItem += AddToDictionnary;
+        inventorySlots.onInventoryRemovedItem += RemoveFromDictionnary;
+        
     }
-
-
-    void AddToDictionnary(object semder, InventorySlots.OnInventoryItemPlacedEventArgs e)
+    public void GenerateDictionary(InventorySlots newInventorySlot)
     {
-        Debug.Log("inventory amount" + inventory.Count);
-        inventory.Add(e.slotIDNumber , e.gameItem);
-        Debug.Log("inventory amount" + inventory.Count);
+        inventory[newInventorySlot] = null;
+        GenerateEMptySlotList();
+    }
 
+    void AddToDictionnary(object semder, InventorySlots.onInventoryItemModificationEventArgs e)
+    {
+        inventory[e.slot] = e.gameItem;
+        GenerateEMptySlotList();
+        //GetRemainingInventorySLotAmount();
+    }
+
+    void RemoveFromDictionnary(object sender, InventorySlots.onInventoryItemModificationEventArgs e)
+    {
+        inventory[e.slot] = null;
+        GenerateEMptySlotList();
+    }
+
+    void GenerateEMptySlotList()
+    {
+        emptySlots.Clear();
+
+        foreach (KeyValuePair<InventorySlots, GameItems> entries in inventory)
+        {
+            if (entries.Value == null)
+            {
+                emptySlots.Add(entries.Key);
+            }
+        }
 
     }
+
+
 
     //void RemoveFromDictionnary(GameObject removedItem)
     //{

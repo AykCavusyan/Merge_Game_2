@@ -13,11 +13,12 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private GameObject parentPanel;
     private Image image; // bu kalkabililr gibi duruyor 
     [SerializeField] private List<Image> childImage;
+    private GameSlots[] gameSlots;
     private Color originalColor;
 
     public bool isActive;
 
-    private bool isFree;
+    public bool isFree;
     private GameObject slot_Item_Holder;
 
     public int slotIDNumber;
@@ -27,15 +28,17 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     Vector3 originalSize;
 
     public event Action <GameObject> onSlotPurchaseAttempt;
-    public event EventHandler<OnInventoryItemPlacedEventArgs> onInventoryPlacedItem;
-    public class OnInventoryItemPlacedEventArgs
+    public event EventHandler<onInventoryItemModificationEventArgs> onInventoryPlacedItem;
+    public event EventHandler<onInventoryItemModificationEventArgs> onInventoryRemovedItem;
+    public class onInventoryItemModificationEventArgs
     {
         public GameItems gameItem;
-        public int slotIDNumber;
+        public InventorySlots slot;
     }
 
     private void Awake()
     {
+        gameSlots = FindObjectsOfType<GameSlots>();
         image = GetComponent<Image>();
         childImage = transform.GetComponentsInChildren<Image>(true).ToList();
         rectTransform = GetComponent<RectTransform>();
@@ -64,7 +67,13 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         {
             parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceSlots;
             parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceSlots;
-        }      
+        }
+
+        for (int i = 0; i < gameSlots.Length; i++)
+        {
+            if(gameSlots[i] != null)
+            gameSlots[i].onSlotFilled += UpdateChildImagesList;
+        }
     }
 
 
@@ -74,6 +83,12 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         {
             parentPanel.GetComponent<Panel_Invetory>().OnPanelSized -= PlaceSlots;
             parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceSlots;
+        }
+
+        for (int i = 0; i < gameSlots.Length; i++)
+        {
+            if (gameSlots[i] != null)
+                gameSlots[i].onSlotFilled -= UpdateChildImagesList;
         }
     }
 
@@ -90,9 +105,10 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         Debug.Log("Inventory slots drop called");
         PlaceItem(gameItem);
 
-        onInventoryPlacedItem?.Invoke(this, new OnInventoryItemPlacedEventArgs { slotIDNumber = slotIDNumber, gameItem = gameItem });
+        onInventoryPlacedItem?.Invoke(this, new onInventoryItemModificationEventArgs { slot = this, gameItem = gameItem });
 
         isFree = false;
+
         //UpdateSlotStatus(this); BUNA DAHA SONRA GELECEÐÝZ
     }
 
@@ -106,8 +122,16 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         rt.localScale = new Vector3(1, 1, 1);
         rt.SetAsLastSibling();
         rt.anchoredPosition = slot_Item_Holder.GetComponent<RectTransform>().anchoredPosition;
+        gameItem.isMoving = false;
+        gameItem.initialGameSlot = this.gameObject;
 
 
+    }
+
+    public void DischargeItem()
+    {
+        isFree = true;
+        onInventoryRemovedItem?.Invoke(this, new onInventoryItemModificationEventArgs { slot = this });
     }
 
     void PlaceSlots(object sender,EventArgs e)
@@ -133,6 +157,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         StartCoroutine(SlotsUpSize(slotAppearOrder));
     }
 
+
     void DeplaceSlots(object  sender, EventArgs e)
     {
         StopAllCoroutines();
@@ -149,7 +174,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
         yield return new WaitForSeconds(slotAppearOrder * .05f);
 
-        //image.enabled = true;
+        image.enabled = true;
 
         for (int i = 0; i < childImage.Count; i++)
         {
@@ -188,7 +213,12 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         }
     }
 
-   void ActivateSlot()
+    void UpdateChildImagesList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
+    {
+        childImage.Remove(e.gameItem.GetComponent<Image>()); 
+    }
+
+    void ActivateSlot()
     {
         transform.GetChild(0).GetComponent<Image>().color = originalColor;
         isActive = true;

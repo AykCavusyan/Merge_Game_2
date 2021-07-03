@@ -27,8 +27,8 @@ public class RewardSlots : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
 
         parentPanel = transform.parent.parent.gameObject;
-        originalSize = new Vector3(0, 0, 0);
-        lerpedSize = new Vector3(1, 1, 1);
+        originalSize = new Vector3(0f, 0f, 0f);
+        lerpedSize = new Vector3(1f, 1f, 1f);
 
         slot_Item_Holder = transform.GetChild(0).GetChild(0).gameObject;
     }
@@ -70,6 +70,10 @@ public class RewardSlots : MonoBehaviour
         gameItem.GetComponent<Image>().enabled = false;
         rt.SetParent(slot_Item_Holder.transform);
         rt.sizeDelta = slot_Item_Holder.GetComponent<RectTransform>().sizeDelta;
+        
+        //Debug.Log(slot_Item_Holder.GetComponent<RectTransform>().sizeDelta);
+        //Debug.Log(rt.sizeDelta);
+
         rt.localScale = new Vector3(1, 1, 1);
         rt.SetAsLastSibling();
         rt.anchoredPosition = slot_Item_Holder.GetComponent<RectTransform>().anchoredPosition;

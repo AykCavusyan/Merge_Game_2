@@ -40,13 +40,17 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public bool followCursor { get; set; } = true;
     public Vector3 startPosition;
     public bool canDrag { get; set; } = true;
-    public GameSlots initialGameSlot;
+    public GameObject initialGameSlot;
 
     private bool cr_Running = false;
 
     [SerializeField] private bool isSpawner = false;
-    private bool canReactToClicl = false;
+    private bool canReactToClick = false;
     public bool isMoving = false;
+
+    private bool isInventoryItem;
+    private bool isRewardPanelItem;
+    
     public GameObject player;
 
 
@@ -117,7 +121,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         rectTransform.SetAsLastSibling();
         
         isMoving = true;
-        initialGameSlot.DischargeSlot();
+        initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
         OnBeginDragHandler?.Invoke(eventData);
 
         #region
@@ -220,7 +224,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 else
                 {
                     canDrag = false;
-                    initialGameSlot.Drop(gameSlot.containedItem.GetComponent<GameItems>());
+                    initialGameSlot.GetComponent<GameSlots>().Drop(gameSlot.containedItem.GetComponent<GameItems>());
                     gameSlot.Drop(this);
 
                     OnEndDragHandler?.Invoke(eventData, true);
@@ -232,22 +236,29 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         else if (inventoryButton != null && inventoryButton.buttonlIndex == 1 )
         {
-
-            if (PlayerInfo.Instance.GetRemainingInventorySLotAmount() > 0)
+            if (PlayerInfo.Instance.emptySlots.Count > 0)
             {
-                canDrag = false;
                 
-                int targetSlotIDNumber = PlayerInfo.Instance.GetDictionaryAmount() + 1;
+                //int targetSlotIDNumber = PlayerInfo.Instance.GetDictionaryAmount() + 1;
 
-                InventorySlots[] inventorySlots = (InventorySlots[])GameObject.FindObjectsOfType(typeof(InventorySlots));
+                //InventorySlots[] inventorySlots = (InventorySlots[])GameObject.FindObjectsOfType(typeof(InventorySlots));
 
-                foreach (InventorySlots item in inventorySlots)
+                foreach (InventorySlots item in PlayerInfo.Instance.emptySlots)
                 {
-                    if (item.slotIDNumber == targetSlotIDNumber)
+                    if(item.isActive == true)
                     {
                         item.Drop(this);
+                        canDrag = false;
+                        isInventoryItem = true;                  
+                        break;
+                    }
+                    else
+                    {
+                        SetItemBack(eventData);
+                        break;
                     }
                 }
+
             }
             else
             {
@@ -265,7 +276,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         canDrag = false;
         Debug.Log("The Item SLot Container is already full or invalid position");
-        initialGameSlot.Drop(this);
+        initialGameSlot.GetComponent<GameSlots>().Drop(this);
         OnEndDragHandler?.Invoke(eventData, false);
         canDrag = true;
     }
@@ -357,22 +368,35 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         //Vector2 oldsize = rectTransform.sizeDelta;
         if(cr_Running==false)StartCoroutine(DownsizeItemOnClick());
 
-        if (canReactToClicl == true)
+        if (canReactToClick == true)
         {
-            Debug.Log("collect on double click working");
-            CollectItem();
+            if (isInventoryItem == true)
+            {
+                GameSlots slotToMove = ItemBag.Instance.FindEmptySlotPosition();
+                initialGameSlot.GetComponent<InventorySlots>().DischargeItem();
+                slotToMove.Drop(this);
+                isInventoryItem = false;
+                canDrag = true;
+                
+
+            }
+            else if ( isCollectible == true)
+            {
+                CollectItem();
+            }
+
         }
 
-        if (isSpawner == true || isCollectible == true)
+        if (isSpawner == true || isCollectible == true || isInventoryItem ==true)
         {
             StartCoroutine(InputListener());
         }
-
+        
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (canReactToClicl == true && isSpawner == true)
+        if (canReactToClick == true && isSpawner == true && isInventoryItem == false)
         {
             ItemBag.Instance.AddGeneratedItem(itemGenre, transform.position);
             #region
@@ -386,16 +410,17 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     IEnumerator InputListener()
     {
+
         float validClickLimit = .35f;
         float timeElapsed = 0;
 
         while (timeElapsed < validClickLimit && isMoving == false)
         {
-            canReactToClicl = true;
+            canReactToClick = true;
             timeElapsed += Time.deltaTime;
             yield return null;
         }
-        canReactToClicl = false;
+        canReactToClick = false;
     }
 
     IEnumerator DownsizeItemOnClick()
@@ -439,7 +464,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         canDrag = false;
 
-        initialGameSlot.DischargeSlot();
+        initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
         OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs { xpValue = this.xpValue });
         MoveItemToTopPanel();
     }

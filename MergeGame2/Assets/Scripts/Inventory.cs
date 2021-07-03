@@ -73,12 +73,17 @@ public class Inventory : MonoBehaviour
         currentNewSlot.GetComponent<InventorySlots>().slotIDNumber = slotIDNumber;
         currentNewSlot.GetComponent<InventorySlots>().isPurchasedOnSession = isPurchasedOnSession;
 
-        PlayerInfo.Instance.ListenInventorySlots(currentNewSlot.GetComponent<InventorySlots>());
+        PlayerInfo.Instance.ListenInventorySlots(currentNewSlot.GetComponent<InventorySlots>());   // event daha iyi olaiblir mi ?
 
-        if(isActive == false)
+        PlayerInfo.Instance.GenerateDictionary(currentNewSlot.GetComponent<InventorySlots>());
+
+        //SlotsCounter.Instance.Inv_Slot_CreateNewSlotToDict(currentNewSlot.GetComponent<InventorySlots>().slotIDNumber);  // event daha iyi olaiblir mi ?
+
+        if (isActive == false)
         {
             ListenInactiveSlot(currentNewSlot);
         }
+
     } 
 
     
@@ -105,6 +110,7 @@ public class Inventory : MonoBehaviour
     void PurchaseSlot(GameObject sender)
     {
         StopListeningPreviousSlot(sender);
+        //SlotsCounter.Instance.Inv_Slot_CreateNewSlotToDict(sender.GetComponent<InventorySlots>().slotIDNumber);  // event daha iyi olaiblir mi ?
 
         //PlayerInfo.Instance.ListenInventorySlots(sender.GetComponent<InventorySlots>());
         // burda potansiyel bir hata var currenti arttýýrrken if e bakmýyoruz
@@ -114,6 +120,7 @@ public class Inventory : MonoBehaviour
         {
             currentSlotAmount++;
             PlayerInfo.Instance.AugmentCurrentInventorySlotAmount(currentSlotAmount);
+            PlayerInfo.Instance.GenerateDictionary(sender.GetComponent<InventorySlots>());
 
             CreateNewSlot(false,true);
 
