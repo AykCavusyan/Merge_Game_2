@@ -48,8 +48,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     private bool canReactToClick = false;
     public bool isMoving = false;
 
-    private bool isInventoryItem;
-    private bool isRewardPanelItem;
+    public bool isInventoryItem;
+    //private bool isRewardPanelItem; // maybe later //
     
     public GameObject player;
 
@@ -249,13 +249,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     {
                         item.Drop(this);
                         canDrag = false;
-                        isInventoryItem = true;                  
-                        break;
+                        //isInventoryItem = true;                  
+                        return;
                     }
                     else
                     {
                         SetItemBack(eventData);
-                        break;
+                        return;
                     }
                 }
 

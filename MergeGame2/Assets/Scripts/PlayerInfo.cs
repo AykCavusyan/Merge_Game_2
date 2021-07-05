@@ -110,6 +110,8 @@ public sealed class PlayerInfo : MonoBehaviour
     {
         inventory[e.slot] = e.gameItem;
         GenerateEMptySlotList();
+
+        Debug.Log("listened");
         //GetRemainingInventorySLotAmount();
     }
 
@@ -128,6 +130,7 @@ public sealed class PlayerInfo : MonoBehaviour
             if (entries.Value == null)
             {
                 emptySlots.Add(entries.Key);
+                Debug.Log(emptySlots.Count);
             }
         }
 

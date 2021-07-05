@@ -78,12 +78,15 @@ public class Rewards : MonoBehaviour
     {
         Debug.Log(rewardsLevelUp);
 
+        slotIDNumber = 0;
+
         for (int i = 0; i < rewardsList[0].Count; i++)
         {
+            Debug.Log("async");
             slotIDNumber++;
             currentRewardSlots.Add(CreateNewSLot(slotIDNumber,rewardsList[0] ,i));
         }
-        slotIDNumber = 0;
+        
 
         DisableChildrenImages();
     }
@@ -114,19 +117,30 @@ public class Rewards : MonoBehaviour
 
     void ClaimReward(EventArgs e)
     {
-        DestroyOldSlots();
+        TransferClaimedItems();
+        DestroySlots();
         RemoveClaimedlist();
         InstantiateSlots();
     }
 
-
-
-    void DestroyOldSlots()
+    void TransferClaimedItems()
     {
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
-            Destroy(currentRewardSlots[i]);
+            GameItems itemtoTransfer = currentRewardSlots[i].GetComponent<RewardSlots>().containedItem;
+            PlayerInfo.Instance.emptySlots.First().Drop (itemtoTransfer);
         }
+    }
+
+    void DestroySlots()
+    {
+
+        for (int i = 0; i < currentRewardSlots.Count; i++)
+        {
+            Destroy(currentRewardSlots[i]);
+           
+        }
+        currentRewardSlots.Clear();
     }
 
     void RemoveClaimedlist()

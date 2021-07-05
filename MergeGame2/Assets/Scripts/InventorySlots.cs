@@ -103,6 +103,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     public void Drop(GameItems gameItem)
     {
         Debug.Log("Inventory slots drop called");
+        gameItem.isInventoryItem = true;
         PlaceItem(gameItem);
 
         onInventoryPlacedItem?.Invoke(this, new onInventoryItemModificationEventArgs { slot = this, gameItem = gameItem });

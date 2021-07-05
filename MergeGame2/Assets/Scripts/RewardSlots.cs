@@ -11,6 +11,8 @@ public class RewardSlots : MonoBehaviour
     private float lerpDuration =.1f;
     private GameObject parentPanel;
     private List<Image> childImage;
+    public GameItems containedItem;
+
 
     private Color claimableColor;
 
@@ -39,6 +41,7 @@ public class RewardSlots : MonoBehaviour
             parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceSlots;
             parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceSlots;
         }
+
     }
 
     private void OnDisable()
@@ -60,6 +63,7 @@ public class RewardSlots : MonoBehaviour
 
     public void Drop(GameItems gameItem)
     {
+        containedItem = gameItem;
         PlaceItem(gameItem);
     }
 

@@ -96,11 +96,13 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
     void Claim()
     {
         rewardList = parentPanel.GetComponent<Rewards>().rewardsList[0];
+
         Debug.Log(rewardList.Count);
+        Debug.Log(PlayerInfo.Instance.emptySlots.Count);
 
         if (levelToClaim > 0 )
         {
-            if (PlayerInfo.Instance.remainingInventorySlotAmount >= rewardList.Count)
+            if (PlayerInfo.Instance.emptySlots.Count >= rewardList.Count)
             {
                 oldLevel += 1;
                 CalculateTevelToClaim(newLevel);

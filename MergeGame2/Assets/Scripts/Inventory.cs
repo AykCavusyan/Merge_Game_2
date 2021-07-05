@@ -72,14 +72,14 @@ public class Inventory : MonoBehaviour
         slotIDNumber++;
         currentNewSlot.GetComponent<InventorySlots>().slotIDNumber = slotIDNumber;
         currentNewSlot.GetComponent<InventorySlots>().isPurchasedOnSession = isPurchasedOnSession;
-
         PlayerInfo.Instance.ListenInventorySlots(currentNewSlot.GetComponent<InventorySlots>());   // event daha iyi olaiblir mi ?
 
-        PlayerInfo.Instance.GenerateDictionary(currentNewSlot.GetComponent<InventorySlots>());
+        if (isActive == true)
+        {
+            PlayerInfo.Instance.GenerateDictionary(currentNewSlot.GetComponent<InventorySlots>());
+        }
 
-        //SlotsCounter.Instance.Inv_Slot_CreateNewSlotToDict(currentNewSlot.GetComponent<InventorySlots>().slotIDNumber);  // event daha iyi olaiblir mi ?
-
-        if (isActive == false)
+        else if (isActive == false)
         {
             ListenInactiveSlot(currentNewSlot);
         }
@@ -102,14 +102,11 @@ public class Inventory : MonoBehaviour
         currentNewSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt += PurchaseSlot;
     }
 
-    void StopListeningPreviousSlot(GameObject oldSlot)
-    {
-        oldSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt -= PurchaseSlot;
-    }
+ 
 
     void PurchaseSlot(GameObject sender)
     {
-        StopListeningPreviousSlot(sender);
+        
         //SlotsCounter.Instance.Inv_Slot_CreateNewSlotToDict(sender.GetComponent<InventorySlots>().slotIDNumber);  // event daha iyi olaiblir mi ?
 
         //PlayerInfo.Instance.ListenInventorySlots(sender.GetComponent<InventorySlots>());
@@ -123,8 +120,12 @@ public class Inventory : MonoBehaviour
             PlayerInfo.Instance.GenerateDictionary(sender.GetComponent<InventorySlots>());
 
             CreateNewSlot(false,true);
-
+            StopListeningPreviousSlot(sender);
         }
+    }
+    void StopListeningPreviousSlot(GameObject oldSlot)
+    {
+        oldSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt -= PurchaseSlot;
     }
 
     private void OnDisable()

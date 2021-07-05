@@ -34,6 +34,11 @@ public class Item
         }
     }
 
+    //public Item(ItemType itemType)
+    //{
+
+    //}
+
     private void SetXpValue(int itemLevel)
     {
         switch (itemLevel) {

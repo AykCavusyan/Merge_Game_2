@@ -147,9 +147,6 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     void ChildEnablerDisabler(bool condition)
     {
-       // UpdateChildImagesArray();
-        Debug.Log(childImagesToEnable.Length);
-
 
         for (int i = 0; i < textToEnable.Length; i++)
         {

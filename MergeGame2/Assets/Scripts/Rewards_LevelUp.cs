@@ -38,9 +38,8 @@ public class Rewards_LevelUp
         },
 
         {4,
-           new List<Item.ItemGenre>(3)
+           new List<Item.ItemGenre>(2)
            {
-             Item.ItemGenre.Armor,
              Item.ItemGenre.Armor,
              Item.ItemGenre.Armor,
            }
