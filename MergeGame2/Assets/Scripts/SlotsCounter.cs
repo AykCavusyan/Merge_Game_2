@@ -14,7 +14,7 @@ public sealed  class SlotsCounter : MonoBehaviour
     // bunu private get yapacaktým ama debugda bile listenin içeriði gözükmedi !!
     public  List<GameObject> emptySlots = new List<GameObject>();
 
-    private  Dictionary<GameObject, GameItems> slotDictionary = new Dictionary<GameObject, GameItems>();
+    public  Dictionary<GameObject, GameItems> slotDictionary = new Dictionary<GameObject, GameItems>(); // GET SET yapýacak !!!
     //public int emptySlots = 0;
 
 

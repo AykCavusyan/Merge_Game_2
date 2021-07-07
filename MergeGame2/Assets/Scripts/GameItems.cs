@@ -49,6 +49,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public bool isMoving = false;
 
     public bool isInventoryItem;
+    public bool isQuestItem = false;
     //private bool isRewardPanelItem; // maybe later //
     
     public GameObject player;
@@ -58,7 +59,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     [SerializeField] private int itemLevel;
     [SerializeField] private Item.ItemGenre itemGenre;
-    [SerializeField] private Item.ItemType itemType;
+    [SerializeField] public  Item.ItemType itemType; // get set olarak ayarlanmalý !!!!!
     [SerializeField] private bool givesXP;
     [SerializeField] private bool isCollectible;
     [SerializeField] private int xpValue;

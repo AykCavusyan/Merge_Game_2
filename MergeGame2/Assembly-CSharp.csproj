@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\MasterEventListener.cs" />
     <Compile Include="Assets\Scripts\InventorySlots.cs" />
     <Compile Include="Assets\Scripts\PlayerInfo.cs" />
+    <Compile Include="Assets\Scripts\QuestManager.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_AutoDestructShuriken.cs" />
     <Compile Include="Assets\Scripts\XButton_Panel.cs" />
     <Compile Include="Assets\Scripts\ItemAssets.cs" />
@@ -86,7 +87,9 @@
     <Compile Include="Assets\Scripts\Panel_BackgroundPanelHolder.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
     <Compile Include="Assets\Scripts\Button_Base.cs" />
+    <Compile Include="Assets\Scripts\Quest_List.cs" />
     <Compile Include="Assets\Scripts\Rewards.cs" />
+    <Compile Include="Assets\Scripts\Quest.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDirectionTranslate.cs" />
     <Compile Include="Assets\Scripts\Panel_Base.cs" />
     <Compile Include="Assets\Scripts\MergeConditions.cs" />
@@ -97,9 +100,7 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\QuestManager.cs" />
-    <Compile Include="Assets\Scripts\Quest_List.cs" />
-    <Compile Include="Assets\Scripts\Quest.cs" />
+    <Compile Include="Assets\Scripts\Quest_Parent_Container.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

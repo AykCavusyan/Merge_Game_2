@@ -11,6 +11,8 @@ public class Quest
     public Item questReward { get; private set; }
 
     public bool canComplete;
+
+    private bool isActive;
    
     //private (int taskNumber, string questName, Item.ItemType itemNeeded , Item.ItemGenre itemReward) tuple;
 

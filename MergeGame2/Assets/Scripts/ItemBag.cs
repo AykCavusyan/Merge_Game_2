@@ -51,15 +51,15 @@ public sealed class ItemBag : MonoBehaviour
         canvas = GameObject.Find("Canvas");
         panel_Gameslots = GameObject.Find("Panel_GameSlots");
     }
-    private void OnEnable()
-    {
-        //Init();
-    }
+    //private void OnEnable()
+    //{
+    //    //Init();
+    //}
 
-    private void Start()
-    {
+    //private void Start()
+    //{
         
-    }
+    //}
 
     private void Update()
     {
@@ -184,7 +184,6 @@ public sealed class ItemBag : MonoBehaviour
         GameSlots currentEmptyGameSlot = FindEmptySlotPosition();
         if (currentEmptyGameSlot != null)
         {
-            Debug.Log("addgenerated item working ");
             GameObject newGameItem = GenerateItem(itemGenre);
             newGameItem.name = "GameItem" + 1;
             currentEmptyGameSlot.Drop(newGameItem.GetComponent<GameItems>(), itemGeneratedPosition);
