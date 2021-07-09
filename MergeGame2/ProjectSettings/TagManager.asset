@@ -32,6 +32,8 @@ TagManager:
   - Panel_Tasklist
   - Panel_UI
   - Top_UI_Panel
+  - Plus_Mark_QuestPanel
+  - Slot_QuestPanel
   layers:
   - Default
   - TransparentFX

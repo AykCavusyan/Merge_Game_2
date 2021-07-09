@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\DropConditions.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_AutoStopLoopedEffect.cs" />
     <Compile Include="Assets\Scripts\GameSlots.cs" />
+    <Compile Include="Assets\Scripts\Quest_Parent_Container.cs" />
     <Compile Include="Assets\Scripts\Ribbon_Panel.cs" />
     <Compile Include="Assets\Scripts\ButtonHandler.cs" />
     <Compile Include="Assets\Scripts\VisualEffects.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Assets\Scripts\InventorySlots.cs" />
     <Compile Include="Assets\Scripts\PlayerInfo.cs" />
     <Compile Include="Assets\Scripts\QuestManager.cs" />
+    <Compile Include="Assets\Scripts\Quest_Slots.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_AutoDestructShuriken.cs" />
     <Compile Include="Assets\Scripts\XButton_Panel.cs" />
     <Compile Include="Assets\Scripts\ItemAssets.cs" />
@@ -100,7 +102,7 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\Quest_Parent_Container.cs" />
+    <Compile Include="Assets\Scripts\Button_CompleteQuest.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

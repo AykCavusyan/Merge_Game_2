@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,21 @@ public class QuestManager : MonoBehaviour
     public  List<Quest> _inactiveQuests;  // get set koyulacak !!!
 
     private List<Item.ItemType> _activeQuestItemsList = new List<Item.ItemType>();
+
+    public event EventHandler<OnQuestAddedEventArgs> OnQuestAdded;
+    public class OnQuestAddedEventArgs
+    {
+        public Quest quest;
+    }
+
+    public event EventHandler<AddRemoveQuestItemEventArgs> OnQuestItemExists;
+    public event EventHandler<AddRemoveQuestItemEventArgs> OnQuestItemNoMore;
+    public class AddRemoveQuestItemEventArgs
+    {
+        public Item.ItemType itemType;
+    }
+
+
 
     private void Awake()
     {
@@ -35,6 +51,19 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        ItemBag itemBag = GetComponent<ItemBag>();
+        ItemBag.Instance.OnGameItemCreated += CreatedItemCheck;
+        MasterEventListener.Instance.OnDestroyedMasterEvent += DestroyedItemcheck;
+
+    }
+    private void OnDisable()
+    {
+        ItemBag.Instance.OnGameItemCreated -= CreatedItemCheck;
+        MasterEventListener.Instance.OnDestroyedMasterEvent -= DestroyedItemcheck;
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Z))
@@ -43,20 +72,21 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-
+    // loaddda active quest listten bir bir zone ve tasknumber a göre alacak
     void GenerateNewQuest(int zoneNumber, int taskNumber)
     {
         _quest = new Quest(zoneNumber, taskNumber);
         _activeQuests.Add(_quest);
         AddToQuestItemsList(_quest);
+        OnQuestAdded?.Invoke(this, new OnQuestAddedEventArgs {quest = _quest });
     }
-
 
     //private void ListActiveQuests(Quest _activeQuest)
     //{
     //    _activeQuests.Add(_activeQuest);
     //}
 
+    // EVENT LÝSTENER OF COMPLETE
     private void CompleteQuest(Quest _completedQuest)
     {
         _activeQuests.Remove(_completedQuest);
@@ -76,13 +106,29 @@ public class QuestManager : MonoBehaviour
     {
         foreach (Item questItem in newQuest.itemsNeeded)
         {
-            if (!_activeQuestItemsList.Contains(questItem.itemType))
-            {
-                FlagSlotItems(questItem.itemType);
-            }
+            FlagSlotItems(questItem.itemType);
             _activeQuestItemsList.Add(questItem.itemType);
         }
+    }
 
+    void FlagSlotItems(Item.ItemType itemTypeToFlag)
+    {
+        var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x => x != null).ToList();
+
+        bool itemExistCheck = true;
+        for (int i = 0; i < existingSlotItemsList.Count; i++)
+        {
+            if (itemExistCheck && existingSlotItemsList[i].itemType == itemTypeToFlag)
+            {
+                OnQuestItemExists?.Invoke(this, new AddRemoveQuestItemEventArgs { itemType = itemTypeToFlag });
+                itemExistCheck = false;
+            }
+
+            if (existingSlotItemsList[i].isQuestItem == false && existingSlotItemsList[i].itemType == itemTypeToFlag)
+            {
+                existingSlotItemsList[i].isQuestItem = true;
+            }
+        }
     }
 
     // remove the type from the list 
@@ -99,21 +145,6 @@ public class QuestManager : MonoBehaviour
 
     }
 
-  
-    // check all active items and flag if they are questitems
-    void FlagSlotItems(Item.ItemType itemTypeToFlag)
-    {
-        var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x=> x!=null).ToList();
-
-        foreach (GameItems gameItem in existingSlotItemsList)
-        {
-            if(gameItem.isQuestItem == false && gameItem.itemType == itemTypeToFlag)
-            {
-               gameItem.isQuestItem = true;
-            }
-        }
-    }
-
     void DeFlagSlotItems(Item.ItemType itemTypeToDeflag)
     {
         var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x => x != null).ToList();
@@ -128,16 +159,24 @@ public class QuestManager : MonoBehaviour
 
     }
 
-
-    // yeni  gelen itemi dinleyecek EVENTLÝSTENER !!
-    void AddedItemCheck(GameItems newDroppedItem)
+    void CreatedItemCheck(object sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
-        if (_activeQuestItemsList.Contains(newDroppedItem.itemType))
+        if (_activeQuestItemsList.Contains(e.gameItem.itemType))
         {
-            newDroppedItem.isQuestItem = true;
+            e.gameItem.isQuestItem = true;
+
+            OnQuestItemExists?.Invoke(this, new AddRemoveQuestItemEventArgs { itemType = e.gameItem.itemType });
         }
     }
 
-  
+    void DestroyedItemcheck(object sender, GameItems.OnItemDestroyedEventArgs e)
+    {
+        var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x => x != null).ToList();
+
+        if (existingSlotItemsList.Count(x => existingSlotItemsList.Contains(e.gameItems)) < 1)
+        {
+            OnQuestItemNoMore?.Invoke(this, new AddRemoveQuestItemEventArgs { itemType = e.gameItems.itemType });
+        }
+    }
 
 }

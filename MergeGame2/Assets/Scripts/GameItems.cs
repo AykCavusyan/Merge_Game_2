@@ -384,6 +384,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             else if ( isCollectible == true)
             {
                 CollectItem();
+                Debug.Log("collected");
             }
 
         }

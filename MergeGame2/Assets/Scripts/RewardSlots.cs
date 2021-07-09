@@ -69,6 +69,7 @@ public class RewardSlots : MonoBehaviour
 
     void PlaceItem(GameItems gameItem)
     {
+        gameItem.canDrag = false;
         RectTransform rt = gameItem.GetComponent<RectTransform>();
         childImage.Add(gameItem.GetComponent<Image>());
         gameItem.GetComponent<Image>().enabled = false;

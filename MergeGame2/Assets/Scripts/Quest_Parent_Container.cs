@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 //using UnityEngine.UIElements;
@@ -7,80 +9,132 @@ using UnityEngine.UI;
 public class Quest_Parent_Container : MonoBehaviour
 {
     private int slotAmount;
-    private string questName;
+    //private string questName;
 
-    private List<Item.ItemType> requiredItems;
-    
-    private Sprite[] sprite;
-    private Quest quest;
+    //private List<Item.ItemType> requiredItems;
 
+    //private Sprite[] sprite;
+    //private Quest quest;
+    private Item[] reqItemTypes;
 
     private Text nameText;
     private GameObject[] slots;
     private GameObject completeButton;
-    //private GameObject[] plusIcons;
+    private Color completeInactiveButtonColor;
+    private GameObject[] plusIcons;
 
+    private bool[] allSlotsCheck;
     private bool canComplete = false;
 
     private void Awake()
     {
-        nameText = transform.GetChild(2).GetComponent<Text>();
-        completeButton = transform.GetChild(3).GetChild(1).GetChild(1).gameObject;
+        //////////slots = transform.Fin("SlotQuests").gameObject];
         
+        for (int i = 0; i < slots.Length; i++)
+        {
+            slots[i] = transform.GetChild(i).gameObject;
+            slots[i].SetActive(false);
+        }
+
+        nameText = transform.GetChild(2).GetComponent<Text>();
+        completeButton = transform.GetChild(3).GetChild(1).GetChild(1).gameObject; 
     }
 
     private void Start()
     {
+        //slotAmount = quest.itemsNeeded.Count;
+        //questName = quest.questName;
+        //SetActivateButtonState(canComplete);
+        //SetQuestName(questName);
+        //PopulateSpriteArray(slotAmount);
+        //InstantiateSlots(slotAmount, sprite);
+    }
+
+    public void CreateQuestParentContainer(Quest quest)
+    {
         slotAmount = quest.itemsNeeded.Count;
-        questName = quest.questName;
+        allSlotsCheck = new bool[slotAmount];
+        PopulateReqItemArray(slotAmount, quest);
+        ActivateSlots(slotAmount, reqItemTypes, quest);
         SetActivateButtonState(canComplete);
-        SetQuestName(questName);
-        PopulateSpriteArray(slotAmount);
-        InstantiateSlots(slotAmount, sprite);
+        SetQuestName(quest);
     }
 
-    void SetQuestName(string questNameIN)
+    void SetQuestName(Quest questIN)
     {
-        nameText.text = questNameIN;
+        nameText.text = questIN.questName;
     }
 
-    void InstantiateSlots(int reqItemAmountIN, Sprite[] reqItemSprite)
+    void ActivateSlots(int reqItemAmountIN, Item[]reqItemType, Quest quest)
     {
-        slots = new GameObject[reqItemAmountIN];
+        
+        
+        completeButton.AddComponent<Button_CompleteQuest>().CreateButton(quest);
 
         for (int i = 0; i < reqItemAmountIN; i++)
         {
-            GameObject newSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuests"));
-            slots[i] = newSlot;
-            newSlot.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = reqItemSprite[i];
-            // change the alpha of the slotcontainer as well !! or wont be visible 
-            
-            if(i+1 <= reqItemAmountIN)
-            {
-                //INSTANTIATE PLUS ICON !!!!!!
-            }
+            slots[i].SetActive(true);
+            slots[i].AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
+            slots[i].GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
 
+            //GameObject newSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuests"));
+            //slots[i] = newSlot;
+            //newSlot.AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
+            //newSlot.GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
+
+            //newSlot.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = reqItemSprite[i];
+            //change the alpha of the slotcontainer as well !! or wont be visible 
+
+            if (i+1 <= reqItemAmountIN)
+            {
+                slots[i + 1].SetActive(true);
+            }
         }
+        
     }
 
-    void PopulateSpriteArray(int slotAmountIN)
+    void PopulateReqItemArray(int slotAmountIN, Quest questIN)
     {
-        sprite = new Sprite[slotAmountIN];
+        reqItemTypes = new Item[slotAmountIN];
 
         for (int i = 0; i < slotAmountIN; i++)
         {
-            sprite[i] = quest.itemsNeeded[i].GetSprite(quest.itemsNeeded[i].itemType); 
+            reqItemTypes[i] = questIN.itemsNeeded[i];
         }
     }
 
 
-    void SetActivateButtonState(bool canCompleteIN)
+    void TryActivateCompleteButton(object sender, Quest_Slots.OnQuestSlotStateChange e)
     {
-        //completeButton // activate the button check how I activated the level button might not be suitable !! see it
+        allSlotsCheck[e.questSlot.slotID] = e.isActive;
+
+        if (!allSlotsCheck.Contains(false))
+        {
+            canComplete = true;
+            SetActivateButtonState(canComplete);
+        }
+        else
+        {
+            canComplete = false;
+            SetActivateButtonState(canComplete);
+        }
     }
 
+    void SetActivateButtonState(bool canCompleteIN)
+    {
 
+    }
 
+    private void OnDisable()
+    {
+        foreach (GameObject slot in slots)
+        {
+            if(slot != null)
+            {
+                slot.GetComponent<Quest_Slots>().OnActivateQuestSlot -= TryActivateCompleteButton;
+            }
+        }
+    }
 
 }
 

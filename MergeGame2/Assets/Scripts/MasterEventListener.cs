@@ -16,6 +16,7 @@ public sealed class MasterEventListener : MonoBehaviour
         
     public event EventHandler<GameItems.OnMergedEventArgs> OnMerged;
     public event EventHandler<GameItems.OnItemCollectedEventArgs> OnItemCollectted;
+    public event EventHandler<GameItems.OnItemDestroyedEventArgs> OnDestroyedMasterEvent;
 
     #region
     //private VisualEffects visualEffects;
@@ -113,6 +114,8 @@ public sealed class MasterEventListener : MonoBehaviour
 
     void StopListeningDeadGameIteEvent(object sender, GameItems.OnItemDestroyedEventArgs e)
     {
+        OnDestroyedMasterEvent?.Invoke(sender, e);
+
         e.gameItems.OnMerged -= MergeEvent;
         e.gameItems.OnItemCollected -= ItemCollectEvent;
         e.gameItems.OnItemDestroyed -= StopListeningDeadGameIteEvent;
