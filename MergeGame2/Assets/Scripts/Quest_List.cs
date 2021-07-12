@@ -5,7 +5,7 @@ using UnityEngine;
 public class Quest_List : MonoBehaviour
 {
     private GameObject player;
-    private Transform innerPanelContainer;
+    private GameObject innerPanelContainer;
     
     //private GameObject slotQuestParent;
     //private int activeQuestAmount;
@@ -13,18 +13,18 @@ public class Quest_List : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        innerPanelContainer = transform.GetChild(1).GetChild(0);
+        innerPanelContainer = transform.GetChild(1).GetChild(0).gameObject;
     }
 
     private void OnEnable()
     {
         Init();
-        QuestManager.Instance.OnQuestAdded += InstantiateParentQuestContainers;
+        //QuestManager.Instance.OnQuestAdded += InstantiateParentQuestContainers;
     }
 
     private void OnDisable()
     {
-        QuestManager.Instance.OnQuestAdded -= InstantiateParentQuestContainers;
+        //QuestManager.Instance.OnQuestAdded -= InstantiateParentQuestContainers;
     }
 
     void Init()
@@ -37,19 +37,16 @@ public class Quest_List : MonoBehaviour
 
 
 
-    void InstantiateParentQuestContainers(object sender, QuestManager.OnQuestAddedEventArgs e)
+    public void InstantiateParentQuestContainers(Quest questIN)
     {
-        CreateNewParentQuestContainer(e.quest);
-
-    }
-
-
-
-    void CreateNewParentQuestContainer(Quest quest)
-    {
+        //Debug.Log(e.quest.itemsNeeded.Count);
         GameObject newParentSlotcontainer = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuest_Parent"));
-        newParentSlotcontainer.transform.SetParent(innerPanelContainer);
-        newParentSlotcontainer.AddComponent<Quest_Parent_Container>().CreateQuestParentContainer(quest);
+        newParentSlotcontainer.transform.SetParent(innerPanelContainer.transform, false);
+        newParentSlotcontainer.GetComponent<Quest_Parent_Container>().CreateQuestParentContainer(questIN);
+        
     }
+
+
+
 
 }

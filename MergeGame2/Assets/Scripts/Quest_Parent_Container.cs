@@ -18,10 +18,14 @@ public class Quest_Parent_Container : MonoBehaviour
     private Item[] reqItemTypes;
 
     private Text nameText;
+
     private GameObject[] slots;
+    private Transform slots_Parent;
+    //private GameObject[] plusIcons;
+
     private GameObject completeButton;
-    private Color completeInactiveButtonColor;
-    private GameObject[] plusIcons;
+    //private Color completeInactiveButtonColor;
+    
 
     private bool[] allSlotsCheck;
     private bool canComplete = false;
@@ -29,15 +33,16 @@ public class Quest_Parent_Container : MonoBehaviour
     private void Awake()
     {
         //////////slots = transform.Fin("SlotQuests").gameObject];
-        
-        for (int i = 0; i < slots.Length; i++)
-        {
-            slots[i] = transform.GetChild(i).gameObject;
-            slots[i].SetActive(false);
-        }
+        //slots = new GameObject[transform.child]
+        //for (int i = 0; i < slots.Length; i++)
+        //{
+        //    slots[i] = transform.GetChild(i).gameObject;
+        //    slots[i].SetActive(false);
+        //}
 
         nameText = transform.GetChild(2).GetComponent<Text>();
-        completeButton = transform.GetChild(3).GetChild(1).GetChild(1).gameObject; 
+        completeButton = transform.GetChild(3).GetChild(1).gameObject;
+        slots_Parent = transform.GetChild(3).GetChild(0);
     }
 
     private void Start()
@@ -52,10 +57,11 @@ public class Quest_Parent_Container : MonoBehaviour
 
     public void CreateQuestParentContainer(Quest quest)
     {
+        Debug.Log(quest);
         slotAmount = quest.itemsNeeded.Count;
         allSlotsCheck = new bool[slotAmount];
         PopulateReqItemArray(slotAmount, quest);
-        ActivateSlots(slotAmount, reqItemTypes, quest);
+        CreateSlotsAndButton(slotAmount, reqItemTypes, quest);
         SetActivateButtonState(canComplete);
         SetQuestName(quest);
     }
@@ -65,29 +71,28 @@ public class Quest_Parent_Container : MonoBehaviour
         nameText.text = questIN.questName;
     }
 
-    void ActivateSlots(int reqItemAmountIN, Item[]reqItemType, Quest quest)
+    void CreateSlotsAndButton(int reqItemAmountIN, Item[]reqItemType, Quest quest)
     {
-        
-        
         completeButton.AddComponent<Button_CompleteQuest>().CreateButton(quest);
+
+        slots = new GameObject[reqItemAmountIN];
 
         for (int i = 0; i < reqItemAmountIN; i++)
         {
-            slots[i].SetActive(true);
-            slots[i].AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
-            slots[i].GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
 
-            //GameObject newSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuests"));
-            //slots[i] = newSlot;
-            //newSlot.AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
-            //newSlot.GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
+            GameObject newSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuests"));
+            newSlot.transform.SetParent(slots_Parent,false);
 
-            //newSlot.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = reqItemSprite[i];
-            //change the alpha of the slotcontainer as well !! or wont be visible 
+            slots[i] = newSlot;
 
-            if (i+1 <= reqItemAmountIN)
+            newSlot.AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
+            newSlot.GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
+            newSlot.GetComponent<Quest_Slots>().OnDisableQuestSlot += TryActivateCompleteButton;
+
+            if (i+1 <= reqItemAmountIN-1)
             {
-                slots[i + 1].SetActive(true);
+                GameObject newPlusIcon = Instantiate(Resources.Load<GameObject>("Prefabs/" + "PlusMark_QuestSlots"));
+                newPlusIcon.transform.SetParent(slots_Parent,false);
             }
         }
         
@@ -106,6 +111,7 @@ public class Quest_Parent_Container : MonoBehaviour
 
     void TryActivateCompleteButton(object sender, Quest_Slots.OnQuestSlotStateChange e)
     {
+        Debug.Log("tryactivatecompletebutton");
         allSlotsCheck[e.questSlot.slotID] = e.isActive;
 
         if (!allSlotsCheck.Contains(false))
@@ -122,7 +128,7 @@ public class Quest_Parent_Container : MonoBehaviour
 
     void SetActivateButtonState(bool canCompleteIN)
     {
-
+        completeButton.GetComponent<Button_CompleteQuest>().canClaim = canCompleteIN;
     }
 
     private void OnDisable()
@@ -132,6 +138,8 @@ public class Quest_Parent_Container : MonoBehaviour
             if(slot != null)
             {
                 slot.GetComponent<Quest_Slots>().OnActivateQuestSlot -= TryActivateCompleteButton;
+                slot.GetComponent<Quest_Slots>().OnDisableQuestSlot -= TryActivateCompleteButton;
+
             }
         }
     }

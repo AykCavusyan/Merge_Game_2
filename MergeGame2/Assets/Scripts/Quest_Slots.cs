@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,7 @@ public class Quest_Slots : MonoBehaviour
 
     private Image itemImage;
     private GameObject checkMark;
-    private bool questItemExists = false;
+    [SerializeField] private bool questItemExists = false;
     private GameObject player;
     public int slotID;
 
@@ -36,15 +37,18 @@ public class Quest_Slots : MonoBehaviour
     private void OnEnable()
     {
         Init();
-        QuestManager.Instance.OnQuestItemExists += EnableCheckMark;
+        ItemBag.Instance.OnGameItemCreated += EnableCheckMark;
+        //MasterEventListener.Instance.OnItemIsQuestEventMaster += EnableCheckMark; bunun masterdan belki çýkarýrýz bile !!!!
         QuestManager.Instance.OnQuestItemNoMore += DisableCheckMark;
     }
 
     private void OnDisable()
     {
-        QuestManager.Instance.OnQuestItemExists -= EnableCheckMark;
+        //MasterEventListener.Instance.OnItemIsQuestEventMaster -= EnableCheckMark;
         QuestManager.Instance.OnQuestItemNoMore -= DisableCheckMark;
     }
+
+
 
     void Init()
     {
@@ -57,13 +61,35 @@ public class Quest_Slots : MonoBehaviour
     public void CreateQuestSlot(Item containedQuestItemIN, int slotIDIn)
     {
         itemImage.sprite = containedQuestItemIN.GetSprite(containedQuestItemIN.itemType);
+        itemImage.color = new Color(itemImage.color.r, itemImage.color.g, itemImage.color.b, 1);
         containedQuestItem = containedQuestItemIN.itemType;
         slotID = slotIDIn;
+
+        InitialObjectAvailibilityCheck(containedQuestItemIN);
     }
 
-    public void EnableCheckMark(object sender, QuestManager.AddRemoveQuestItemEventArgs e)
+    private void InitialObjectAvailibilityCheck(Item containedQuestItemIN)
     {
-        if (!questItemExists && containedQuestItem == e.itemType)
+        var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x => x != null).ToList();
+
+        foreach (GameItems gameItem in existingSlotItemsList)
+        {
+            if(gameItem.itemType == containedQuestItem)
+            {
+                questItemExists = true;
+                checkMark.SetActive(true);
+                OnActivateQuestSlot?.Invoke(this, new OnQuestSlotStateChange { questSlot = this, isActive = true });
+
+                return;
+            }
+        }
+
+    }
+
+
+    public void EnableCheckMark(object sender, ItemBag.OnGameItemCreatedEventArgs e)
+    {
+        if (containedQuestItem == e.gameItem.itemType)
         {
             questItemExists = true;
             checkMark.SetActive(true);
@@ -73,7 +99,7 @@ public class Quest_Slots : MonoBehaviour
 
     public void DisableCheckMark(object sender,  QuestManager.AddRemoveQuestItemEventArgs e)
     {
-        if(questItemExists && containedQuestItem == e.itemType)
+        if(containedQuestItem == e.itemType)
         {
             questItemExists = false;
             checkMark.SetActive(false);
@@ -82,16 +108,6 @@ public class Quest_Slots : MonoBehaviour
     }
 
 
-    //private void TryActivateQuestSlot(object sender, QuestManager.AddRemoveQuestItemEventArgs e)
-    //{
-    //    if ( containedQuestItem == e.itemType)
-    //    {
-    //        //questItemExists = true;
-    //        checkMark.SetActive(true);
-
-    //        OnActivateQuestSlot?.Invoke(this, this);
-    //    }
-    //}
 
   
 }

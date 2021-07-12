@@ -12,6 +12,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public event Action<PointerEventData> OnDragHandler;
     public event Action<PointerEventData, bool> OnEndDragHandler;
 
+    public event EventHandler<OnQuestItemEventArgs> OnQuestCheckmarkOn;
+    public class OnQuestItemEventArgs
+    {
+        public Item.ItemType itemType;
+    }
+
+
     public event EventHandler<OnItemDestroyedEventArgs> OnItemDestroyed;
     public class OnItemDestroyedEventArgs : EventArgs
     {
@@ -49,8 +56,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public bool isMoving = false;
 
     public bool isInventoryItem;
-    public bool isQuestItem = false;
-    //private bool isRewardPanelItem; // maybe later //
+     
+    private Image checkMark;
+    
     
     public GameObject player;
 
@@ -64,8 +72,10 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     [SerializeField] private bool isCollectible;
     [SerializeField] private int xpValue;
     [SerializeField] private int itemPanelID;
+    [SerializeField] public bool isQuestItem;
+    [SerializeField] public bool isRewardPanelItem;
 
-    public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int itemPanelIDIn)
+    public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int itemPanelIDIn, bool isQuestItemIN, bool isRewardPanelItemIN)
     {
         
         itemLevel = itemLevelIn;
@@ -76,20 +86,37 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         isCollectible = isCollectibleIn;
         xpValue = xpValueIn;
         itemPanelID = itemPanelIDIn;
+        isQuestItem = isQuestItemIN;
+        isRewardPanelItem = isRewardPanelItemIN;
+
+        GameObject cornerPanel = Instantiate(Resources.Load<GameObject>("Prefabs/" + "_checkmarkContainer"));
+        cornerPanel.transform.SetParent(this.gameObject.transform, false);
+        checkMark = cornerPanel.GetComponent<Image>();
+
+        if (isQuestItem)
+        {
+            checkMark.enabled = true;
+        }
     }
 
      private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        //itemBag = GameObject.Find("Button").GetComponent<ItemBag>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
-        //panel_Gameslots = GameObject.Find("Panel_GameSlots");
         topPanels = GameObject.FindObjectsOfType<TopPanelID>();
     }
 
     private void OnEnable()
     {
-      Init();
+        Init();
+        QuestManager.Instance.OnQuestAdded += SetCheckMark;
+        QuestManager.Instance.OnQuestRemoved += RemoveCheckMark;
+    }
+
+    private void OnDisable()
+    {
+        QuestManager.Instance.OnQuestAdded -= SetCheckMark;
+        QuestManager.Instance.OnQuestRemoved -= RemoveCheckMark;
     }
 
     private void Start()
@@ -105,6 +132,25 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         }
     }
 
+    public  void SetCheckMark(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
+    {
+
+        if(isQuestItem!=true && isRewardPanelItem ==false && itemType == e.itemType)
+        {
+            isQuestItem = true;
+            checkMark.enabled = true;
+            //OnQuestCheckmarkOn?.Invoke(this, new OnQuestItemEventArgs { itemType = this.itemType });
+        }
+    }
+
+    public void RemoveCheckMark(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
+    {
+        if(isQuestItem!=false && isRewardPanelItem==false && itemType == e.itemType )
+        {
+            isQuestItem = false;
+            checkMark.enabled = false;
+        }
+    }
 
     public void OnInitializePotentialDrag(PointerEventData eventData)
     {

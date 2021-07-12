@@ -139,9 +139,9 @@ public sealed class ItemBag : MonoBehaviour
 
 
 
-    public GameObject GenerateItem(Item.ItemGenre itemGenre , int itemLevel = 1)
+    public GameObject GenerateItem(Item.ItemGenre itemGenre , int itemLevel = 1, bool isRewardPanelItem = false)
     {
-        item = new Item(itemGenre, itemLevel);
+        item = new Item(itemGenre, itemLevel, isRewardPanelItem);
 
 
         //item = new Item() ;
@@ -149,11 +149,11 @@ public sealed class ItemBag : MonoBehaviour
         //item = new Item { itemType = itemName, itemGenre = itemGenre , itemLevel = itemLevel};
 
         GameObject newGameItem = new GameObject();
-
+        
         newGameItem.transform.SetParent(panel_Gameslots.transform);
         
         newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
-        newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID);
+        newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem);
         
         if (item.givesXP == true)
         {

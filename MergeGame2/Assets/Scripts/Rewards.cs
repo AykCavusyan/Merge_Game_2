@@ -99,7 +99,7 @@ public class Rewards : MonoBehaviour
         currentNewSlot.transform.SetParent(inner_Panel_Container, false);
         currentNewSlot.AddComponent<RewardSlots>().slotIDNumber = slotIDNumberIN;
 
-        GameObject itemToAdd = ItemBag.Instance.GenerateItem(list[listIndex], playerLevel);
+        GameObject itemToAdd = ItemBag.Instance.GenerateItem(list[listIndex], playerLevel, true);
         currentNewSlot.GetComponent<RewardSlots>().Drop(itemToAdd.GetComponent<GameItems>());
 
 

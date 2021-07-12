@@ -14,13 +14,17 @@ public class Item
     public int xpValue { get; private set; } = 0;
     public bool isMergeable { get; private set; } = true; // bunu daha sonra yapýcaz!!
     public int itemPanelID { get; private set; } = 0;
+    public bool isQuestItem { get; private set; } = false;
+    public bool isRewardPanelItem { get; private set; }
 
-    public Item(ItemGenre itemGenre, int itemLevel)
+    public Item(ItemGenre itemGenre, int itemLevel, bool isRewardPanelItemIN =false)
     {
 
         this.itemType = CreateItemForRelevatLevel(itemLevel, itemGenre);
         this.itemGenre = itemGenre;
         this.itemLevel = itemLevel;
+        this.isRewardPanelItem = isRewardPanelItemIN;
+
         if (itemLevel >= 5 && itemGenre!= ItemGenre.Star)
         {
             givesXP = true;
@@ -31,6 +35,15 @@ public class Item
             isCollectible = true;
             SetXpValue(itemLevel);
             itemPanelID = 1;
+        }
+
+        foreach (Item.ItemType itemTpeReq in QuestManager.Instance._activeQuestItemsList)
+        {
+            if (itemType == itemTpeReq)
+            {
+                isQuestItem = true;
+                break;
+            }
         }
     }
 

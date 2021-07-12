@@ -10,7 +10,8 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
 {
     private Color buttonOriginalColor;
     private Color buttonFadedColor;
-    private bool canClaim;
+
+    public bool canClaim;
     //private Item questReward;
     private Quest activeQuest;
 
@@ -28,13 +29,13 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
         buttonFadedColor = new Color(.5f, .5f, .5f, .5f);
     }
 
-    public void CreateButton(Quest quest, bool canCompleteIN = false)
+    public void CreateButton(Quest quest)
     {
         activeQuest = quest;
-        SetButtonAvalibility(canCompleteIN);
+        SetButtonAvalibility();
     }
 
-    void SetButtonAvalibility(bool canCompleteIN)
+    void SetButtonAvalibility(bool canCompleteIN = false)
     {
         if(canCompleteIN)
         {
@@ -48,12 +49,6 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
         }
     }
 
-    void Claim()
-    {
-        // give rewards of this quest
-        OnQuestCompleted?.Invoke(this, new OnQuestCompletedEventArgs { quest = activeQuest });
-        // destroy the parent gameobject.
-    }
 
     public new void OnPointerDown(PointerEventData eventData)
     {
@@ -64,7 +59,7 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
     {
         if (canClaim == true)
         {
-            Claim();
+            OnQuestCompleted?.Invoke(this, new OnQuestCompletedEventArgs { quest = activeQuest });
         }
     }
 }

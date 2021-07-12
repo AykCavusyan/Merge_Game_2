@@ -37,9 +37,9 @@ public class Quest
         { 1,
             new Dictionary<int, (string , List<Item> , Item )>
             {
-                {1, ("Merge a Pie", new List<Item> { new Item(Item.ItemGenre.Meals,3), new Item(Item.ItemGenre.Meals, 2), new Item(Item.ItemGenre.Meals,1) }, new Item(Item.ItemGenre.Meals,5))},
-                {2, ("Merge a bigger Pie", new List<Item> { new Item(Item.ItemGenre.Meals,3), new Item(Item.ItemGenre.Meals, 2), new Item(Item.ItemGenre.Meals,1) }, new Item(Item.ItemGenre.Meals,4))},
-                {3, ("Merge an even bigger Pie", new List<Item> { new Item(Item.ItemGenre.Meals,3), new Item(Item.ItemGenre.Meals, 2), new Item(Item.ItemGenre.Meals,1) }, new Item(Item.ItemGenre.Armor,5))},
+                {1, ("merge a pie", new List<Item> { new Item(Item.ItemGenre.Meals,3), new Item(Item.ItemGenre.Meals, 2), new Item(Item.ItemGenre.Meals,1) }, new Item(Item.ItemGenre.Meals,5))},
+                {2, ("merge a bigger pie", new List<Item> { new Item(Item.ItemGenre.Meals,3), new Item(Item.ItemGenre.Meals, 2), new Item(Item.ItemGenre.Meals,1) }, new Item(Item.ItemGenre.Meals,4))},
+                {3, ("merge an even bigger pie", new List<Item> { new Item(Item.ItemGenre.Meals,3), new Item(Item.ItemGenre.Meals, 2), new Item(Item.ItemGenre.Meals,1) }, new Item(Item.ItemGenre.Armor,5))},
 
             }
         },

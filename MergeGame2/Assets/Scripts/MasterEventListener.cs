@@ -17,6 +17,7 @@ public sealed class MasterEventListener : MonoBehaviour
     public event EventHandler<GameItems.OnMergedEventArgs> OnMerged;
     public event EventHandler<GameItems.OnItemCollectedEventArgs> OnItemCollectted;
     public event EventHandler<GameItems.OnItemDestroyedEventArgs> OnDestroyedMasterEvent;
+    public event EventHandler<GameItems.OnQuestItemEventArgs> OnItemIsQuestEventMaster;
 
     #region
     //private VisualEffects visualEffects;
@@ -94,6 +95,7 @@ public sealed class MasterEventListener : MonoBehaviour
     {
         e.gameItem.OnMerged += MergeEvent;
         e.gameItem.OnItemCollected += ItemCollectEvent;
+        //e.gameItem.OnQuestCheckmarkOn += ItemIsQuestItemEvent;
         e.gameItem.OnItemDestroyed += StopListeningDeadGameIteEvent;
 
         //e.gameItem.OnItemDestroyed += OnGameItemDestroyed;
@@ -102,14 +104,18 @@ public sealed class MasterEventListener : MonoBehaviour
 
     void MergeEvent(object sender, GameItems.OnMergedEventArgs e)
     {
-       OnMerged?.Invoke(sender, e);
+        OnMerged?.Invoke(sender, e);
     }
 
     void ItemCollectEvent(object sender, GameItems.OnItemCollectedEventArgs e)
     {
-        Debug.Log("xp value sent is" + e.xpValue);
         OnItemCollectted?.Invoke(sender, e);
         
+    }
+
+    void ItemIsQuestItemEvent(object sender, GameItems.OnQuestItemEventArgs e)
+    {
+        OnItemIsQuestEventMaster?.Invoke(sender, e);
     }
 
     void StopListeningDeadGameIteEvent(object sender, GameItems.OnItemDestroyedEventArgs e)
@@ -118,6 +124,7 @@ public sealed class MasterEventListener : MonoBehaviour
 
         e.gameItems.OnMerged -= MergeEvent;
         e.gameItems.OnItemCollected -= ItemCollectEvent;
+        //e.gameItems.OnQuestCheckmarkOn -= ItemIsQuestItemEvent;
         e.gameItems.OnItemDestroyed -= StopListeningDeadGameIteEvent;
     }
 
