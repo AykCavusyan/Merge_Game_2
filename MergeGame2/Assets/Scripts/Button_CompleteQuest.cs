@@ -35,7 +35,7 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
         SetButtonAvalibility();
     }
 
-    void SetButtonAvalibility(bool canCompleteIN = false)
+    public void SetButtonAvalibility(bool canCompleteIN = false)
     {
         if(canCompleteIN)
         {

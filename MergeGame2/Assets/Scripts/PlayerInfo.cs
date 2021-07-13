@@ -56,30 +56,26 @@ public sealed class PlayerInfo : MonoBehaviour
 
         currentInventorySlotAmount = 5;
         maxInventorySlotAmount = 28;
-        //GetRemainingInventorySLotAmount(); // bu gerekli mi þu an belli deðil?? ileride bakýlacak
 
         SetCurrentLevel();
-        //levelBar = GameObject.Find("Level_BG_Bar");
-        //levelText = levelBar.transform.GetChild(0).GetChild(0).GetComponent<LevelText>();
 
         masterEventListener = GetComponent<MasterEventListener>();
     }
     private void OnEnable()
     {
-        MasterEventListener.Instance.OnItemCollectted += UpdateXpPoints;
+        MasterEventListener.Instance.OnItemCollectted += CalculateXPFromStars;
+    }
+
+    private void Start()
+    {
+        QuestManager.Instance.OnQuestCompleted += CalculateXPFromQuests;
     }
     private void OnDisable()
     {
-        MasterEventListener.Instance.OnItemCollectted -= UpdateXpPoints;
+        MasterEventListener.Instance.OnItemCollectted -= CalculateXPFromStars;
+        QuestManager.Instance.OnQuestCompleted -= CalculateXPFromQuests;
     }
 
-    //public int GetRemainingInventorySLotAmount()
-    //{
-    //    remainingInventorySlotAmount = currentInventorySlotAmount - GetDictionaryAmount();
-
-    //    Debug.Log(remainingInventorySlotAmount);
-    //    return remainingInventorySlotAmount;
-    //}
 
     public int GetDictionaryAmount()
     {
@@ -90,8 +86,6 @@ public sealed class PlayerInfo : MonoBehaviour
     public void AugmentCurrentInventorySlotAmount(int updatedCurrentInventorySLotAmount)
     {
         currentInventorySlotAmount = updatedCurrentInventorySLotAmount;
-        //GetRemainingInventorySLotAmount();
-        //OnAugmentedMaxInventorySize?.Invoke();
     }
 
     public void ListenInventorySlots(InventorySlots inventorySlots)
@@ -112,7 +106,6 @@ public sealed class PlayerInfo : MonoBehaviour
         GenerateEMptySlotList();
 
         Debug.Log("listened");
-        //GetRemainingInventorySLotAmount();
     }
 
     void RemoveFromDictionnary(object sender, InventorySlots.onInventoryItemModificationEventArgs e)
@@ -130,7 +123,6 @@ public sealed class PlayerInfo : MonoBehaviour
             if (entries.Value == null)
             {
                 emptySlots.Add(entries.Key);
-                Debug.Log(emptySlots.Count);
             }
         }
 
@@ -138,17 +130,24 @@ public sealed class PlayerInfo : MonoBehaviour
 
 
 
-    //void RemoveFromDictionnary(GameObject removedItem)
-    //{
-    //    if (ownedItems != null && ownedItems.Count > 0)
-    //    {
-    //        ownedItems.Remove(removedItem);
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("no item left in your inventory");
-    //    }
-    //}
+
+    void CalculateXPFromStars(object sender, GameItems.OnItemCollectedEventArgs e)
+    {
+        currentXP += e.xpValue;
+        UpdateXpPoints();
+
+        Debug.Log("xp came from star is" + e.xpValue);
+        Debug.Log("current XP is " + currentXP);
+    }
+
+    void CalculateXPFromQuests(Quest q)
+    {
+        currentXP += q.questXPReward;  
+        UpdateXpPoints();
+
+        Debug.Log("xp came from quest is" + q.questXPReward);
+        Debug.Log("current XP is " + currentXP);
+    }
 
     void SetCurrentLevel(int savedLevel = 1)
     {
@@ -156,13 +155,10 @@ public sealed class PlayerInfo : MonoBehaviour
         GetXPToNextLevel(currentLevel);
     }
 
-    void UpdateXpPoints(object sender, GameItems.OnItemCollectedEventArgs e)
+    void UpdateXpPoints()
     {
-        
-        currentXP += e.xpValue;
-        Debug.Log("xp came from star is" + e.xpValue);
-        Debug.Log("current xp is " + currentXP);
-
+        //currentXP += e.xpValue;
+      
         while (currentXP >= XPToNextLevel)
         {
 

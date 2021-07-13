@@ -8,62 +8,38 @@ using UnityEngine.UI;
 
 public class Quest_Parent_Container : MonoBehaviour
 {
-    private int slotAmount;
-    //private string questName;
-
-    //private List<Item.ItemType> requiredItems;
-
-    //private Sprite[] sprite;
-    //private Quest quest;
+    public Quest quest { get; private set; }
     private Item[] reqItemTypes;
-
+    private int slotAmount;
     private Text nameText;
 
     private GameObject[] slots;
     private Transform slots_Parent;
-    //private GameObject[] plusIcons;
 
-    private GameObject completeButton;
-    //private Color completeInactiveButtonColor;
-    
+    private GameObject completeButton;    
 
     private bool[] allSlotsCheck;
     private bool canComplete = false;
 
     private void Awake()
     {
-        //////////slots = transform.Fin("SlotQuests").gameObject];
-        //slots = new GameObject[transform.child]
-        //for (int i = 0; i < slots.Length; i++)
-        //{
-        //    slots[i] = transform.GetChild(i).gameObject;
-        //    slots[i].SetActive(false);
-        //}
 
         nameText = transform.GetChild(2).GetComponent<Text>();
         completeButton = transform.GetChild(3).GetChild(1).gameObject;
         slots_Parent = transform.GetChild(3).GetChild(0);
     }
 
-    private void Start()
-    {
-        //slotAmount = quest.itemsNeeded.Count;
-        //questName = quest.questName;
-        //SetActivateButtonState(canComplete);
-        //SetQuestName(questName);
-        //PopulateSpriteArray(slotAmount);
-        //InstantiateSlots(slotAmount, sprite);
-    }
 
-    public void CreateQuestParentContainer(Quest quest)
+
+    public void CreateQuestParentContainer(Quest questIN)
     {
-        Debug.Log(quest);
-        slotAmount = quest.itemsNeeded.Count;
+        quest = questIN;
+        slotAmount = questIN.itemsNeeded.Count;
         allSlotsCheck = new bool[slotAmount];
-        PopulateReqItemArray(slotAmount, quest);
-        CreateSlotsAndButton(slotAmount, reqItemTypes, quest);
+        PopulateReqItemArray(slotAmount, questIN);
+        CreateSlotsAndButton(slotAmount, reqItemTypes, questIN);
         SetActivateButtonState(canComplete);
-        SetQuestName(quest);
+        SetQuestName(questIN);
     }
 
     void SetQuestName(Quest questIN)
@@ -85,9 +61,14 @@ public class Quest_Parent_Container : MonoBehaviour
 
             slots[i] = newSlot;
 
-            newSlot.AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
-            newSlot.GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
+            //newSlot.AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
+            //newSlot.GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
+            //newSlot.GetComponent<Quest_Slots>().OnDisableQuestSlot += TryActivateCompleteButton;
+
+            newSlot.AddComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
             newSlot.GetComponent<Quest_Slots>().OnDisableQuestSlot += TryActivateCompleteButton;
+            newSlot.GetComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
+
 
             if (i+1 <= reqItemAmountIN-1)
             {
@@ -114,13 +95,16 @@ public class Quest_Parent_Container : MonoBehaviour
         Debug.Log("tryactivatecompletebutton");
         allSlotsCheck[e.questSlot.slotID] = e.isActive;
 
-        if (!allSlotsCheck.Contains(false))
+        if (!allSlotsCheck.Any(x => x == false))
         {
+            Debug.Log("allSlotsCheck slots ALL TRUE");
             canComplete = true;
             SetActivateButtonState(canComplete);
         }
         else
         {
+            Debug.Log("allSlotsCheck slots CONTAINS FALSE");
+
             canComplete = false;
             SetActivateButtonState(canComplete);
         }
@@ -128,7 +112,7 @@ public class Quest_Parent_Container : MonoBehaviour
 
     void SetActivateButtonState(bool canCompleteIN)
     {
-        completeButton.GetComponent<Button_CompleteQuest>().canClaim = canCompleteIN;
+        completeButton.GetComponent<Button_CompleteQuest>().SetButtonAvalibility(canCompleteIN);
     }
 
     private void OnDisable()

@@ -6,6 +6,7 @@ public class Quest_List : MonoBehaviour
 {
     private GameObject player;
     private GameObject innerPanelContainer;
+    private List<GameObject> parentSlotConainers = new List<GameObject>();
     
     //private GameObject slotQuestParent;
     //private int activeQuestAmount;
@@ -19,12 +20,10 @@ public class Quest_List : MonoBehaviour
     private void OnEnable()
     {
         Init();
-        //QuestManager.Instance.OnQuestAdded += InstantiateParentQuestContainers;
     }
 
     private void OnDisable()
     {
-        //QuestManager.Instance.OnQuestAdded -= InstantiateParentQuestContainers;
     }
 
     void Init()
@@ -37,16 +36,33 @@ public class Quest_List : MonoBehaviour
 
 
 
-    public void InstantiateParentQuestContainers(Quest questIN)
+    public GameObject InstantiateParentQuestContainers(Quest questIN)
     {
         //Debug.Log(e.quest.itemsNeeded.Count);
-        GameObject newParentSlotcontainer = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuest_Parent"));
-        newParentSlotcontainer.transform.SetParent(innerPanelContainer.transform, false);
-        newParentSlotcontainer.GetComponent<Quest_Parent_Container>().CreateQuestParentContainer(questIN);
-        
+        GameObject newParentSlotContainer = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuest_Parent"));
+        newParentSlotContainer.transform.SetParent(innerPanelContainer.transform, false);
+        newParentSlotContainer.GetComponent<Quest_Parent_Container>().CreateQuestParentContainer(questIN);
+
+        parentSlotConainers.Add(newParentSlotContainer);
+        Debug.Log(parentSlotConainers.Count);
+        return newParentSlotContainer;
+
     }
 
+    public void RemoveParentSlotContainers(Quest questIN)
+    {
+        foreach (GameObject parentSlotContainer in parentSlotConainers)
+        {
+            if(parentSlotContainer.GetComponent<Quest_Parent_Container>().quest == questIN)
+            {
+                parentSlotConainers.Remove(parentSlotContainer);
+                Destroy(parentSlotContainer.gameObject);
 
+                Debug.Log(parentSlotConainers.Count);
+                return;
+            }
+        }
+    }
 
 
 }

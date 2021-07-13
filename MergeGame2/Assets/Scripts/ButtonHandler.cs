@@ -112,7 +112,6 @@ public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandle
 
     public new void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("pointerdown on menu button");
         ButtonClicked();
     }
 

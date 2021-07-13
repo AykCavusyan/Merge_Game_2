@@ -559,8 +559,15 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         DestroyItem(this.gameObject);
     }
 
-    void DestroyItem(GameObject gameItem)
+    public void DestroyItem(GameObject gameItem)
     {
+        Debug.Log("destroyed");
+
+        if(initialGameSlot.GetComponent<GameSlots>().containedItem == this.gameObject)
+        {
+            initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
+        }
+
         OnItemDestroyed?.Invoke(this , new OnItemDestroyedEventArgs { gameItems =gameItem.GetComponent<GameItems>()} ); 
         Destroy(gameItem);
     }

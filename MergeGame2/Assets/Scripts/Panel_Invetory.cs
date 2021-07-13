@@ -59,7 +59,6 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     void Start()
     {
         ChildEnablerDisabler(false);
-        Debug.Log(childImagesToEnable.Length);
     }
 
     void EnableVisibility(object sender, Panel_BackgroundPanelHolder.OnEnableVisibilityEventArgs e)

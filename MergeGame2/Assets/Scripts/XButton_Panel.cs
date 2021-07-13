@@ -55,7 +55,6 @@ public class XButton_Panel : MonoBehaviour, IPointerDownHandler,IPointerUpHandle
 
     void PlaceXButton(object sender, Panel_BackgroundPanelHolder.OnEnableVisibilityEventArgs e)
     {
-        Debug.Log("placeitem X button called");
         if (panelIndex == e.panelIndex)
         {
             StopAllCoroutines();

@@ -38,13 +38,12 @@ public class Quest_Slots : MonoBehaviour
     {
         Init();
         ItemBag.Instance.OnGameItemCreated += EnableCheckMark;
-        //MasterEventListener.Instance.OnItemIsQuestEventMaster += EnableCheckMark; bunun masterdan belki çýkarýrýz bile !!!!
         QuestManager.Instance.OnQuestItemNoMore += DisableCheckMark;
     }
 
     private void OnDisable()
     {
-        //MasterEventListener.Instance.OnItemIsQuestEventMaster -= EnableCheckMark;
+        ItemBag.Instance.OnGameItemCreated -= EnableCheckMark;
         QuestManager.Instance.OnQuestItemNoMore -= DisableCheckMark;
     }
 
@@ -70,9 +69,10 @@ public class Quest_Slots : MonoBehaviour
 
     private void InitialObjectAvailibilityCheck(Item containedQuestItemIN)
     {
-        var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x => x != null).ToList();
+        //var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x => x != null).ToList();
+        List<GameItems> presentGameItems = QuestManager.Instance._presentGameItems;
 
-        foreach (GameItems gameItem in existingSlotItemsList)
+        foreach (GameItems gameItem in presentGameItems)
         {
             if(gameItem.itemType == containedQuestItem)
             {

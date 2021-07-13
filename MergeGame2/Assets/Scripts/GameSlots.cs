@@ -61,7 +61,6 @@ public class GameSlots : MonoBehaviour
 
         if (itemDroppedPosition == default(Vector3))
         {
-            Debug.Log("sizeItemcalled");
             itemDroppedPosition = gameItem.transform.position;
         }
 
@@ -207,7 +206,6 @@ public class GameSlots : MonoBehaviour
         lerpAnchorPoint.x = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.x;
         lerpAnchorPoint.y = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.y;
         lerpAnchorPoint.z = 0;
-        Debug.Log(lerpAnchorPoint);
 
         return lerpAnchorPoint;
     }

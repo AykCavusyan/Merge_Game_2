@@ -22,12 +22,6 @@ public class CameraController : MonoBehaviour
 
     private void OnEnable()
     {
-        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        //for (int i = 0; i < gameSlots.Length; i++)
-        //{
-        //    gameSlots[i].GetComponent<GameSlots>().OnDropped += OnGameItemAdded;
-        //}
-
         Init();
 
         MasterEventListener.Instance.OnMerged += StartShake;
@@ -35,14 +29,7 @@ public class CameraController : MonoBehaviour
 
     private void OnDisable()
     {
-        //gameSlots = GameObject.FindGameObjectsWithTag("Container");
-        //for (int i = 0; i < gameSlots.Length; i++)
-        //{
-        //    gameSlots[i].GetComponent<GameSlots>().OnDropped -= OnGameItemAdded;
-        //}
-
         MasterEventListener.Instance.OnMerged -= StartShake;
-
     }
 
     void Init()
@@ -54,7 +41,7 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            Debug.Log("instance is already runnig");
+
         }
     }
 

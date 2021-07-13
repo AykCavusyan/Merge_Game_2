@@ -55,7 +55,6 @@ public class VisualEffects : MonoBehaviour
     {
         if (MasterEventListener.Instance == null)
         {
-            Debug.Log("null master event listener - instantiating");
             Instantiate(player);
         }
         else

@@ -76,18 +76,14 @@ public class Rewards : MonoBehaviour
 
     void InstantiateSlots()
     {
-        Debug.Log(rewardsLevelUp);
-
         slotIDNumber = 0;
 
         for (int i = 0; i < rewardsList[0].Count; i++)
         {
-            Debug.Log("async");
             slotIDNumber++;
             currentRewardSlots.Add(CreateNewSLot(slotIDNumber,rewardsList[0] ,i));
         }
         
-
         DisableChildrenImages();
     }
 
@@ -128,6 +124,7 @@ public class Rewards : MonoBehaviour
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
             GameItems itemtoTransfer = currentRewardSlots[i].GetComponent<RewardSlots>().containedItem;
+            itemtoTransfer.isRewardPanelItem = false;
             PlayerInfo.Instance.emptySlots.First().Drop (itemtoTransfer);
         }
     }
