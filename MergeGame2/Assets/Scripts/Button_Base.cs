@@ -29,7 +29,7 @@ public class Button_Base : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("button pressed");
+
     }
 
     public void OnPointerUp(PointerEventData eventData)

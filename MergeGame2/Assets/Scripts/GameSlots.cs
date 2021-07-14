@@ -9,6 +9,7 @@ using UnityEngine.UIElements;
 public class GameSlots : MonoBehaviour
 {
     public GameObject panel_Gameslots;
+    //private RectTransform rtSlot; later to be usd for not giving numeric value to gaametimem size
     private Transform crossMark;
     public List<DropConditions> dropConditions = new List<DropConditions>();
     [SerializeField] public bool canDrop { get; private set; }
@@ -35,6 +36,7 @@ public class GameSlots : MonoBehaviour
     private void Awake()
     {
         canDrop = true;
+        //rtSlot = GetComponent<RectTransform>(); later to be usd for not giving numeric value to gaametimem size
         crossMark = transform.Find("CrossMark");
         panel_Gameslots = GameObject.Find("Panel_GameSlots");
 

@@ -143,15 +143,9 @@ public sealed class ItemBag : MonoBehaviour
     {
         item = new Item(itemGenre, itemLevel, isRewardPanelItem);
 
-
-        //item = new Item() ;
-        //var itemName = item.CreateItemForRelevatLevel(itemLevel,itemGenre);
-        //item = new Item { itemType = itemName, itemGenre = itemGenre , itemLevel = itemLevel};
-
         GameObject newGameItem = new GameObject();
         
         newGameItem.transform.SetParent(panel_Gameslots.transform);
-        
         newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
         newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem);
         
@@ -159,16 +153,6 @@ public sealed class ItemBag : MonoBehaviour
         {
             AddGeneratedItem(Item.ItemGenre.Star);
         }
-        
-        
-        //newGameItem.GetComponent<GameItems>()
-        //newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
-        //newGameItem.AddComponent<GameItems>();
-        //newGameItem.GetComponent<GameItems>().itemLevel = item.itemLevel;
-        //newGameItem.GetComponent<GameItems>().itemGenre = item.itemGenre;
-        //newGameItem.GetComponent<GameItems>().itemType = item.itemType;
-        //newGameItem.GetComponent<GameItems>().givesXP = item.givesXP;
-        //newGameItem.tag = item.itemType.ToString();
         
         newGameItem.layer = 5;
 

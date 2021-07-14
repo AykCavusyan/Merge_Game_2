@@ -19,7 +19,7 @@ public class Rewards : MonoBehaviour
 
     private int playerLevel;
 
-
+    public event Action<GameItems> OnRewardItemGiven;
 
     private void Awake()
     {
@@ -124,7 +124,10 @@ public class Rewards : MonoBehaviour
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
             GameItems itemtoTransfer = currentRewardSlots[i].GetComponent<RewardSlots>().containedItem;
-            itemtoTransfer.isRewardPanelItem = false;
+            itemtoTransfer.CheckIfRewardItemIsQuestItem();
+
+            OnRewardItemGiven?.Invoke(itemtoTransfer);
+
             PlayerInfo.Instance.emptySlots.First().Drop (itemtoTransfer);
         }
     }
@@ -135,7 +138,6 @@ public class Rewards : MonoBehaviour
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
             Destroy(currentRewardSlots[i]);
-           
         }
         currentRewardSlots.Clear();
     }

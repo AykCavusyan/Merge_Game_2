@@ -106,12 +106,6 @@ public class Inventory : MonoBehaviour
 
     void PurchaseSlot(GameObject sender)
     {
-        
-        //SlotsCounter.Instance.Inv_Slot_CreateNewSlotToDict(sender.GetComponent<InventorySlots>().slotIDNumber);  // event daha iyi olaiblir mi ?
-
-        //PlayerInfo.Instance.ListenInventorySlots(sender.GetComponent<InventorySlots>());
-        // burda potansiyel bir hata var currenti arttýýrrken if e bakmýyoruz
-        
 
         if (PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
         {

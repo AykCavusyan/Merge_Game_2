@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class MasterEventListener : MonoBehaviour
+public sealed class MasterEventListener : MonoBehaviour 
 {
     private static MasterEventListener _instance;
     public static MasterEventListener Instance { get { return _instance; } }
@@ -128,4 +128,5 @@ public sealed class MasterEventListener : MonoBehaviour
         e.gameItems.OnItemDestroyed -= StopListeningDeadGameIteEvent;
     }
 
+ 
 }

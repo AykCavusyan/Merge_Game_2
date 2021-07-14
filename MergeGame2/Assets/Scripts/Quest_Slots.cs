@@ -15,6 +15,8 @@ public class Quest_Slots : MonoBehaviour
     private GameObject player;
     public int slotID;
 
+    private GameObject rewardPanel;
+
     public event EventHandler<OnQuestSlotStateChange> OnActivateQuestSlot;
     public event EventHandler<OnQuestSlotStateChange> OnDisableQuestSlot;
     public class OnQuestSlotStateChange
@@ -32,19 +34,23 @@ public class Quest_Slots : MonoBehaviour
         checkMark.SetActive(false);
 
         player = GameObject.FindGameObjectWithTag("Player");
+        rewardPanel = GameObject.Find("Panel_LevelPanel");
     }
 
     private void OnEnable()
     {
         Init();
-        ItemBag.Instance.OnGameItemCreated += EnableCheckMark;
+        ItemBag.Instance.OnGameItemCreated += EnableCheckMarkFromGameItems;
         QuestManager.Instance.OnQuestItemNoMore += DisableCheckMark;
+        rewardPanel.GetComponent<Rewards>().OnRewardItemGiven += EnableCheckMarkFromRewardItems;
+
     }
 
     private void OnDisable()
     {
-        ItemBag.Instance.OnGameItemCreated -= EnableCheckMark;
+        ItemBag.Instance.OnGameItemCreated -= EnableCheckMarkFromGameItems;
         QuestManager.Instance.OnQuestItemNoMore -= DisableCheckMark;
+        rewardPanel.GetComponent<Rewards>().OnRewardItemGiven -= EnableCheckMarkFromRewardItems;
     }
 
 
@@ -74,7 +80,7 @@ public class Quest_Slots : MonoBehaviour
 
         foreach (GameItems gameItem in presentGameItems)
         {
-            if(gameItem.itemType == containedQuestItem)
+            if(gameItem.itemType == containedQuestItemIN.itemType)
             {
                 questItemExists = true;
                 checkMark.SetActive(true);
@@ -87,14 +93,26 @@ public class Quest_Slots : MonoBehaviour
     }
 
 
-    public void EnableCheckMark(object sender, ItemBag.OnGameItemCreatedEventArgs e)
+    public void EnableCheckMarkFromGameItems(object sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
-        if (containedQuestItem == e.gameItem.itemType)
+        Debug.Log("shoudnt work!!");
+        if (containedQuestItem == e.gameItem.itemType && e.gameItem.isRewardPanelItem == false)
         {
             questItemExists = true;
             checkMark.SetActive(true);
             OnActivateQuestSlot?.Invoke(this, new OnQuestSlotStateChange { questSlot=this, isActive =true});
+
         }       
+    }
+
+    public void EnableCheckMarkFromRewardItems(GameItems itemFromRewardPanel)
+    {
+        if(containedQuestItem == itemFromRewardPanel.itemType && itemFromRewardPanel.isRewardPanelItem ==false)
+        {
+            questItemExists = true;
+            checkMark.SetActive(true);
+            OnActivateQuestSlot?.Invoke(this, new OnQuestSlotStateChange { questSlot = this, isActive = true });
+        }
     }
 
     public void DisableCheckMark(object sender,  QuestManager.AddRemoveQuestItemEventArgs e)

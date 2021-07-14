@@ -64,6 +64,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
 
     private RectTransform rectTransform;
+    private Vector2 originalSizeDelta;
 
     [SerializeField] private int itemLevel;
     [SerializeField] private Item.ItemGenre itemGenre;
@@ -122,6 +123,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     private void Start()
     {
         rectTransform.localScale = new Vector3(1, 1, 1);
+        originalSizeDelta = rectTransform.sizeDelta;
     }
 
     void Init()
@@ -131,6 +133,22 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             Instantiate(player);
         }
     }
+    public void CheckIfRewardItemIsQuestItem()
+    {
+        isRewardPanelItem = false;
+
+        foreach (Item.ItemType itemTypeReq in QuestManager.Instance._activeQuestItemsList)
+        {
+            if(itemType == itemTypeReq)
+            {
+                isQuestItem = true;
+                checkMark.enabled = true;
+                
+                return;
+            }
+        }
+    }
+
 
     public  void SetCheckMark(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
     {
@@ -294,6 +312,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 {
                     if(item.isActive == true)
                     {
+                        StopAllCoroutines();
+                        rectTransform.sizeDelta = originalSizeDelta;
+
                         item.Drop(this);
                         canDrag = false;
                         //isInventoryItem = true;                  
@@ -420,7 +441,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             if (isInventoryItem == true)
             {
                 GameSlots slotToMove = ItemBag.Instance.FindEmptySlotPosition();
-                initialGameSlot.GetComponent<InventorySlots>().DischargeItem();
+                initialGameSlot.GetComponent<InventorySlots>().DischargeItem(this);
                 slotToMove.Drop(this);
                 isInventoryItem = false;
                 canDrag = true;
@@ -476,7 +497,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         cr_Running = true;
 
         Vector2 oldSize = rectTransform.sizeDelta;
-        Vector2 scaleFactor = new Vector2(.8f, .8f);
+        Vector2 scaleFactor = new Vector2(.5f, .5f);
 
         float lerpDuration = .2f;
         float elapsedTime = 0f;
@@ -561,11 +582,14 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public void DestroyItem(GameObject gameItem)
     {
-        Debug.Log("destroyed");
 
-        if(initialGameSlot.GetComponent<GameSlots>().containedItem == this.gameObject)
+        if (initialGameSlot.GetComponent<GameSlots>() && initialGameSlot.GetComponent<GameSlots>().containedItem == this.gameObject)
         {
             initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
+        }
+        else if(initialGameSlot.GetComponent<InventorySlots>() && initialGameSlot.GetComponent<InventorySlots>().containedItem == this.gameObject)
+        {
+            initialGameSlot.GetComponent<InventorySlots>().DischargeItem(this);
         }
 
         OnItemDestroyed?.Invoke(this , new OnItemDestroyedEventArgs { gameItems =gameItem.GetComponent<GameItems>()} ); 

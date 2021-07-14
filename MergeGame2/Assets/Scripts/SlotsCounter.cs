@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed  class SlotsCounter : MonoBehaviour
+public sealed  class SlotsCounter : MonoBehaviour, ISaveable
 {
 
     private static SlotsCounter _instance;
@@ -52,28 +52,6 @@ public sealed  class SlotsCounter : MonoBehaviour
     }
 
 
-    //void SlotTracker()
-    //{
-    //    for (int i = 0; i < gameSlots.Length; i++)
-    //    {
-    //        if (gameSlots[i].GetComponent<GameSlots>().canDrop == true)
-    //        {
-    //            emptySlots.Add(gameSlots[i]);
-    //        }
-    //        Debug.Log(emptySlots);
-    //    }
-    //}
-
-    //void AddToEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
-    //{
-    //    emptySlots.Add(e.gameSlot.get);
-    //}
-
-    //void RemoveFromEmptySlotList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
-    //{
-    //    emptySlots.Remove(e.gameSlot);
-    //}
-
    void AddTodictionary(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
     {
         slotDictionary[e.gameSlot] = e.gameItem;
@@ -98,5 +76,15 @@ public sealed  class SlotsCounter : MonoBehaviour
             }
         }
         
+    }
+
+    public object CaptureState()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RestoreState(object state)
+    {
+        throw new NotImplementedException();
     }
 }

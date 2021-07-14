@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class QuestManager : MonoBehaviour
+public class QuestManager : MonoBehaviour, ISaveable
 {
     private static QuestManager _instance;
     public static QuestManager Instance { get { return _instance; } }
@@ -13,6 +13,7 @@ public class QuestManager : MonoBehaviour
 
     private Quest newQuest;
     private GameObject questPanel;
+    private GameObject rewardPanel;
     public List<Quest> _activeQuests { get; private set; } = new List<Quest>();
     public List<Quest> _inactiveQuests { get; private set; } = new List<Quest>();  
     public List<GameItems> _presentGameItems { get; private set; } = new List<GameItems>(); 
@@ -55,14 +56,16 @@ public class QuestManager : MonoBehaviour
             }
         }
 
-        ItemBag itemBag = GetComponent<ItemBag>();
+        ItemBag itemBag = GetComponent<ItemBag>(); // bu lazým mý ??
         questPanel = GameObject.Find("Panel_QuestPanel");
+        rewardPanel = GameObject.Find("Panel_LevelPanel");
     }
 
     private void OnEnable()
     {
         ItemBag.Instance.OnGameItemCreated += AddPresentGameItemsList;
         MasterEventListener.Instance.OnDestroyedMasterEvent += DestroyedItemcheck;
+        rewardPanel.GetComponent<Rewards>().OnRewardItemGiven += AddPresentRewardItemsList;
     }
 
 
@@ -70,6 +73,7 @@ public class QuestManager : MonoBehaviour
     {
         ItemBag.Instance.OnGameItemCreated -= AddPresentGameItemsList;
         MasterEventListener.Instance.OnDestroyedMasterEvent -= DestroyedItemcheck;
+        if(rewardPanel) rewardPanel.GetComponent<Rewards>().OnRewardItemGiven -= AddPresentRewardItemsList;
     }
 
     private void Update()
@@ -102,7 +106,14 @@ public class QuestManager : MonoBehaviour
         if(e.gameItem.isRewardPanelItem == false)
         {
             _presentGameItems.Add(e.gameItem);
-            Debug.Log(_presentGameItems.Count);
+        }
+    }
+
+    void AddPresentRewardItemsList(GameItems itemfrommRewardPanel)
+    {
+        if(itemfrommRewardPanel.isRewardPanelItem == false)
+        {
+            _presentGameItems.Add(itemfrommRewardPanel);
         }
     }
 
@@ -164,4 +175,13 @@ public class QuestManager : MonoBehaviour
 
     }
 
+    public object CaptureState()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RestoreState(object state)
+    {
+        throw new NotImplementedException();
+    }
 }

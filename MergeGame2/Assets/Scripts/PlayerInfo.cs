@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class PlayerInfo : MonoBehaviour
+public sealed class PlayerInfo : MonoBehaviour, ISaveable
 {
     private static PlayerInfo _instance;
     public static PlayerInfo Instance { get { return _instance; } }
@@ -68,7 +68,7 @@ public sealed class PlayerInfo : MonoBehaviour
 
     private void Start()
     {
-        QuestManager.Instance.OnQuestCompleted += CalculateXPFromQuests;
+        QuestManager.Instance.OnQuestCompleted += CalculateXPFromQuests; // singletonu patatýyor diye burada normal yerine almak lazým
     }
     private void OnDisable()
     {
@@ -104,8 +104,6 @@ public sealed class PlayerInfo : MonoBehaviour
     {
         inventory[e.slot] = e.gameItem;
         GenerateEMptySlotList();
-
-        Debug.Log("listened");
     }
 
     void RemoveFromDictionnary(object sender, InventorySlots.onInventoryItemModificationEventArgs e)
@@ -217,5 +215,13 @@ public sealed class PlayerInfo : MonoBehaviour
         }
     }
 
+    public object CaptureState()
+    {
+        throw new NotImplementedException();
+    }
 
+    public void RestoreState(object state)
+    {
+        throw new NotImplementedException();
+    }
 }

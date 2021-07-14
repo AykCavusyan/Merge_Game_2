@@ -19,6 +19,8 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     public bool isActive;
 
     public bool isFree;
+    public GameObject containedItem { get; private set; }
+
     private GameObject slot_Item_Holder;
 
     public int slotIDNumber;
@@ -69,11 +71,11 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
             parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceSlots;
         }
 
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            if(gameSlots[i] != null)
-            gameSlots[i].onSlotFilled += UpdateChildImagesList;
-        }
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    if(gameSlots[i] != null)
+        //    gameSlots[i].onSlotFilled += UpdateChildImagesList;
+        //}
     }
 
 
@@ -85,11 +87,11 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
             parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceSlots;
         }
 
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            if (gameSlots[i] != null)
-                gameSlots[i].onSlotFilled -= UpdateChildImagesList;
-        }
+        //for (int i = 0; i < gameSlots.Length; i++)
+        //{
+        //    if (gameSlots[i] != null)
+        //        gameSlots[i].onSlotFilled -= UpdateChildImagesList;
+        //}
     }
 
     private void Start()
@@ -102,9 +104,9 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     public void Drop(GameItems gameItem)
     {
-        Debug.Log("Inventory slots drop called");
         gameItem.isInventoryItem = true;
         PlaceItem(gameItem);
+        UpdateItemParentSlot(gameItem);
 
         onInventoryPlacedItem?.Invoke(this, new onInventoryItemModificationEventArgs { slot = this, gameItem = gameItem });
 
@@ -121,18 +123,31 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         rt.SetParent(slot_Item_Holder.transform);
         rt.sizeDelta = slot_Item_Holder.GetComponent<RectTransform>().sizeDelta;
         rt.localScale = new Vector3(1, 1, 1);
+        containedItem = gameItem.gameObject;
         rt.SetAsLastSibling();
         rt.anchoredPosition = slot_Item_Holder.GetComponent<RectTransform>().anchoredPosition;
         gameItem.isMoving = false;
         gameItem.initialGameSlot = this.gameObject;
 
-
     }
 
-    public void DischargeItem()
+    void UpdateItemParentSlot(GameItems gameItem)
     {
+        gameItem.initialGameSlot = this.gameObject;
+    }
+
+    public void DischargeItem(GameItems gameItemIN)
+    {
+        UpdateChildImagesList(gameItemIN);
         isFree = true;
+        containedItem = null;
+
         onInventoryRemovedItem?.Invoke(this, new onInventoryItemModificationEventArgs { slot = this });
+    }
+
+    void UpdateChildImagesList(GameItems gameItem)
+    {
+        childImage.Remove(gameItem.GetComponent<Image>());
     }
 
     void PlaceSlots(object sender,EventArgs e)
@@ -214,10 +229,6 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         }
     }
 
-    void UpdateChildImagesList(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
-    {
-        childImage.Remove(e.gameItem.GetComponent<Image>()); 
-    }
 
     void ActivateSlot()
     {
