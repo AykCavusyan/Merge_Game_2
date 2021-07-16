@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,9 +13,10 @@ public class ItemAssets : MonoBehaviour
     }
 
 
-    public Sprite GetAssetSprite(string itemName)
+    public Sprite GetAssetSprite(Item.ItemType itemType)
     {
-        return Resources.Load<Sprite>("Sprites/"+ itemName);
+        string itemTypeName = Enum.GetName(typeof(Item.ItemType), (int)itemType);
+        return Resources.Load<Sprite>("Sprites/"+ itemTypeName);
     }
 
 

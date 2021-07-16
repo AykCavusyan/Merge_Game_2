@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler,IEndDragHandler, IDragHandler, IPointerDownHandler,IPointerUpHandler
+public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler,IEndDragHandler, IDragHandler, IPointerDownHandler,IPointerUpHandler,ISaveable
 {
 
     public event Action<PointerEventData> OnBeginDragHandler;
@@ -39,37 +39,30 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         public int xpValue;
     }
 
+    public GameObject player;
     private TopPanelID[] topPanels;
     private Canvas canvas;
+    private RectTransform rectTransform;
 
     public List<MergeConditions> mergeCondisitons = new List<MergeConditions>();
-
     public bool followCursor { get; set; } = true;
     public Vector3 startPosition;
     public bool canDrag { get; set; } = true;
-    public GameObject initialGameSlot;
-
     private bool cr_Running = false;
-
-    [SerializeField] private bool isSpawner = false;
+ 
     private bool canReactToClick = false;
     public bool isMoving = false;
-
-    public bool isInventoryItem;
-     
     private Image checkMark;
-    
-    
-    public GameObject player;
 
-
-    private RectTransform rectTransform;
     private Vector2 originalSizeDelta;
+    public GameObject initialGameSlot;
+    public bool isInventoryItem;
 
     [SerializeField] private int itemLevel;
     [SerializeField] private Item.ItemGenre itemGenre;
     [SerializeField] public  Item.ItemType itemType; // get set olarak ayarlanmalý !!!!!
     [SerializeField] private bool givesXP;
+    [SerializeField] private bool isSpawner = false;
     [SerializeField] private bool isCollectible;
     [SerializeField] private int xpValue;
     [SerializeField] private int itemPanelID;
@@ -78,7 +71,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int itemPanelIDIn, bool isQuestItemIN, bool isRewardPanelItemIN)
     {
-        
+        gameObject.AddComponent<Image>().sprite = GetSpriteImage(itemTypeIn);
         itemLevel = itemLevelIn;
         itemGenre = itemGenreIn;
         itemType = itemTypeIn;
@@ -102,9 +95,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
      private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
+        rectTransform = gameObject.AddComponent<RectTransform>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         topPanels = GameObject.FindObjectsOfType<TopPanelID>();
+
+        gameObject.AddComponent<SaveableEntitiy>();
+
     }
 
     private void OnEnable()
@@ -126,6 +122,18 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         originalSizeDelta = rectTransform.sizeDelta;
     }
 
+    void Update()
+    {
+        //if (Input.GetKeyDown(KeyCode.G))
+        //{
+        //    CaptureState();
+        //}
+        //if (Input.GetKeyDown(KeyCode.H))
+        //{
+        //    RestoreState(_variablesDict);
+        //}
+    }
+
     void Init()
     {
         if (ItemBag.Instance == null)
@@ -133,6 +141,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             Instantiate(player);
         }
     }
+
+    private Sprite GetSpriteImage(Item.ItemType itemTypeIN)
+    {
+        return ItemAssets.Instance.GetAssetSprite(itemTypeIN);
+    }
+
     public void CheckIfRewardItemIsQuestItem()
     {
         isRewardPanelItem = false;
@@ -422,12 +436,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         GameItems mergedItem = ItemBag.Instance.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
         mergedItem.transform.localScale = default(Vector3);
 
-        //DestroyItem(gameItemDragged.gameObject);
-        //DestroyItem(gameSlot.containedItem);
-
-        //Destroy(gameItemDragged.gameObject);
-        //Destroy(gameSlot.containedItem.gameObject);
-
         return mergedItem;
     }
 
@@ -595,4 +603,66 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         OnItemDestroyed?.Invoke(this , new OnItemDestroyedEventArgs { gameItems =gameItem.GetComponent<GameItems>()} ); 
         Destroy(gameItem);
     }
+
+    public object CaptureState()
+    {
+        //_variablesDict = new Dictionary<string, object>(); 
+
+        Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
+
+        SizeSaveData data = new SizeSaveData();
+        data.sizeDelta = new SerializableVector2(originalSizeDelta);
+
+        _variablesDict.Add("originalSizeDelta", data.sizeDelta); 
+        _variablesDict.Add("initialGameSlot", this.initialGameSlot);
+        _variablesDict.Add("isInventoryItem", this.isInventoryItem);
+        _variablesDict.Add("itemLevel", this.itemLevel);
+        _variablesDict.Add("itemGenre", this.itemGenre.ToString());
+        _variablesDict.Add("itemType", this.itemType.ToString());
+        _variablesDict.Add("givesXP", this.givesXP);
+        _variablesDict.Add("isSpawner", this.isSpawner);
+        _variablesDict.Add("isCollectible", this.isCollectible);
+        _variablesDict.Add("xpValue", this.xpValue);
+        _variablesDict.Add("itemPanelID", this.itemPanelID);
+        _variablesDict.Add("isQuestItem", this.isQuestItem);
+        _variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
+
+        Debug.Log(_variablesDict.Count + "save system of gameitems working -- dict created");
+        return _variablesDict;
+    }
+
+    [System.Serializable]
+    struct SizeSaveData
+    {
+        public SerializableVector2 sizeDelta;
+    }
+
+    public void RestoreState(object state)
+    {
+        Debug.Log("load system of gameitems working ");
+
+        Dictionary<string, object> _variablesDictIN = (Dictionary<string, object>)state;
+
+        //string parsedItemGenreValue = (string)_variablesDict["itemGenre"];
+        //string parsedItemTypeValue = (string)_variablesDict["itemType"];
+
+        SizeSaveData data = (SizeSaveData)_variablesDictIN["originalSizeDelta"];
+        originalSizeDelta = data.sizeDelta.ToVector2(); 
+        initialGameSlot =   (GameObject)_variablesDictIN["initialGameSlot"];
+        isInventoryItem =   (bool)_variablesDictIN["isInventoryItem"];
+        itemLevel =         (int)_variablesDictIN["itemLevel"];
+        itemGenre =         (Item.ItemGenre)Enum.Parse(typeof(Item.ItemGenre), (string)_variablesDictIN["itemGenre"]); 
+        itemType =          (Item.ItemType)Enum.Parse(typeof(Item.ItemType), (string)_variablesDictIN["itemType"]); 
+        givesXP =           (bool)_variablesDictIN["givesXP"];
+        isSpawner =         (bool)_variablesDictIN["isSpawner"];
+        isCollectible =     (bool)_variablesDictIN["isCollectible"];
+        xpValue =           (int)_variablesDictIN["xpValue"];
+        itemPanelID =       (int)_variablesDictIN["itemPanelID"];
+        isQuestItem =       (bool)_variablesDictIN["isQuestItem"]; ;
+        isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
+
+        CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, itemPanelID, isQuestItem, isRewardPanelItem);
+    }
+
 }
+

@@ -65,7 +65,7 @@ public class Quest_Slots : MonoBehaviour
 
     public void CreateQuestSlot(Item containedQuestItemIN, int slotIDIn)
     {
-        itemImage.sprite = containedQuestItemIN.GetSprite(containedQuestItemIN.itemType);
+        itemImage.sprite = ItemAssets.Instance.GetAssetSprite(containedQuestItemIN.itemType);
         itemImage.color = new Color(itemImage.color.r, itemImage.color.g, itemImage.color.b, 1);
         containedQuestItem = containedQuestItemIN.itemType;
         slotID = slotIDIn;

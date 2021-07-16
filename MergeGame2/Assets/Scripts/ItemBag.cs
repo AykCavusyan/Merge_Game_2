@@ -146,7 +146,7 @@ public sealed class ItemBag : MonoBehaviour
         GameObject newGameItem = new GameObject();
         
         newGameItem.transform.SetParent(panel_Gameslots.transform);
-        newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
+        //newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
         newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem);
         
         if (item.givesXP == true)

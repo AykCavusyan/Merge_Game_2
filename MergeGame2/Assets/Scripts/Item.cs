@@ -202,11 +202,11 @@ public class Item
         Ranged
     }
 
-    public Sprite GetSprite(ItemType itemType)
-    {
-        string itemTypeName = Enum.GetName(typeof(ItemType),(int)itemType);
-        return ItemAssets.Instance.GetAssetSprite(itemTypeName);
-    }
+    //public Sprite GetSprite(ItemType itemType)
+    //{
+    //    string itemTypeName = Enum.GetName(typeof(ItemType),(int)itemType);
+    //    return ItemAssets.Instance.GetAssetSprite(itemTypeName);
+    //}
 
     public ItemType CreateItemForRelevatLevel(int inputItemLevel, ItemGenre itemGenre)
     {
