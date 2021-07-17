@@ -154,7 +154,7 @@ public sealed class ItemBag : MonoBehaviour
             AddGeneratedItem(Item.ItemGenre.Star);
         }
         
-        newGameItem.layer = 5;
+        //newGameItem.layer = 5;
 
         OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
 

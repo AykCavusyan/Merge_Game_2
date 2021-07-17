@@ -14,6 +14,7 @@ public class GameSlots : MonoBehaviour
     public List<DropConditions> dropConditions = new List<DropConditions>();
     [SerializeField] public bool canDrop { get; private set; }
     [SerializeField] public GameObject containedItem { get; private set; }
+    public string slotName { get; private set; }
 
     public event Action<GameItems> OnDropHandler;
 
@@ -35,6 +36,7 @@ public class GameSlots : MonoBehaviour
 
     private void Awake()
     {
+        slotName = gameObject.name;
         canDrop = true;
         //rtSlot = GetComponent<RectTransform>(); later to be usd for not giving numeric value to gaametimem size
         crossMark = transform.Find("CrossMark");

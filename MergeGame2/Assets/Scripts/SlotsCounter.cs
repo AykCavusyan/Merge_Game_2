@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed  class SlotsCounter : MonoBehaviour, ISaveable
+public sealed  class SlotsCounter : MonoBehaviour //, ISaveable
 {
 
     private static SlotsCounter _instance;
@@ -51,8 +51,16 @@ public sealed  class SlotsCounter : MonoBehaviour, ISaveable
         }
     }
 
+    private void OnDisable()
+    {
+        for (int i = 0; i < gameSlots.Length; i++)
+        {
+            if(gameSlots[i]) gameSlots[i].GetComponent<GameSlots>().onSlotDischarged -= RemoveFromDictonary;
+            if(gameSlots[i]) gameSlots[i].GetComponent<GameSlots>().onSlotFilled -= AddTodictionary;
+        }
+    }
 
-   void AddTodictionary(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
+    void AddTodictionary(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
     {
         slotDictionary[e.gameSlot] = e.gameItem;
         GenerateEMptySlotList();

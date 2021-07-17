@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class QuestManager : MonoBehaviour, ISaveable
+public class QuestManager : MonoBehaviour //, ISaveable
 {
     private static QuestManager _instance;
     public static QuestManager Instance { get { return _instance; } }

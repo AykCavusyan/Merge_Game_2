@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class PlayerInfo : MonoBehaviour, ISaveable
+public sealed class PlayerInfo : MonoBehaviour //, ISaveable
 {
     private static PlayerInfo _instance;
     public static PlayerInfo Instance { get { return _instance; } }

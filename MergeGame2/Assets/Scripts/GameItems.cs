@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -91,6 +92,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         {
             checkMark.enabled = true;
         }
+
+        gameObject.layer = 5;
     }
 
      private void Awake()
@@ -606,62 +609,77 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public object CaptureState()
     {
-        //_variablesDict = new Dictionary<string, object>(); 
-
         Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
 
-        SizeSaveData data = new SizeSaveData();
-        data.sizeDelta = new SerializableVector2(originalSizeDelta);
+        if (!isRewardPanelItem) //test method later to  delete and arrage 
+        {
 
-        _variablesDict.Add("originalSizeDelta", data.sizeDelta); 
-        _variablesDict.Add("initialGameSlot", this.initialGameSlot);
-        _variablesDict.Add("isInventoryItem", this.isInventoryItem);
-        _variablesDict.Add("itemLevel", this.itemLevel);
-        _variablesDict.Add("itemGenre", this.itemGenre.ToString());
-        _variablesDict.Add("itemType", this.itemType.ToString());
-        _variablesDict.Add("givesXP", this.givesXP);
-        _variablesDict.Add("isSpawner", this.isSpawner);
-        _variablesDict.Add("isCollectible", this.isCollectible);
-        _variablesDict.Add("xpValue", this.xpValue);
-        _variablesDict.Add("itemPanelID", this.itemPanelID);
-        _variablesDict.Add("isQuestItem", this.isQuestItem);
-        _variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
+            SerializableVector2 size = new SerializableVector2(originalSizeDelta);
+            //data.sizeDelta = new SerializableVector2(originalSizeDelta);
 
-        Debug.Log(_variablesDict.Count + "save system of gameitems working -- dict created");
+            _variablesDict.Add("originalSizeDelta", size);
+            _variablesDict.Add("initialGameSlot", this.initialGameSlot.GetComponent<GameSlots>().slotName);
+            _variablesDict.Add("isInventoryItem", this.isInventoryItem);
+            _variablesDict.Add("itemLevel", this.itemLevel);
+            _variablesDict.Add("itemGenre", this.itemGenre.ToString());
+            _variablesDict.Add("itemType", this.itemType.ToString());
+            _variablesDict.Add("givesXP", this.givesXP);
+            _variablesDict.Add("isSpawner", this.isSpawner);
+            _variablesDict.Add("isCollectible", this.isCollectible);
+            _variablesDict.Add("xpValue", this.xpValue);
+            _variablesDict.Add("itemPanelID", this.itemPanelID);
+            _variablesDict.Add("isQuestItem", this.isQuestItem);
+            _variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
+
+            Debug.Log(_variablesDict.Count + "save system of gameitems working -- dict created");
+            
+        }
         return _variablesDict;
     }
 
-    [System.Serializable]
-    struct SizeSaveData
+    //[System.Serializable]
+    //struct SizeSaveData
+    //{
+    //    public SerializableVector2 sizeDelta;
+    //}
+
+    void DropToRestoredSLot(GameItems gameItemLoaded, string slotName)
     {
-        public SerializableVector2 sizeDelta;
+        foreach (KeyValuePair<GameObject,GameItems> gameSlotPair in SlotsCounter.Instance.slotDictionary)
+        {
+            if (gameSlotPair.Key.GetComponent<GameSlots>().slotName == slotName)
+            {
+                gameSlotPair.Key.GetComponent<GameSlots>().Drop(gameItemLoaded);
+            }
+        }
     }
 
     public void RestoreState(object state)
     {
         Debug.Log("load system of gameitems working ");
-
         Dictionary<string, object> _variablesDictIN = (Dictionary<string, object>)state;
 
-        //string parsedItemGenreValue = (string)_variablesDict["itemGenre"];
-        //string parsedItemTypeValue = (string)_variablesDict["itemType"];
+        if (!isRewardPanelItem) //test method later to  delete and arrage 
+        {
 
-        SizeSaveData data = (SizeSaveData)_variablesDictIN["originalSizeDelta"];
-        originalSizeDelta = data.sizeDelta.ToVector2(); 
-        initialGameSlot =   (GameObject)_variablesDictIN["initialGameSlot"];
-        isInventoryItem =   (bool)_variablesDictIN["isInventoryItem"];
-        itemLevel =         (int)_variablesDictIN["itemLevel"];
-        itemGenre =         (Item.ItemGenre)Enum.Parse(typeof(Item.ItemGenre), (string)_variablesDictIN["itemGenre"]); 
-        itemType =          (Item.ItemType)Enum.Parse(typeof(Item.ItemType), (string)_variablesDictIN["itemType"]); 
-        givesXP =           (bool)_variablesDictIN["givesXP"];
-        isSpawner =         (bool)_variablesDictIN["isSpawner"];
-        isCollectible =     (bool)_variablesDictIN["isCollectible"];
-        xpValue =           (int)_variablesDictIN["xpValue"];
-        itemPanelID =       (int)_variablesDictIN["itemPanelID"];
-        isQuestItem =       (bool)_variablesDictIN["isQuestItem"]; ;
-        isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
+            SerializableVector2 size = (SerializableVector2)_variablesDictIN["originalSizeDelta"];
+            originalSizeDelta = size.ToVector2();
+            string initialGameSlotName = (string)_variablesDictIN["initialGameSlot"];
+            isInventoryItem = (bool)_variablesDictIN["isInventoryItem"];
+            itemLevel = (int)_variablesDictIN["itemLevel"];
+            itemGenre = (Item.ItemGenre)Enum.Parse(typeof(Item.ItemGenre), (string)_variablesDictIN["itemGenre"]);
+            itemType = (Item.ItemType)Enum.Parse(typeof(Item.ItemType), (string)_variablesDictIN["itemType"]);
+            givesXP = (bool)_variablesDictIN["givesXP"];
+            isSpawner = (bool)_variablesDictIN["isSpawner"];
+            isCollectible = (bool)_variablesDictIN["isCollectible"];
+            xpValue = (int)_variablesDictIN["xpValue"];
+            itemPanelID = (int)_variablesDictIN["itemPanelID"];
+            isQuestItem = (bool)_variablesDictIN["isQuestItem"]; ;
+            isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
 
-        CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, itemPanelID, isQuestItem, isRewardPanelItem);
+            CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, itemPanelID, isQuestItem, isRewardPanelItem);
+            DropToRestoredSLot(this, initialGameSlotName);
+        }
     }
 
 }
