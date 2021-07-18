@@ -186,10 +186,6 @@ public sealed class PlayerInfo : MonoBehaviour //, ISaveable
 
     }
 
-    //void UpdateLevelText(int level)
-    //{
-    //    levelText.UpdateText(level);
-    //}
 
     void GetXPToNextLevel(int currentLevel) // bu formülizeedilecek
     {
@@ -217,11 +213,31 @@ public sealed class PlayerInfo : MonoBehaviour //, ISaveable
 
     public object CaptureState()
     {
-        throw new NotImplementedException();
+        Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
+
+        _variablesDict.Add("currentXP", currentXP);
+        _variablesDict.Add("slotsCount", inventory.Count);
+
+        foreach (KeyValuePair<InventorySlots,GameItems> pair in inventory )
+        {
+           
+            _variablesDict.Add(pair.Key.slotIDNumber.ToString(), pair.Value?.CaptureState());
+            
+        }
+
+        return _variablesDict;
     }
 
-    public void RestoreState(object state)
+    public void RestoreState(object state) // bunu preloader yaptýðýmda basitleþtirip direk slotlarý instantiate etmem lazým 
     {
-        throw new NotImplementedException();
+        Dictionary<string, object> _VariablesDictIN = (Dictionary<string, object>)state;
+
+        int slotsToRegenerate = (int)_VariablesDictIN["slotsCount"] - inventory.Count;
+        InventorySlots[] inactiveSlots = FindObjectsOfType<InventorySlots>();
+
+        for (int i = 0; i < slotsToRegenerate; i++)
+        {
+            //int slotIDnumber = 
+        }
     }
 }

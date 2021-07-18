@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SavingSystem : MonoBehaviour
 {
-    private GameObject panel_GameSlot;
-
+    //private GameObject panel_GameSlot;
+    private GameObject player;
     private Dictionary<string, object> saveableEntitiesDict = new Dictionary<string, object>();
 
     private void Start()
     {
-        panel_GameSlot = ItemBag.Instance.panel_Gameslots;
+        
+        //panel_GameSlot = ItemBag.Instance.panel_Gameslots;
     }
 
     private void Update()
@@ -38,9 +40,11 @@ public class SavingSystem : MonoBehaviour
         SerializeData(path);
     }
 
-    private void LoadFile()
+    public void LoadFile()
     {
         Debug.Log("load is receiving click");
+
+        LoadScene();
 
         string path = GetPathFromSaveFile("newsavegame");
         
@@ -77,9 +81,9 @@ public class SavingSystem : MonoBehaviour
 
     private void CaptureState()
     {
-        
+        player = GameObject.FindGameObjectWithTag("Player");
 
-        foreach (SaveableEntitiy savEntity in FindObjectsOfType<SaveableEntitiy>())
+        foreach (SaveableEntitiy savEntity in player.GetComponents<SaveableEntitiy>())
         {
             saveableEntitiesDict[savEntity.GetUniqueIdentifier()] = savEntity.CaptureState();
         }
@@ -89,21 +93,39 @@ public class SavingSystem : MonoBehaviour
 
     private void RestoreState(Dictionary<string,object> saveableEntitiesDictIN)
     {
-        foreach (KeyValuePair<string,object> pairs in saveableEntitiesDictIN)
+        LoadScene();
+        player = GameObject.FindGameObjectWithTag("Player");
+
+        Debug.Log("restore state is working");
+
+        foreach (SaveableEntitiy savEntity in player.GetComponents<SaveableEntitiy>())
         {
-          
-            foreach (KeyValuePair<string,object> pair in (Dictionary<string,object>)pairs.Value)
+            string id = savEntity.GetUniqueIdentifier(); Debug.Log(id);
+            if (saveableEntitiesDictIN.ContainsKey(id))
             {
-                if(string.Equals(pair.Key, "GameItems"))
-                {
-
-                    GameObject gameItemtoLoad = new GameObject();
-                    gameItemtoLoad.transform.SetParent(panel_GameSlot.transform);
-                    gameItemtoLoad.AddComponent<GameItems>().RestoreState(pair.Value);
-
-                }
-            } 
+                savEntity.RestoreState(saveableEntitiesDictIN[id]); Debug.Log(saveableEntitiesDictIN[id]);
+            }
         }
-    }
 
+        //foreach (KeyValuePair<string,object> pairs in saveableEntitiesDictIN)
+        //{
+          
+        //    foreach (KeyValuePair<string,object> pair in (Dictionary<string,object>)pairs.Value)
+        //    {
+        //        if(string.Equals(pair.Key, "GameItems"))
+        //        {
+
+        //            GameObject gameItemtoLoad = new GameObject();
+        //            gameItemtoLoad.transform.SetParent(panel_GameSlot.transform);
+        //            gameItemtoLoad.AddComponent<GameItems>().RestoreState(pair.Value);
+
+        //        }
+        //    } 
+        //}
+    }
+    private void LoadScene()
+    {
+        
+        SceneManager.LoadScene(1);
+    }
 }

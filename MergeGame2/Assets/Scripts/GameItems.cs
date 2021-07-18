@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler,IEndDragHandler, IDragHandler, IPointerDownHandler,IPointerUpHandler,ISaveable
+public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler,IEndDragHandler, IDragHandler, IPointerDownHandler,IPointerUpHandler //,ISaveable
 {
 
     public event Action<PointerEventData> OnBeginDragHandler;
@@ -102,7 +102,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         topPanels = GameObject.FindObjectsOfType<TopPanelID>();
 
-        gameObject.AddComponent<SaveableEntitiy>();
+        //gameObject.AddComponent<SaveableEntitiy>();
 
     }
 
@@ -618,7 +618,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             //data.sizeDelta = new SerializableVector2(originalSizeDelta);
 
             _variablesDict.Add("originalSizeDelta", size);
-            _variablesDict.Add("initialGameSlot", this.initialGameSlot.GetComponent<GameSlots>().slotName);
+            //_variablesDict.Add("initialGameSlot", this.initialGameSlot.GetComponent<GameSlots>().slotName);
             _variablesDict.Add("isInventoryItem", this.isInventoryItem);
             _variablesDict.Add("itemLevel", this.itemLevel);
             _variablesDict.Add("itemGenre", this.itemGenre.ToString());
@@ -643,16 +643,16 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     //    public SerializableVector2 sizeDelta;
     //}
 
-    void DropToRestoredSLot(GameItems gameItemLoaded, string slotName)
-    {
-        foreach (KeyValuePair<GameObject,GameItems> gameSlotPair in SlotsCounter.Instance.slotDictionary)
-        {
-            if (gameSlotPair.Key.GetComponent<GameSlots>().slotName == slotName)
-            {
-                gameSlotPair.Key.GetComponent<GameSlots>().Drop(gameItemLoaded);
-            }
-        }
-    }
+    //void DropToRestoredSLot(GameItems gameItemLoaded, string slotName)
+    //{
+    //    foreach (KeyValuePair<GameObject,GameItems> gameSlotPair in SlotsCounter.Instance.slotDictionary)
+    //    {
+    //        if (gameSlotPair.Key.GetComponent<GameSlots>().slotName == slotName)
+    //        {
+    //            gameSlotPair.Key.GetComponent<GameSlots>().Drop(gameItemLoaded);
+    //        }
+    //    }
+    //}
 
     public void RestoreState(object state)
     {
@@ -664,7 +664,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
             SerializableVector2 size = (SerializableVector2)_variablesDictIN["originalSizeDelta"];
             originalSizeDelta = size.ToVector2();
-            string initialGameSlotName = (string)_variablesDictIN["initialGameSlot"];
+            //string initialGameSlotName = (string)_variablesDictIN["initialGameSlot"];
             isInventoryItem = (bool)_variablesDictIN["isInventoryItem"];
             itemLevel = (int)_variablesDictIN["itemLevel"];
             itemGenre = (Item.ItemGenre)Enum.Parse(typeof(Item.ItemGenre), (string)_variablesDictIN["itemGenre"]);
@@ -678,7 +678,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
 
             CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, itemPanelID, isQuestItem, isRewardPanelItem);
-            DropToRestoredSLot(this, initialGameSlotName);
+            //DropToRestoredSLot(this, initialGameSlotName);
         }
     }
 

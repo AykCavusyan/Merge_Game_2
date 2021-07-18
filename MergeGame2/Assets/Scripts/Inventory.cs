@@ -34,7 +34,7 @@ public class Inventory : MonoBehaviour
 
         if (currentSlotAmount > 0)
         {
-            InstantiateSlots();
+            InstantiateSlots(currentSlotAmount);
         }
         
     }
@@ -52,9 +52,9 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void InstantiateSlots()
+    void InstantiateSlots(int currentSlotAmountIN)
     {
-        for (int i = 0; i < currentSlotAmount; i++)
+        for (int i = 0; i < currentSlotAmountIN; i++)
         {
             CreateNewSlot(true);
         }
@@ -68,7 +68,8 @@ public class Inventory : MonoBehaviour
         currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotBackgroundActive"));
 
         currentNewSlot.transform.SetParent(inner_Panel_Container, false);
-        currentNewSlot.AddComponent<InventorySlots>().isActive = isActive ;
+        currentNewSlot.AddComponent<InventorySlots>().isActive = isActive;
+        //currentNewSlot.AddComponent<SaveableEntitiy>();
         slotIDNumber++;
         currentNewSlot.GetComponent<InventorySlots>().slotIDNumber = slotIDNumber;
         currentNewSlot.GetComponent<InventorySlots>().isPurchasedOnSession = isPurchasedOnSession;
@@ -106,6 +107,11 @@ public class Inventory : MonoBehaviour
 
     void PurchaseSlot(GameObject sender)
     {
+        InventorySlots inventorySlot = sender.GetComponent<InventorySlots>();
+        sender.transform.GetChild(0).GetComponent<Image>().color = inventorySlot.originalColor;
+        sender.transform.Find("Lock").gameObject.SetActive(false);
+        inventorySlot.isActive = true;
+
 
         if (PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
         {

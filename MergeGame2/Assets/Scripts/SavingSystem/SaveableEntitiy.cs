@@ -9,24 +9,6 @@ public class SaveableEntitiy : MonoBehaviour
     [SerializeField] string uniqueIdentifier = "";
     static Dictionary<string, SaveableEntitiy> identitiyDict = new Dictionary<string, SaveableEntitiy>();
 
-    private void Awake()
-    {
-        //if (Application.IsPlaying(gameObject)) return;
-        if (string.IsNullOrEmpty(gameObject.scene.path)) return;
-
-        SerializedObject serializedObject = new SerializedObject(this);
-        SerializedProperty serializedProperty = serializedObject.FindProperty("uniqueIdentifier");
-
-        if (string.IsNullOrEmpty(serializedProperty.stringValue) || !IsUnique(serializedProperty.stringValue))
-        {
-            serializedProperty.stringValue = System.Guid.NewGuid().ToString();
-            serializedObject.ApplyModifiedProperties();
-        }
-
-        identitiyDict[serializedProperty.stringValue] = this;
-    }
-
-
     public object CaptureState()
     {
         Dictionary<string, object> saveEntitiesDict = new Dictionary<string, object>();
@@ -53,24 +35,24 @@ public class SaveableEntitiy : MonoBehaviour
     }
 
 
-//#if UNITY_EDITOR
-//    private void Update()
-//    {
-//        if (Application.IsPlaying(gameObject)) return;
-//        if (string.IsNullOrEmpty(gameObject.scene.path)) return;
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (Application.IsPlaying(gameObject)) return;
+        if (string.IsNullOrEmpty(gameObject.scene.path)) return;
 
-//        SerializedObject serializedObject = new SerializedObject(this);
-//        SerializedProperty serializedProperty = serializedObject.FindProperty("uniqueIdentifier");
+        SerializedObject serializedObject = new SerializedObject(this);
+        SerializedProperty serializedProperty = serializedObject.FindProperty("uniqueIdentifier");
 
-//        if (string.IsNullOrEmpty(serializedProperty.stringValue) || !IsUnique(serializedProperty.stringValue))
-//        {
-//            serializedProperty.stringValue = System.Guid.NewGuid().ToString();
-//            serializedObject.ApplyModifiedProperties();
-//        }
+        if (string.IsNullOrEmpty(serializedProperty.stringValue) || !IsUnique(serializedProperty.stringValue))
+        {
+            serializedProperty.stringValue = System.Guid.NewGuid().ToString();
+            serializedObject.ApplyModifiedProperties();
+        }
 
-//        identitiyDict[serializedProperty.stringValue] = this;
-//    }
-//#endif
+        identitiyDict[serializedProperty.stringValue] = this;
+    }
+#endif
 
     private bool IsUnique (string serializedPropertyName)
     {

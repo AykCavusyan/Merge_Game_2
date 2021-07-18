@@ -65,6 +65,7 @@ public class RewardSlots : MonoBehaviour
     {
         containedItem = gameItem;
         PlaceItem(gameItem);
+        UpdateItemParentSlot(gameItem);
     }
 
     void PlaceItem(GameItems gameItem)
@@ -84,6 +85,11 @@ public class RewardSlots : MonoBehaviour
         rt.anchoredPosition = slot_Item_Holder.GetComponent<RectTransform>().anchoredPosition;
 
     }
+    void UpdateItemParentSlot(GameItems gameItemIN)
+    {
+        gameItemIN.initialGameSlot = this.gameObject;
+    }
+
 
     void PlaceSlots(object sender, EventArgs e)
     {

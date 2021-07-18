@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed  class SlotsCounter : MonoBehaviour //, ISaveable
+public sealed  class SlotsCounter : MonoBehaviour , ISaveable
 {
 
     private static SlotsCounter _instance;
@@ -46,6 +46,7 @@ public sealed  class SlotsCounter : MonoBehaviour //, ISaveable
         for (int i = 0; i < gameSlots.Length; i++)
         {
             slotDictionary.Add(gameSlots[i], null);
+
             gameSlots[i].GetComponent<GameSlots>().onSlotDischarged += RemoveFromDictonary; 
             gameSlots[i].GetComponent<GameSlots>().onSlotFilled += AddTodictionary;
         }
@@ -88,11 +89,64 @@ public sealed  class SlotsCounter : MonoBehaviour //, ISaveable
 
     public object CaptureState()
     {
-        throw new NotImplementedException();
+        Dictionary<string, object> _slotSaveDict = new Dictionary<string, object>();
+
+        foreach (KeyValuePair<GameObject, GameItems> pair in slotDictionary)
+        {
+            if (pair.Value != null)
+            {
+                _slotSaveDict.Add(pair.Key.GetComponent<SaveableEntitiy>().GetUniqueIdentifier(), pair.Value.CaptureState());
+            }
+        }
+        return _slotSaveDict;
+
+        //foreach (KeyValuePair<GameObject,GameItems> pair in slotDictionary)
+        //{
+        //    _slotSaveDict.Add(pair.Key.GetComponent<SaveableEntitiy>().GetUniqueIdentifier(), pair.Value?.CaptureState() ?? null);
+        //}
+
+        //return _slotSaveDict;
     }
 
     public void RestoreState(object state)
     {
-        throw new NotImplementedException();
+        Debug.Log("restorestate of counter is working");
+
+        Dictionary<string, object> _slotSaveDictIN = (Dictionary<string, object>)state;
+
+        foreach(GameSlots gameslot in FindObjectsOfType<GameSlots>())
+        {
+            string id = gameslot.GetComponent<SaveableEntitiy>().GetUniqueIdentifier();
+
+            if (_slotSaveDictIN.ContainsKey(id))
+            {
+                gameslot.RestoreState(_slotSaveDictIN[id]);
+            }
+        }
+
+
+        //foreach(KeyValuePair<GameObject, GameItems> pair in slotDictionary)
+        //{
+        //    string id = pair.Key.GetComponent<SaveableEntitiy>().GetUniqueIdentifier();
+
+        //    if (_slotSaveDictIN.ContainsKey(id))
+        //    {
+        //        pair.Key.GetComponent<GameSlots>().RestoreState(_slotSaveDictIN[id]);
+        //    }
+        //}
+
+
+        //foreach (string slotUniqueID in _slotSaveDictIN.Keys)
+        //{
+        //    // bu kýsým daha sona linQ ile yapýlsa daha temiz
+        //    foreach (KeyValuePair<GameObject, GameItems> pair in slotDictionary)
+        //    {
+        //        if(pair.Key.GetComponent<SaveableEntitiy>().GetUniqueIdentifier() == slotUniqueID && pair.Value !=null)
+        //        {
+        //            pair.Key.GetComponent<GameSlots>().RestoreState(_slotSaveDictIN[slotUniqueID]);
+        //        }
+        //    }
+
+        //}
     }
 }

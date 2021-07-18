@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
-public class GameSlots : MonoBehaviour
+public class GameSlots : MonoBehaviour, ISaveable
 {
     public GameObject panel_Gameslots;
     //private RectTransform rtSlot; later to be usd for not giving numeric value to gaametimem size
@@ -14,7 +14,7 @@ public class GameSlots : MonoBehaviour
     public List<DropConditions> dropConditions = new List<DropConditions>();
     [SerializeField] public bool canDrop { get; private set; }
     [SerializeField] public GameObject containedItem { get; private set; }
-    public string slotName { get; private set; }
+    //public string slotName { get; private set; }
 
     public event Action<GameItems> OnDropHandler;
 
@@ -36,7 +36,7 @@ public class GameSlots : MonoBehaviour
 
     private void Awake()
     {
-        slotName = gameObject.name;
+        //slotName = gameObject.name;
         canDrop = true;
         //rtSlot = GetComponent<RectTransform>(); later to be usd for not giving numeric value to gaametimem size
         crossMark = transform.Find("CrossMark");
@@ -212,5 +212,35 @@ public class GameSlots : MonoBehaviour
         lerpAnchorPoint.z = 0;
 
         return lerpAnchorPoint;
+    }
+
+    public object CaptureState()
+    {
+        Dictionary<string, object> _dictFromItem = new Dictionary<string, object>();
+
+        if(containedItem != null)
+        {
+            _dictFromItem = (Dictionary<string, object>)containedItem.GetComponent<GameItems>().CaptureState();
+        }
+
+        return _dictFromItem;
+    }
+
+    public void RestoreState(object state)
+    {
+
+        Dictionary<string, object> _dictFromItemIN = (Dictionary<string, object>)state;
+
+        GameObject gameItemtoLoad = new GameObject();
+        gameItemtoLoad.transform.SetParent(panel_Gameslots.transform);
+
+        //if (containedItem != null) 
+        //{
+        Debug.Log("restorestatte of ameslots working");
+
+        gameItemtoLoad.AddComponent<GameItems>().RestoreState(_dictFromItemIN);
+        Drop(gameItemtoLoad.GetComponent<GameItems>());
+        //}
+
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
+public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandler,ISaveable
 {
     private RectTransform rectTransform;
     private float lerpDuration = .1f;
@@ -14,7 +14,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     private Image image; // bu kalkabililr gibi duruyor 
     [SerializeField] private List<Image> childImage;
     private GameSlots[] gameSlots;
-    private Color originalColor;
+    public Color originalColor { get; private set; }
 
     public bool isActive;
 
@@ -232,9 +232,10 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     void ActivateSlot()
     {
-        transform.GetChild(0).GetComponent<Image>().color = originalColor;
-        isActive = true;
-        transform.Find("Lock").gameObject.SetActive(false);
+        //transform.GetChild(0).GetComponent<Image>().color = originalColor;
+        //isActive = true;
+        //transform.Find("Lock").gameObject.SetActive(false);
+        onSlotPurchaseAttempt?.Invoke(this.gameObject);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -251,8 +252,33 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         if ( isActive == false)
         {
             ActivateSlot();
-            onSlotPurchaseAttempt?.Invoke(this.gameObject);
+            //onSlotPurchaseAttempt?.Invoke(this.gameObject);
         }
 
+    }
+
+    public object CaptureState()
+    {
+        Dictionary<string, object> _dictFromItem = new Dictionary<string, object>();
+
+        if(containedItem != null)
+        {
+            _dictFromItem = (Dictionary<string, object>)containedItem.GetComponent<GameItems>().CaptureState();
+        }
+
+        return _dictFromItem;
+    }
+
+    public void RestoreState(object state)
+    {
+        Dictionary<string, object> _dictFromItemIn = (Dictionary<string, object>)state;
+
+        GameObject gameItemToLoad = new GameObject();
+        gameItemToLoad.transform.SetParent(slot_Item_Holder.transform);
+
+        Debug.Log("restorestate of inventory slots working!!");
+
+        gameItemToLoad.AddComponent<GameItems>().RestoreState(_dictFromItemIn);
+        Drop(gameItemToLoad.GetComponent<GameItems>());
     }
 }
