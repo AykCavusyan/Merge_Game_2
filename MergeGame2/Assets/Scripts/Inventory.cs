@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class Inventory : MonoBehaviour
 {
     private Transform inner_Panel_Container;
+    private GridLayoutGroup gridLayoutGroup;
     public GameObject player;
 
     private int currentSlotAmount;
@@ -18,8 +19,8 @@ public class Inventory : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        //inner_Panel_Container = GameObject.Find("Inner_Panel_Container").GetComponent<Transform>();
         inner_Panel_Container = transform.GetChild(1).GetChild(0).GetComponent<Transform>(); // bu transform burada gerekli mi ???
+        gridLayoutGroup = inner_Panel_Container.GetComponent<GridLayoutGroup>();
     }
 
 
@@ -30,13 +31,9 @@ public class Inventory : MonoBehaviour
 
     private void Start()
     {
-        currentSlotAmount = PlayerInfo.Instance.currentInventorySlotAmount;
-
-        if (currentSlotAmount > 0)
-        {
-            InstantiateSlots(currentSlotAmount);
-        }
-        
+        float cellSize = inner_Panel_Container.GetComponent<RectTransform>().rect.width / 4.7f;
+        gridLayoutGroup.cellSize = new Vector2(cellSize, cellSize);
+  
     }
 
 
@@ -52,18 +49,37 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void InstantiateSlots(int currentSlotAmountIN)
+    public void ConfigPanel(Dictionary<int, object> _itemsDictIN)
     {
+        currentSlotAmount = PlayerInfo.Instance.currentInventorySlotAmount;
+
+        if (currentSlotAmount > 0)
+        {
+            InstantiateSlots(currentSlotAmount, _itemsDictIN);
+        }
+    }
+
+    void InstantiateSlots(int currentSlotAmountIN, Dictionary<int, object> _itemsDictIN)
+    {
+
         for (int i = 0; i < currentSlotAmountIN; i++)
         {
-            CreateNewSlot(true);
+            GameObject instantiatedSlot = CreateNewSlot(true);
+            int inventorySlotID = instantiatedSlot.GetComponent<InventorySlots>().slotIDNumber;
+
+            Debug.Log(_itemsDictIN.Keys);
+            if (_itemsDictIN.ContainsKey(inventorySlotID))
+            {
+                
+                instantiatedSlot.GetComponent<InventorySlots>().RestoreState(_itemsDictIN[inventorySlotID]);
+            }
         }
 
         CreateNewSlot(false);
         DisableChildrenImages();
     }
 
-     void CreateNewSlot(bool isActive, bool isPurchasedOnSession = false)
+     private GameObject CreateNewSlot(bool isActive, bool isPurchasedOnSession = false)
     {
         currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotBackgroundActive"));
 
@@ -84,6 +100,8 @@ public class Inventory : MonoBehaviour
         {
             ListenInactiveSlot(currentNewSlot);
         }
+
+        return currentNewSlot;
 
     } 
 

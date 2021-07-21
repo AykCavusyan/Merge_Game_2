@@ -100,10 +100,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         rectTransform = gameObject.AddComponent<RectTransform>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
-        topPanels = GameObject.FindObjectsOfType<TopPanelID>();
-
-        //gameObject.AddComponent<SaveableEntitiy>();
-
+        topPanels = FindObjectsOfType<TopPanelID>();       
     }
 
     private void OnEnable()
@@ -270,7 +267,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             {
                 canDrag = false;
 
-                gameSlot.Drop(this);
+                gameSlot.Drop(this);//, new Vector3(eventData.position.x, eventData.position.y,0));
+                Vector3 pointerDropPos = new Vector3(eventData.position.x, eventData.position.y, 0);
 
                 OnEndDragHandler?.Invoke(eventData, true);
 
@@ -285,18 +283,19 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                 if (gameSlot.containedItem != null && AcceptMerge(this, gameSlot))
                 {
+                    GameObject containedItem = gameSlot.containedItem;
                     canDrag = false;
 
-                    Vector3 mergePosition = gameSlot.containedItem.transform.position;
+                    //Vector3 mergePosition = gameSlot.containedItem.transform.position;
                     GameItems mergedItem = Merge(this, gameSlot, this.itemLevel);
+                    mergedItem.transform.position = containedItem.transform.position;
 
                     DestroyItem(gameSlot.containedItem);
 
-                    gameSlot.Drop(mergedItem, mergePosition);
+                    gameSlot.Drop(mergedItem); //, mergePosition);
 
                     OnEndDragHandler?.Invoke(eventData, true);
-                    // sprite kýsýmý sadeleþebilir !!!
-                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = gameSlot.containedItem.transform.position, sprite = gameSlot.containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel });
+                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = containedItem.transform.position, sprite = containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel });
 
                     DestroyItem(this.gameObject);
                     
@@ -321,19 +320,16 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             if (PlayerInfo.Instance.emptySlots.Count > 0)
             {
                 
-                //int targetSlotIDNumber = PlayerInfo.Instance.GetDictionaryAmount() + 1;
-
-                //InventorySlots[] inventorySlots = (InventorySlots[])GameObject.FindObjectsOfType(typeof(InventorySlots));
-
-                foreach (InventorySlots item in PlayerInfo.Instance.emptySlots)
+                foreach (InventorySlots invSlot in PlayerInfo.Instance.emptySlots)
                 {
-                    if(item.isActive == true)
+                    if(invSlot.isActive == true)
                     {
                         StopAllCoroutines();
                         rectTransform.sizeDelta = originalSizeDelta;
 
-                        item.Drop(this);
+                        invSlot.Drop(this);
                         canDrag = false;
+                        cr_Running = false;
                         //isInventoryItem = true;                  
                         return;
                     }
@@ -359,8 +355,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     void SetItemBack(PointerEventData eventData)
     {
-        canDrag = false;
-        Debug.Log("The Item SLot Container is already full or invalid position");
+        canDrag = false; Debug.Log("The Item SLot Container is already full or invalid position");
         initialGameSlot.GetComponent<GameSlots>().Drop(this);
         OnEndDragHandler?.Invoke(eventData, false);
         canDrag = true;
@@ -451,6 +446,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         {
             if (isInventoryItem == true)
             {
+                StopAllCoroutines();
+                cr_Running = false;
+
                 GameSlots slotToMove = ItemBag.Instance.FindEmptySlotPosition();
                 initialGameSlot.GetComponent<InventorySlots>().DischargeItem(this);
                 slotToMove.Drop(this);
@@ -462,7 +460,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             else if ( isCollectible == true)
             {
                 CollectItem();
-                Debug.Log("collected");
             }
 
         }
@@ -478,13 +475,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         if (canReactToClick == true && isSpawner == true && isInventoryItem == false)
         {
-            ItemBag.Instance.AddGeneratedItem(itemGenre, transform.position);
-            #region
-            //Debug.Log(transform.position + "gameitem transform position");
-            //Debug.Log(initialGameSlot.transform.position + "gameslot transform position");
-            //Debug.Log(rectTransform.anchoredPosition + "gameitem anchored position");
-            //Debug.Log(transform.localPosition + "gameitem localposition");
-            #endregion
+            GameObject newGameItem = ItemBag.Instance.GenerateItem(itemGenre);
+            ItemBag.Instance.AddGeneratedItem(newGameItem);           
         }
     }
 

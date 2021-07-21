@@ -2,15 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed class PlayerInfo : MonoBehaviour //, ISaveable
+public sealed class PlayerInfo : MonoBehaviour , ISaveable
 {
     private static PlayerInfo _instance;
     public static PlayerInfo Instance { get { return _instance; } }
     private static readonly object _lock = new object();
 
     private Dictionary<InventorySlots, GameItems> inventory = new Dictionary<InventorySlots, GameItems>();
+
+    private Dictionary<int, object> _itemsDictToLoad = new Dictionary<int, object>();
+
     public List<InventorySlots> emptySlots = new List<InventorySlots>();
 
     public int remainingInventorySlotAmount;
@@ -61,21 +65,34 @@ public sealed class PlayerInfo : MonoBehaviour //, ISaveable
 
         masterEventListener = GetComponent<MasterEventListener>();
     }
-    private void OnEnable()
-    {
-        MasterEventListener.Instance.OnItemCollectted += CalculateXPFromStars;
-    }
+    
+    //private void OnEnable()
+    //{
+        
+    //}
 
     private void Start()
     {
+        SceneController.Instance.OnSceneLoaded += SceneConfig;
+        MasterEventListener.Instance.OnItemCollectted += CalculateXPFromStars;
         QuestManager.Instance.OnQuestCompleted += CalculateXPFromQuests; // singletonu patatýyor diye burada normal yerine almak lazým
     }
     private void OnDisable()
     {
+        SceneController.Instance.OnSceneLoaded -= SceneConfig;
         MasterEventListener.Instance.OnItemCollectted -= CalculateXPFromStars;
         QuestManager.Instance.OnQuestCompleted -= CalculateXPFromQuests;
     }
 
+    private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
+    {
+        string activeSceneName = SceneManager.GetActiveScene().name;
+
+        if (e._sceneName == activeSceneName)
+        {
+            GameObject.Find("Panel_BackToGame").GetComponent<Inventory>().ConfigPanel(_itemsDictToLoad);
+        }
+    }
 
     public int GetDictionaryAmount()
     {
@@ -216,28 +233,29 @@ public sealed class PlayerInfo : MonoBehaviour //, ISaveable
         Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
 
         _variablesDict.Add("currentXP", currentXP);
-        _variablesDict.Add("slotsCount", inventory.Count);
+        _variablesDict.Add("currentInventorySlotAmount", currentInventorySlotAmount);
+        _variablesDict.Add("currentLevel", currentLevel);
 
+        Dictionary<int, object> _itemsDict = new Dictionary<int, object>();
         foreach (KeyValuePair<InventorySlots,GameItems> pair in inventory )
         {
-           
-            _variablesDict.Add(pair.Key.slotIDNumber.ToString(), pair.Value?.CaptureState());
-            
+            if (pair.Value!=null) _itemsDict.Add(pair.Key.slotIDNumber, pair.Value.CaptureState());
         }
+        _variablesDict.Add("itemsDict", _itemsDict);
 
         return _variablesDict;
     }
 
-    public void RestoreState(object state) // bunu preloader yaptýðýmda basitleþtirip direk slotlarý instantiate etmem lazým 
+    public void RestoreState(object state) 
     {
         Dictionary<string, object> _VariablesDictIN = (Dictionary<string, object>)state;
 
-        int slotsToRegenerate = (int)_VariablesDictIN["slotsCount"] - inventory.Count;
-        InventorySlots[] inactiveSlots = FindObjectsOfType<InventorySlots>();
+        currentInventorySlotAmount = (int)_VariablesDictIN["currentInventorySlotAmount"];
+        currentXP = (int)_VariablesDictIN["currentXP"];
+        currentLevel = (int)_VariablesDictIN["currentLevel"];
 
-        for (int i = 0; i < slotsToRegenerate; i++)
-        {
-            //int slotIDnumber = 
-        }
+        _itemsDictToLoad = (Dictionary<int, object>)_VariablesDictIN["itemsDict"];
+
+
     }
 }

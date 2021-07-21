@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuestManager : MonoBehaviour //, ISaveable
 {
     private static QuestManager _instance;
     public static QuestManager Instance { get { return _instance; } }
-
     private static readonly object _lock = new object(); // bu mu yoksa büyük harf class olan mý ??????
 
     private Quest newQuest;
@@ -57,15 +57,26 @@ public class QuestManager : MonoBehaviour //, ISaveable
         }
 
         ItemBag itemBag = GetComponent<ItemBag>(); // bu lazým mý ??
-        questPanel = GameObject.Find("Panel_QuestPanel");
-        rewardPanel = GameObject.Find("Panel_LevelPanel");
+        
     }
 
     private void OnEnable()
     {
         ItemBag.Instance.OnGameItemCreated += AddPresentGameItemsList;
         MasterEventListener.Instance.OnDestroyedMasterEvent += DestroyedItemcheck;
-        rewardPanel.GetComponent<Rewards>().OnRewardItemGiven += AddPresentRewardItemsList;
+        SceneController.Instance.OnSceneLoaded += SceneConfig;     
+    }
+
+    private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e )
+    {
+        string activeSceneName = SceneManager.GetActiveScene().name;
+
+        if(e._sceneName == activeSceneName)
+        {
+            questPanel = GameObject.Find("Panel_QuestPanel");
+            rewardPanel = GameObject.Find("Panel_LevelPanel");
+            rewardPanel.GetComponent<Rewards>().OnRewardItemGiven += AddPresentRewardItemsList; // bunu scene change de disable etmek lazým
+        }
     }
 
 
@@ -73,7 +84,8 @@ public class QuestManager : MonoBehaviour //, ISaveable
     {
         ItemBag.Instance.OnGameItemCreated -= AddPresentGameItemsList;
         MasterEventListener.Instance.OnDestroyedMasterEvent -= DestroyedItemcheck;
-        if(rewardPanel) rewardPanel.GetComponent<Rewards>().OnRewardItemGiven -= AddPresentRewardItemsList;
+        SceneController.Instance.OnSceneLoaded += SceneConfig;
+        if (rewardPanel) rewardPanel.GetComponent<Rewards>().OnRewardItemGiven -= AddPresentRewardItemsList;
     }
 
     private void Update()

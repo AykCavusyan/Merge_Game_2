@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -14,7 +15,6 @@ public sealed class ItemBag : MonoBehaviour
     private static readonly object _lock = new object();
 
 
-    //private GameObject player;
     public Item item;
     public GameObject panel_Gameslots;
     public GameObject canvas;
@@ -25,8 +25,6 @@ public sealed class ItemBag : MonoBehaviour
         public GameItems gameItem;
     }
 
-    //public GameObject[] gameSlots;
-    //public GameObject newGameItemIdentified;
 
     private void Awake()
     {
@@ -47,19 +45,33 @@ public sealed class ItemBag : MonoBehaviour
             }
         }
 
-        //player = GameObject.FindGameObjectWithTag("Player");
-        canvas = GameObject.Find("Canvas");
-        panel_Gameslots = GameObject.Find("Panel_GameSlots");
     }
-    //private void OnEnable()
-    //{
-    //    //Init();
-    //}
+    
+    private void OnEnable()
+    {
+        SceneController.Instance.OnSceneLoaded += SceneConfig;
 
-    //private void Start()
-    //{
-        
-    //}
+    }
+
+    private void OnDisable()
+    {
+        SceneController.Instance.OnSceneLoaded -= SceneConfig;
+
+    }
+
+    private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
+    {
+        string activeSceneName = SceneManager.GetActiveScene().name;
+
+        if (e._sceneName == activeSceneName)
+        {
+            panel_Gameslots = GameObject.Find("Panel_GameSlots");
+            canvas = GameObject.Find("Canvas");
+
+            GameObject.Find("Panel_LevelPanel").GetComponent<Rewards>().ConfigPanel();
+        }
+    }
+
 
     private void Update()
     {
@@ -74,22 +86,12 @@ public sealed class ItemBag : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.U))
         {
-            AddGeneratedItem(Item.ItemGenre.Star);
+            GameObject newGameItem = GenerateItem(Item.ItemGenre.Star);
+            AddGeneratedItem(newGameItem);
         }
     }
 
-    //void Init()
-    //{
-    //     if (SlotsCounter.Instance == null)
-    //    {
-    //        Instantiate(player);
-    //    }
-    //}
 
-    //public void IdentifyItem(GameObject newGameItem)
-    //{
-    //    newGameItemIdentified = newGameItem;
-    //}
 
     public GameSlots FindEmptySlotPosition()
     {
@@ -129,12 +131,14 @@ public sealed class ItemBag : MonoBehaviour
 
     public void GranaryAddGeneratedItem()
     {
-        AddGeneratedItem(Item.ItemGenre.Meals);
+        GameObject newGameItem = GenerateItem(Item.ItemGenre.Meals);
+        AddGeneratedItem(newGameItem);
     }
 
     public void ArmoryAddGeneratedItem()
     {
-        AddGeneratedItem(Item.ItemGenre.Armor);
+        GameObject newGameItem = GenerateItem(Item.ItemGenre.Armor);
+        AddGeneratedItem(newGameItem);
     }
 
 
@@ -151,7 +155,9 @@ public sealed class ItemBag : MonoBehaviour
         
         if (item.givesXP == true)
         {
-            AddGeneratedItem(Item.ItemGenre.Star);
+            GameObject newExtraItem = GenerateItem(itemGenre);
+            AddGeneratedItem(newExtraItem);
+            //AddGeneratedItem(Item.ItemGenre.Star);
         }
         
         //newGameItem.layer = 5;
@@ -163,44 +169,21 @@ public sealed class ItemBag : MonoBehaviour
 
 
 
-    public void AddGeneratedItem(Item.ItemGenre itemGenre, Vector3 itemGeneratedPosition =default(Vector3))
+    public void AddGeneratedItem(GameObject newGameItemIN) //Item.ItemGenre itemGenre, Vector3 itemGeneratedPosition =default(Vector3))
      {
         GameSlots currentEmptyGameSlot = FindEmptySlotPosition();
+        
         if (currentEmptyGameSlot != null)
         {
-            GameObject newGameItem = GenerateItem(itemGenre);
-            newGameItem.name = "GameItem" + 1;
-            currentEmptyGameSlot.Drop(newGameItem.GetComponent<GameItems>(), itemGeneratedPosition);
-
-           
+            //GameObject newGameItem = GenerateItem(itemGenre);
+            //newGameItem.name = "GameItem" + 1;
+            currentEmptyGameSlot.Drop(newGameItemIN.GetComponent<GameItems>()); //, itemGeneratedPosition);
         }
         else
         {
             Debug.Log("There is no place left!");
         }
 
-        #region
-        //int i = FindEmptySlotPosition();
-
-        //   if (i >= 0 && i <= gameSlots.Length)
-        //   {
-
-        //       GameObject newGameItem = GenerateItem(itemGenre);
-        //       newGameItem.name = "GameItem" + i + 1;
-        //       gameSlots[i].GetComponent<GameSlots>().Drop(newGameItem.GetComponent<GameItems>(), transform.position);
-        //       IdentifyItem(newGameItem);
-
-
-        //       //would be much better if made with an event - need to und how to pass the variable 
-        //       //gameSlots[i].GetComponent<GameSlots>().canDrop = false;
-
-        //       inventory.AddItemToList(item);
-        //   }
-        //   else
-        //   {
-        //    Debug.Log("There is no place left!");
-        //   }
-        #endregion
     }
 
 

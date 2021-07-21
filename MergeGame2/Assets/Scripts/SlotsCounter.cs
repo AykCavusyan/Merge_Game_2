@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public sealed  class SlotsCounter : MonoBehaviour , ISaveable
 {
@@ -16,6 +17,7 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable
     public  List<GameObject> emptySlots = new List<GameObject>();
 
     public  Dictionary<GameObject, GameItems> slotDictionary = new Dictionary<GameObject, GameItems>(); // GET SET yapýacak !!!
+    private Dictionary<string, object> _itemsDictToLoad = new Dictionary<string, object>();
     //public int emptySlots = 0;
 
 
@@ -38,27 +40,56 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable
         }
 
         //emptySlots = new List<GameObject>();
-        gameSlots = GameObject.FindGameObjectsWithTag("Container");
     }
 
     private void OnEnable()
     {
-        for (int i = 0; i < gameSlots.Length; i++)
-        {
-            slotDictionary.Add(gameSlots[i], null);
+        SceneController.Instance.OnSceneLoaded += SceneConfig;
 
-            gameSlots[i].GetComponent<GameSlots>().onSlotDischarged += RemoveFromDictonary; 
-            gameSlots[i].GetComponent<GameSlots>().onSlotFilled += AddTodictionary;
+    }
+
+    private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
+    {
+        string activeSceneName = SceneManager.GetActiveScene().name;
+
+        if (e._sceneName == activeSceneName)
+        {
+            gameSlots = GameObject.FindGameObjectsWithTag("Container");
+
+            for (int i = 0; i < gameSlots.Length; i++)
+            {
+
+                gameSlots[i].GetComponent<GameSlots>().onSlotDischarged += RemoveFromDictonary;
+                gameSlots[i].GetComponent<GameSlots>().onSlotFilled += AddTodictionary;
+
+                string id = gameSlots[i].GetComponent<SaveableEntitiy>().GetUniqueIdentifier();
+
+                if (_itemsDictToLoad!=null && _itemsDictToLoad.ContainsKey(id))
+                {
+                    gameSlots[i].GetComponent<GameSlots>().RestoreState(_itemsDictToLoad[id]);
+                }
+                else
+                slotDictionary.Add(gameSlots[i], null);
+            }
+
+            GenerateEMptySlotList();
         }
     }
 
+
     private void OnDisable()
     {
-        for (int i = 0; i < gameSlots.Length; i++)
+        SceneController.Instance.OnSceneLoaded -= SceneConfig;
+
+        if (gameSlots.Length > 0)
         {
-            if(gameSlots[i]) gameSlots[i].GetComponent<GameSlots>().onSlotDischarged -= RemoveFromDictonary;
-            if(gameSlots[i]) gameSlots[i].GetComponent<GameSlots>().onSlotFilled -= AddTodictionary;
+            for (int i = 0; i < gameSlots.Length; i++)
+            {
+                if (gameSlots[i]) gameSlots[i].GetComponent<GameSlots>().onSlotDischarged -= RemoveFromDictonary;
+                if (gameSlots[i]) gameSlots[i].GetComponent<GameSlots>().onSlotFilled -= AddTodictionary;
+            }
         }
+        
     }
 
     void AddTodictionary(object sender, GameSlots.OnSlotAvailabilityEventHandler e)
@@ -112,17 +143,19 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable
     {
         Debug.Log("restorestate of counter is working");
 
-        Dictionary<string, object> _slotSaveDictIN = (Dictionary<string, object>)state;
+        _itemsDictToLoad = (Dictionary<string, object>)state;
 
-        foreach(GameSlots gameslot in FindObjectsOfType<GameSlots>())
-        {
-            string id = gameslot.GetComponent<SaveableEntitiy>().GetUniqueIdentifier();
+        //Dictionary<string, object> _slotSaveDictIN = (Dictionary<string, object>)state;
 
-            if (_slotSaveDictIN.ContainsKey(id))
-            {
-                gameslot.RestoreState(_slotSaveDictIN[id]);
-            }
-        }
+       //foreach (GameSlots gameslot in FindObjectsOfType<GameSlots>())
+        //{
+           // string id = gameslot.GetComponent<SaveableEntitiy>().GetUniqueIdentifier();
+
+            //if (_slotSaveDictIN.ContainsKey(id))
+            //{
+              //  gameslot.RestoreState(_slotSaveDictIN[id]);
+           // }
+    //}
 
 
         //foreach(KeyValuePair<GameObject, GameItems> pair in slotDictionary)

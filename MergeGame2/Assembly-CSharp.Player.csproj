@@ -60,6 +60,7 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightIntensityFade.cs" />
     <Compile Include="Assets\Scripts\ItemBag.cs" />
     <Compile Include="Assets\Scripts\SavingSystem\SerializableVector2.cs" />
+    <Compile Include="Assets\Scripts\SavingSystem\SaveableEntitiy.cs" />
     <Compile Include="Assets\Scripts\CharacterLevel.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_AutoRotate.cs" />
     <Compile Include="Assets\Scripts\DropConditions.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Assets\Scripts\Ribbon_Panel.cs" />
     <Compile Include="Assets\Scripts\ButtonHandler.cs" />
     <Compile Include="Assets\Scripts\VisualEffects.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\SlotsCounter.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDir.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RotateCamera.cs" />
     <Compile Include="Assets\Scripts\LevelBar.cs" />
     <Compile Include="Assets\Scripts\MergeRecipes.cs" />
+    <Compile Include="Assets\Scripts\SavingSystem\SavingSystem.cs" />
     <Compile Include="Assets\Scripts\Panel_BackgroundPanelHolder.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
     <Compile Include="Assets\Scripts\Button_Base.cs" />
@@ -105,9 +108,8 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\SavingSystem\SaveableEntitiy.cs" />
-    <Compile Include="Assets\Scripts\GameManager.cs" />
-    <Compile Include="Assets\Scripts\SavingSystem\SavingSystem.cs" />
+    <Compile Include="Assets\Scripts\Scene\SceneController.cs" />
+    <Compile Include="Assets\Scripts\Scene\SceneNames.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

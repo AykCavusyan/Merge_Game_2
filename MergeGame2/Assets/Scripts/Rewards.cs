@@ -32,21 +32,23 @@ public class Rewards : MonoBehaviour
     private void OnEnable()
     {    
         Init();
-        PlayerInfo.Instance.OnLevelTextChanged += GenerateRewadsList;
+        PlayerInfo.Instance.OnLevelTextChanged += UpdateRewardsList;
         claimButton.OnClaimed += ClaimReward;
     }
 
     private void OnDisable()
     {
-        PlayerInfo.Instance.OnLevelTextChanged -= GenerateRewadsList;
+        PlayerInfo.Instance.OnLevelTextChanged -= UpdateRewardsList;
         claimButton.OnClaimed -= ClaimReward;
 
     }
 
-    private void Start()
+
+    public void ConfigPanel(List<List<Item.ItemGenre>> rewardsListIN)
     {
-        
-        GenerateRewadsList(null,null);
+        SetplayerLevel();
+        rewardsList = rewardsListIN;
+        //UpdateRewardsList(null, null);
         InstantiateSlots();
     }
 
@@ -58,7 +60,12 @@ public class Rewards : MonoBehaviour
         }
     }
 
-    void GenerateRewadsList(object sender, PlayerInfo.OnLevelChangedEventArgs e)
+    //void UpdateRewardsList(int playerLevelIN)
+    //{
+
+    //}
+
+    void UpdateRewardsList(object sender, PlayerInfo.OnLevelChangedEventArgs e)
     {
         SetplayerLevel();
         rewardsLevelUp = new Rewards_LevelUp(playerLevel);

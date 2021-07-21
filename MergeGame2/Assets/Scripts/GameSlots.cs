@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 public class GameSlots : MonoBehaviour, ISaveable
 {
     public GameObject panel_Gameslots;
-    //private RectTransform rtSlot; later to be usd for not giving numeric value to gaametimem size
+    private RectTransform rt;
     private Transform crossMark;
     public List<DropConditions> dropConditions = new List<DropConditions>();
     [SerializeField] public bool canDrop { get; private set; }
@@ -38,7 +38,7 @@ public class GameSlots : MonoBehaviour, ISaveable
     {
         //slotName = gameObject.name;
         canDrop = true;
-        //rtSlot = GetComponent<RectTransform>(); later to be usd for not giving numeric value to gaametimem size
+        rt = GetComponent<RectTransform>(); 
         crossMark = transform.Find("CrossMark");
         panel_Gameslots = GameObject.Find("Panel_GameSlots");
 
@@ -59,14 +59,11 @@ public class GameSlots : MonoBehaviour, ISaveable
     }
 
 
-    public void Drop (GameItems gameItem, Vector3 itemDroppedPosition = default(Vector3))
+    public void Drop (GameItems gameItem) 
     {
         OnDropHandler?.Invoke(gameItem); // is there even a listener ??
 
-        if (itemDroppedPosition == default(Vector3))
-        {
-            itemDroppedPosition = gameItem.transform.position;
-        }
+        Vector3 itemDroppedPosition = gameItem.transform.position;
 
         if (gameItem.transform.localScale == default(Vector3))
         {
@@ -80,7 +77,6 @@ public class GameSlots : MonoBehaviour, ISaveable
         canDrop = false;
 
         onSlotFilled?.Invoke(this, new OnSlotAvailabilityEventHandler { gameSlot = this.gameObject, gameItem=containedItem.GetComponent<GameItems>()});
-        //OnDropped?.Invoke(this, new OnDroppedEventHandler { gameItem = gameItem });
     }
 
    
@@ -89,17 +85,19 @@ public class GameSlots : MonoBehaviour, ISaveable
         StartCoroutine(LerpItemSize(gameItem));
     }
 
-    private void PlaceItem(GameItems gameItem, Vector3 itemDroppedPosition)
-    { 
-        // size down the gameItem // this can be done in another way 
-        gameItem.GetComponent<RectTransform>().sizeDelta = new Vector2(122, 122);
-        // place the gameobjec in the contained item so that the script knows
+    private void PlaceItem(GameItems gameItem, Vector3 itemDroppedPosition )
+    {
+        RectTransform rtGameItem = gameItem.GetComponent<RectTransform>();
+        Debug.Log(RectTransformUtility.RectangleContainsScreenPoint(rt, itemDroppedPosition));
+
+        rtGameItem.SetParent(panel_Gameslots.transform);
+        rtGameItem.sizeDelta = (GetComponent<RectTransform>().sizeDelta) * .85f ; //new Vector2(122, 122);
+        rtGameItem.localScale = new Vector3(1, 1, 1);
         containedItem = gameItem.gameObject;
-        //set the parent back to slots panel
-        gameItem.GetComponent<RectTransform>().SetParent(panel_Gameslots.transform);
-        gameItem.GetComponent<RectTransform>().SetAsLastSibling();
-        // smoothly position the item
-        StartCoroutine(LerpItemPositions(itemDroppedPosition, gameItem));
+        rtGameItem.SetAsLastSibling();
+
+        if (itemDroppedPosition != transform.position) StartCoroutine(LerpItemPositions(itemDroppedPosition, gameItem));
+        else gameItem.transform.position = transform.position;
     }
 
     void UpdateItemParentSlot(GameItems gameItem)
@@ -128,6 +126,8 @@ public class GameSlots : MonoBehaviour, ISaveable
             timeElapsed += Time.deltaTime;
             yield return null;
         }
+
+        gameItem.transform.localScale = new Vector3(1, 1, 1);
     }
 
 
@@ -135,12 +135,9 @@ public class GameSlots : MonoBehaviour, ISaveable
     IEnumerator LerpItemPositions(Vector3 itemDroppedPosition,GameItems gameItem)
     {
         float lerpDuration = .4f;
-        float timeElapsed = 0f;
-        
-        
+        float timeElapsed = 0f;        
       
         Vector3 lerpAnchorPosiiton = GetLerpAnchorPoint(itemDroppedPosition);
-
 
         while (timeElapsed < lerpDuration)
         {
@@ -156,63 +153,75 @@ public class GameSlots : MonoBehaviour, ISaveable
         }
 
         gameItem.isMoving = false;
-        gameItem.transform.position = transform .position;
+        gameItem.transform.position = transform.position;
     }
 
-    public Vector3 GetLerpAnchorPoint(Vector3 itemDroppedPosition)
-    {
-        //float anchorX;
-        float anchorY;
-
-        if (itemDroppedPosition.y == transform.position.y)
+    public Vector3 GetLerpAnchorPoint(Vector3 itemDroppedPositionIN)
+    { 
+        if (RectTransformUtility.RectangleContainsScreenPoint(rt, itemDroppedPositionIN))
         {
-            anchorY = transform.position.y + 1;
-            
+            Debug.Log(RectTransformUtility.RectangleContainsScreenPoint(rt, itemDroppedPositionIN));
+            return transform.position;
         }
 
+        Vector2 itemDroppedPosition = new Vector2(itemDroppedPositionIN.x, itemDroppedPositionIN.y);
+        Vector2 slotPosition = new Vector2(transform.position.x, transform.position.y);
 
-        //float pivotPointX;
-        float dx;
-        float dy;
+        Debug.DrawLine(itemDroppedPosition, slotPosition, Color.red, 1f);
 
-        if (itemDroppedPosition.x < transform.position.x )
-        {
-           // pivotPointX = transform.position.x;
-             dx = transform.position.x - itemDroppedPosition.x;
-        }
-        else
-        {
-            //pivotPointX = itemDroppedPosition.x;
-             dx =  itemDroppedPosition.x - transform.position.x ;
-        }
+        Vector2 middlePoint = (itemDroppedPosition+ slotPosition) / 2;
+        Vector2 direction = (slotPosition - itemDroppedPosition).normalized;
+        Vector2 perpandicularDirection = Vector2.Perpendicular(direction);
+        Vector2 anchorPoint = middlePoint + perpandicularDirection * 2f;
 
-       // float pivotPointY ;
-        if (itemDroppedPosition.y < transform.position.y)
-        {
-            //pivotPointY = transform.position.y;
-            dy = transform.position.y - itemDroppedPosition.y;
-        }
-        else
-        {
-            //pivotPointY = itemDroppedPosition.y;
-            dy =  itemDroppedPosition.y - transform.position.y;
-        }
+        Debug.DrawLine(middlePoint, anchorPoint, Color.red, 1f);
 
 
+        return new Vector3(anchorPoint.x,anchorPoint.y, 0);
 
-        // float dx = transform.position.x - itemDroppedPosition.x;
-        // float dy = transform.position.y - itemDroppedPosition.y;
+        #region
+        //float anchorY;
 
-        float lenghtAB = Mathf.Sqrt(Mathf.Pow(dx, 2) + Mathf.Pow(dy, 2));
-        float angleAB = Mathf.Atan(dy / dx);
+        //if (itemDroppedPositionIN.y == transform.position.y)
+        //{
+        //    anchorY = transform.position.y + 1;
 
-        Vector3 lerpAnchorPoint = new Vector3();
-        lerpAnchorPoint.x = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.x;
-        lerpAnchorPoint.y = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.y;
-        lerpAnchorPoint.z = 0;
+        //}
 
-        return lerpAnchorPoint;
+        //float dx;
+        //float dy;
+
+        //if (itemDroppedPositionIN.x < transform.position.x )
+        //{
+        //     dx = transform.position.x - itemDroppedPositionIN.x;
+        //}
+        //else
+        //{
+        //     dx =  itemDroppedPositionIN.x - transform.position.x ;
+        //}
+
+        //if (itemDroppedPositionIN.y < transform.position.y)
+        //{
+        //    dy = transform.position.y - itemDroppedPositionIN.y;
+        //}
+        //else
+        //{
+        //    dy =  itemDroppedPositionIN.y - transform.position.y;
+        //}
+
+
+        //float lenghtAB = Mathf.Sqrt(Mathf.Pow(dx, 2) + Mathf.Pow(dy, 2));
+        //float angleAB = Mathf.Atan(dy / dx);
+
+        //Vector3 lerpAnchorPoint = new Vector3();
+        //lerpAnchorPoint.x = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.x;
+        //lerpAnchorPoint.y = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.y;
+        //lerpAnchorPoint.z = 0;
+
+        //return lerpAnchorPoint;
+        #endregion
     }
+
 
     public object CaptureState()
     {

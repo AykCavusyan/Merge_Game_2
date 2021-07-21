@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SavingSystem : MonoBehaviour
 {
@@ -44,10 +43,8 @@ public class SavingSystem : MonoBehaviour
     {
         Debug.Log("load is receiving click");
 
-        LoadScene();
 
-        string path = GetPathFromSaveFile("newsavegame");
-        
+        string path = GetPathFromSaveFile("newsavegame");  
         RestoreState(DeserializeData(path));
     }
 
@@ -93,7 +90,6 @@ public class SavingSystem : MonoBehaviour
 
     private void RestoreState(Dictionary<string,object> saveableEntitiesDictIN)
     {
-        LoadScene();
         player = GameObject.FindGameObjectWithTag("Player");
 
         Debug.Log("restore state is working");
@@ -123,9 +119,5 @@ public class SavingSystem : MonoBehaviour
         //    } 
         //}
     }
-    private void LoadScene()
-    {
-        
-        SceneManager.LoadScene(1);
-    }
+
 }
