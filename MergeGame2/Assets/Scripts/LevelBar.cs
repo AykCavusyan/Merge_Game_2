@@ -51,9 +51,11 @@ public class LevelBar : MonoBehaviour
 
     void Start()
     {
-        bar.fillAmount = 0f;
+        int currentXP = PlayerInfo.Instance.currentXP;
+        int xpToNextLevel = PlayerInfo.Instance.XPToNextLevel;
+
+        bar.fillAmount = (float)currentXP / xpToNextLevel;
         levelText.text = PlayerInfo.Instance.currentLevel.ToString();
-        //particleSystem.Stop();
     }
 
     void UpdateText(object sender, PlayerInfo.OnLevelChangedEventArgs e)
@@ -96,40 +98,6 @@ public class LevelBar : MonoBehaviour
         }
     }
 
-    //public void ResetBarFillAmount()
-    //{
-    //    if (runningCoroutine == null)
-    //    {
-            
-    //        runningCoroutine = ResetBarFill();
-    //        StartCoroutine(runningCoroutine);
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("coroutine queued");
-    //        coroutineQueue.Enqueue(ResetBarFill());
-           
-    //    }
-    //}
-
-    //public void ResetBarFillAmount()
-    //{
-        
-
-    //    StartCoroutine(ResetBarFill());
-    //}
-
-
-
-    //IEnumerator UpdateBarFill( int xpToNextLevel)
-    //{
-    //   while(cr_Running == true)
-    //    {
-    //        yield return null;
-    //    }
-
-    //    StartCoroutine(SetBarFill(xpToNextLevel));
-    //}
 
     IEnumerator UpdateBarFillEnum (int xpToNextLevel , int currentXP )
     {

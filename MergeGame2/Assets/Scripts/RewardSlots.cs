@@ -77,8 +77,6 @@ public class RewardSlots : MonoBehaviour
         rt.SetParent(slot_Item_Holder.transform);
         rt.sizeDelta = slot_Item_Holder.GetComponent<RectTransform>().sizeDelta;
         
-        //Debug.Log(slot_Item_Holder.GetComponent<RectTransform>().sizeDelta);
-        //Debug.Log(rt.sizeDelta);
 
         rt.localScale = new Vector3(1, 1, 1);
         rt.SetAsLastSibling();

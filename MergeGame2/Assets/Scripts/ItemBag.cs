@@ -68,7 +68,7 @@ public sealed class ItemBag : MonoBehaviour
             panel_Gameslots = GameObject.Find("Panel_GameSlots");
             canvas = GameObject.Find("Canvas");
 
-            GameObject.Find("Panel_LevelPanel").GetComponent<Rewards>().ConfigPanel();
+            //GameObject.Find("Panel_LevelPanel").GetComponent<Rewards>().ConfigPanel();
         }
     }
 

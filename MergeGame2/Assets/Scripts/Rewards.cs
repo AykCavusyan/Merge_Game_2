@@ -11,43 +11,52 @@ public class Rewards : MonoBehaviour
     private GameObject player;
     private Button_Claim claimButton;
 
-
+    public int currentLevelToClaim { get; private set; }
     private int slotIDNumber = 0;
-    private Rewards_LevelUp rewardsLevelUp;
-    public List<List<Item.ItemGenre>> rewardsList = new List<List<Item.ItemGenre>>();
+    private List<int> levelsToClaim = new List<int>();
+
+    //private Rewards_LevelUp newLevelRewardsList; // bu gerekli olmayabilir aþaðýda olsa yetebilir
+   
+    //public List<List<Item.ItemGenre>> rewardsList = new List<List<Item.ItemGenre>>();
+
+    public Dictionary<int, List<Item.ItemGenre>> rewardsDict = new Dictionary<int, List<Item.ItemGenre>>();
     private List<GameObject> currentRewardSlots = new List<GameObject>();
 
     private int playerLevel;
 
     public event Action<GameItems> OnRewardItemGiven;
+    public event Action<List<int>> OnListOfRewardLevelToClaimUpdated;
 
     private void Awake()
     {
         inner_Panel_Container = transform.GetChild(2);
         claimButton = transform.GetChild(3).GetComponent<Button_Claim>();
         player = GameObject.FindGameObjectWithTag("Player");
+        //levelsToClaim.Add(1);
         
     }
 
     private void OnEnable()
     {    
         Init();
-        PlayerInfo.Instance.OnLevelTextChanged += UpdateRewardsList;
+        PlayerInfo.Instance.OnLevelTextChanged += UpdateRewardsDict;
         claimButton.OnClaimed += ClaimReward;
     }
 
     private void OnDisable()
     {
-        PlayerInfo.Instance.OnLevelTextChanged -= UpdateRewardsList;
+        PlayerInfo.Instance.OnLevelTextChanged -= UpdateRewardsDict;
         claimButton.OnClaimed -= ClaimReward;
 
     }
 
 
-    public void ConfigPanel(List<List<Item.ItemGenre>> rewardsListIN)
+    public void ConfigPanel(List<int> levelsToClaimIN, int playerLevelIN)
     {
-        SetplayerLevel();
-        rewardsList = rewardsListIN;
+        playerLevel = playerLevelIN; 
+        levelsToClaim = levelsToClaimIN;
+        if(levelsToClaimIN.Count == 0) levelsToClaim.Add(1);
+        GenerateRewardsDict();
         //UpdateRewardsList(null, null);
         InstantiateSlots();
     }
@@ -65,30 +74,50 @@ public class Rewards : MonoBehaviour
 
     //}
 
-    void UpdateRewardsList(object sender, PlayerInfo.OnLevelChangedEventArgs e)
+    //private int SetplayerLevel()
+    //{
+    //    playerLevel = PlayerInfo.Instance.currentLevel;
+    //    return playerLevel;
+    //}
+
+    void GenerateRewardsDict()
     {
-        SetplayerLevel();
-        rewardsLevelUp = new Rewards_LevelUp(playerLevel);
-        rewardsList.Add(rewardsLevelUp.rewardList);
+        foreach (int level in levelsToClaim)
+        {
+            var newLevelRewardsList = new Rewards_LevelUp(level);
+            Debug.Log(level);
+            rewardsDict.Add(level, newLevelRewardsList.rewardList);
+        }
     }
 
+    void UpdateLevelsToClaimList(int levelToClaimIN)
+    {
+        if (!levelsToClaim.Contains(levelToClaimIN)) levelsToClaim.Add(levelToClaimIN);
+        else if (levelsToClaim.Contains(levelToClaimIN)) levelsToClaim.Remove(levelToClaimIN);
 
+        OnListOfRewardLevelToClaimUpdated?.Invoke(levelsToClaim);
+    }
 
-    void SetplayerLevel()
+    void UpdateRewardsDict(object sender, PlayerInfo.OnLevelChangedEventArgs e)
     {
         playerLevel = PlayerInfo.Instance.currentLevel;
+        var newLevelRewardsList = new Rewards_LevelUp(playerLevel);
+        rewardsDict.Add(playerLevel, newLevelRewardsList.rewardList);
+
+        UpdateLevelsToClaimList(playerLevel);
+        //rewardsList.Add(newLevelRewardsList.rewardList);
     }
-
-
 
     void InstantiateSlots()
     {
         slotIDNumber = 0;
-
-        for (int i = 0; i < rewardsList[0].Count; i++)
+        currentLevelToClaim = rewardsDict.Keys.Min();
+        Debug.Log(currentLevelToClaim);
+       // for (int i = 0; i < rewardsList[0].Count; i++)
+        for (int i = 0; i < rewardsDict[currentLevelToClaim].Count; i++)
         {
             slotIDNumber++;
-            currentRewardSlots.Add(CreateNewSLot(slotIDNumber,rewardsList[0] ,i));
+            currentRewardSlots.Add(CreateNewSLot(slotIDNumber,rewardsDict[currentLevelToClaim] ,i));
         }
         
         DisableChildrenImages();
@@ -102,7 +131,7 @@ public class Rewards : MonoBehaviour
         currentNewSlot.transform.SetParent(inner_Panel_Container, false);
         currentNewSlot.AddComponent<RewardSlots>().slotIDNumber = slotIDNumberIN;
 
-        GameObject itemToAdd = ItemBag.Instance.GenerateItem(list[listIndex], playerLevel, true);
+        GameObject itemToAdd = ItemBag.Instance.GenerateItem(list[listIndex], currentLevelToClaim, true);
         currentNewSlot.GetComponent<RewardSlots>().Drop(itemToAdd.GetComponent<GameItems>());
 
 
@@ -118,11 +147,11 @@ public class Rewards : MonoBehaviour
         }
     }
 
-    void ClaimReward(EventArgs e)
+    void ClaimReward(int i)
     {
         TransferClaimedItems();
         DestroySlots();
-        RemoveClaimedlist();
+        RemoveClaimedListFromDict();
         InstantiateSlots();
     }
 
@@ -149,9 +178,23 @@ public class Rewards : MonoBehaviour
         currentRewardSlots.Clear();
     }
 
-    void RemoveClaimedlist()
+    void RemoveClaimedListFromDict()
     {
-        rewardsList.RemoveAt(0);
+        rewardsDict.Remove(currentLevelToClaim);
+
+        UpdateLevelsToClaimList(currentLevelToClaim);
     }
+
+    //public object CaptureState()
+    //{
+    //    List<int> _levelsToClaim = levelsToClaim;
+
+    //    return _levelsToClaim;
+    //}
+
+    //public void RestoreState (object state)
+    //{
+    //    levelsToClaim = (List<int>)state;
+    //}
 
 }

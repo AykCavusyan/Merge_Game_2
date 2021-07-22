@@ -39,6 +39,13 @@ public class DynamicBar_Level : MonoBehaviour
         parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= ResetBarFill;
     }
 
+    private void Start()
+    {
+        int currentXP = PlayerInfo.Instance.currentXP;
+        int xpToNextLevel = PlayerInfo.Instance.XPToNextLevel;
+        lerpAmount = (float)currentXP / xpToNextLevel;
+    }
+
 
     void Init()
     {
@@ -53,6 +60,8 @@ public class DynamicBar_Level : MonoBehaviour
     {
         StopAllCoroutines();
 
+        Debug.Log(lerpAmount);
+
         originalAmount = 0f;
         StartCoroutine(UpdateBarFillEnum(originalAmount, lerpAmount));
     }
@@ -62,7 +71,7 @@ public class DynamicBar_Level : MonoBehaviour
         StopAllCoroutines();
 
         originalAmount = progressBar.fillAmount;
-        lerpAmount = 0f;
+        float lerpAmount = 0f;
         StartCoroutine(UpdateBarFillEnum(originalAmount, lerpAmount));
     }
 
@@ -79,6 +88,7 @@ public class DynamicBar_Level : MonoBehaviour
             yield return null;
         }
         progressBar.fillAmount = lerpAmount;
+        progressText.text = "%" + Mathf.Round(lerpAmount * 100).ToString();
 
     }
 

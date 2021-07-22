@@ -67,7 +67,6 @@ public class Inventory : MonoBehaviour
             GameObject instantiatedSlot = CreateNewSlot(true);
             int inventorySlotID = instantiatedSlot.GetComponent<InventorySlots>().slotIDNumber;
 
-            Debug.Log(_itemsDictIN.Keys);
             if (_itemsDictIN.ContainsKey(inventorySlotID))
             {
                 

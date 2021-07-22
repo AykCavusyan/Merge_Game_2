@@ -59,7 +59,6 @@ public class VisualEffects : MonoBehaviour
         }
         else
         {
-            Debug.Log("instance is already runnig");
         }
     }
 

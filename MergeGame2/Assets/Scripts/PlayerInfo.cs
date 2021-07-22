@@ -11,6 +11,9 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
     public static PlayerInfo Instance { get { return _instance; } }
     private static readonly object _lock = new object();
 
+    private GameObject levelPanel;
+    private Button_Claim button_Claim;
+
     private Dictionary<InventorySlots, GameItems> inventory = new Dictionary<InventorySlots, GameItems>();
 
     private Dictionary<int, object> _itemsDictToLoad = new Dictionary<int, object>();
@@ -21,10 +24,12 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
     public int currentInventorySlotAmount { get; private set; }
     public int maxInventorySlotAmount { get; private set; }
 
+    private List<int> listOfRewardLevelsToClaim = new List<int>();
 
     public int currentXP { get; private set; }
     public int XPToNextLevel { get; private set; }
     public int currentLevel { get; private set; }
+    public int lastClaimedLevel { get; private set; } = 1;
     //private GameObject levelBar;
     
     private MasterEventListener masterEventListener; // bu gerekli mi bakmak lazým
@@ -82,6 +87,10 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
         SceneController.Instance.OnSceneLoaded -= SceneConfig;
         MasterEventListener.Instance.OnItemCollectted -= CalculateXPFromStars;
         QuestManager.Instance.OnQuestCompleted -= CalculateXPFromQuests;
+        if (levelPanel) levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated -= UpdateListOfRewardLevelsToClaim;
+        if (button_Claim) button_Claim.OnClaimed += UpdateLastLevelClaimed;
+
+
     }
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
@@ -91,6 +100,12 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
         if (e._sceneName == activeSceneName)
         {
             GameObject.Find("Panel_BackToGame").GetComponent<Inventory>().ConfigPanel(_itemsDictToLoad);
+            levelPanel = GameObject.Find("Panel_LevelPanel");
+            button_Claim = levelPanel.transform.GetChild(3).GetComponent<Button_Claim>();
+
+            levelPanel.GetComponent<Rewards>().ConfigPanel(listOfRewardLevelsToClaim, currentLevel);
+            levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated += UpdateListOfRewardLevelsToClaim;
+            button_Claim.OnClaimed += UpdateLastLevelClaimed;
         }
     }
 
@@ -228,11 +243,23 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
         }
     }
 
+    void UpdateListOfRewardLevelsToClaim(List<int> ListOfRewardLevelsToClaimIN)
+    {
+        listOfRewardLevelsToClaim = ListOfRewardLevelsToClaimIN;
+    }
+
+    void UpdateLastLevelClaimed(int lastClaimedLevelIN)
+    {
+        lastClaimedLevel = lastClaimedLevelIN;
+    }
+
     public object CaptureState()
     {
         Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
 
+        _variablesDict.Add("listOfRewardLevelsToClaim", listOfRewardLevelsToClaim);
         _variablesDict.Add("currentXP", currentXP);
+        _variablesDict.Add("XPToNextLevel", XPToNextLevel);
         _variablesDict.Add("currentInventorySlotAmount", currentInventorySlotAmount);
         _variablesDict.Add("currentLevel", currentLevel);
 
@@ -250,8 +277,10 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
     {
         Dictionary<string, object> _VariablesDictIN = (Dictionary<string, object>)state;
 
+        listOfRewardLevelsToClaim = (List<int>)_VariablesDictIN["listOfRewardLevelsToClaim"];
         currentInventorySlotAmount = (int)_VariablesDictIN["currentInventorySlotAmount"];
         currentXP = (int)_VariablesDictIN["currentXP"];
+        XPToNextLevel = (int)_VariablesDictIN["XPToNextLevel"];
         currentLevel = (int)_VariablesDictIN["currentLevel"];
 
         _itemsDictToLoad = (Dictionary<int, object>)_VariablesDictIN["itemsDict"];

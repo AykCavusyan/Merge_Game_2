@@ -19,12 +19,12 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
     private Color buttonOriginalColor;
     private Color buttonFadedColor;
 
-    private int oldLevel = 1; // bu saveden gelmeli
-    private int newLevel;
+    private int lastClaimedLevel; 
+    private int currentPlayerLevel;
     private int levelToClaim;
     private bool canClaim = false;
 
-    public event Action<EventArgs> OnClaimed;
+    public event Action<int> OnClaimed;
 
 
     private void Awake()
@@ -66,22 +66,25 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
 
     private void Start()
     {
-        CalculateTevelToClaim(newLevel);
+        currentPlayerLevel = PlayerInfo.Instance.currentLevel;
+        lastClaimedLevel = PlayerInfo.Instance.lastClaimedLevel;
+        CalculateTevelToClaim();
     }
 
     void UpdatevelToClaim(object sender, PlayerInfo.OnLevelChangedEventArgs e)
     {
-        newLevel = int.Parse(e.levelText);  // buna dikkat ededlim !!! // eventi direk numaraya çevirmek daha iyi olacak
+        currentPlayerLevel = int.Parse(e.levelText); 
         
-        CalculateTevelToClaim(newLevel);
+        CalculateTevelToClaim();
         
     }
 
-    void CalculateTevelToClaim(int newLevelIN = 0) 
+    void CalculateTevelToClaim() 
     {
-        if (newLevel > oldLevel)
+        
+        if (currentPlayerLevel > lastClaimedLevel)
         {
-            levelToClaim = newLevel - oldLevel;
+            levelToClaim = currentPlayerLevel - lastClaimedLevel;
             canClaim = true;
             SetButtonVisibility(buttonOriginalColor);
             ActivateNotificationBubble(canClaim);
@@ -95,7 +98,8 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
 
     void Claim()
     {
-        rewardList = parentPanel.GetComponent<Rewards>().rewardsList[0];
+        var currentLevelToClaimIN = parentPanel.GetComponent<Rewards>().currentLevelToClaim;
+        rewardList = parentPanel.GetComponent<Rewards>().rewardsDict[currentLevelToClaimIN];
 
         Debug.Log(rewardList.Count);
         Debug.Log(PlayerInfo.Instance.emptySlots.Count);
@@ -104,9 +108,9 @@ public class Button_Claim : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
         {
             if (PlayerInfo.Instance.emptySlots.Count >= rewardList.Count)
             {
-                oldLevel += 1;
-                CalculateTevelToClaim(newLevel);
-                OnClaimed?.Invoke(EventArgs.Empty);
+                lastClaimedLevel += 1;
+                CalculateTevelToClaim();
+                OnClaimed?.Invoke(lastClaimedLevel);
             }
             else
             {
