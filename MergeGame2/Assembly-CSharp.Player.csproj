@@ -59,6 +59,7 @@
     <Compile Include="Assets\Scripts\CameraController.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightIntensityFade.cs" />
     <Compile Include="Assets\Scripts\ItemBag.cs" />
+    <Compile Include="Assets\Scripts\Scene\SceneNames.cs" />
     <Compile Include="Assets\Scripts\SavingSystem\SerializableVector2.cs" />
     <Compile Include="Assets\Scripts\SavingSystem\SaveableEntitiy.cs" />
     <Compile Include="Assets\Scripts\CharacterLevel.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\SlotsCounter.cs" />
+    <Compile Include="Assets\Scripts\Scene\SceneController.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDir.cs" />
     <Compile Include="Assets\Scripts\Rewards_LevelUp.cs" />
     <Compile Include="Assets\Scripts\MasterEventListener.cs" />
@@ -108,8 +110,7 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\Scene\SceneController.cs" />
-    <Compile Include="Assets\Scripts\Scene\SceneNames.cs" />
+    <Compile Include="Assets\Scripts\IInitializerScript.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

@@ -2,14 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class QuestManager : MonoBehaviour //, ISaveable
+public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 {
     private static QuestManager _instance;
     public static QuestManager Instance { get { return _instance; } }
     private static readonly object _lock = new object(); // bu mu yoksa büyük harf class olan mý ??????
+
+    private int initializeOrder = 3;
 
     private Quest newQuest;
     private GameObject questPanel;
@@ -19,6 +22,8 @@ public class QuestManager : MonoBehaviour //, ISaveable
     public List<GameItems> _presentGameItems { get; private set; } = new List<GameItems>(); 
 
     public List<Item.ItemType> _activeQuestItemsList { get; private set; } = new List<Item.ItemType>();
+
+    public List<(int , int )> activeLevelTuplesToLoadList = new List<(int , int )>();
 
     public event Action<Quest> OnQuestCompleted;
 
@@ -36,6 +41,10 @@ public class QuestManager : MonoBehaviour //, ISaveable
         public Item.ItemType itemType;
     }
 
+    public int GetInitializeOrder()
+    {
+        return initializeOrder;
+    }
 
 
     private void Awake()
@@ -70,12 +79,24 @@ public class QuestManager : MonoBehaviour //, ISaveable
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e )
     {
         string activeSceneName = SceneManager.GetActiveScene().name;
-
+        
         if(e._sceneName == activeSceneName)
         {
+
             questPanel = GameObject.Find("Panel_QuestPanel");
             rewardPanel = GameObject.Find("Panel_LevelPanel");
+
             rewardPanel.GetComponent<Rewards>().OnRewardItemGiven += AddPresentRewardItemsList; // bunu scene change de disable etmek lazým
+
+            if (activeLevelTuplesToLoadList.Count > 0)
+            {
+                foreach ((int,int) activeQuestLevelTuple in activeLevelTuplesToLoadList)
+                {
+                    GenerateNewQuest(activeQuestLevelTuple.Item1, activeQuestLevelTuple.Item2);
+                }
+            }
+
+            //SceneController.Instance.ModifyInitializedPanels(initializeOrder);
         }
     }
 
@@ -84,7 +105,7 @@ public class QuestManager : MonoBehaviour //, ISaveable
     {
         ItemBag.Instance.OnGameItemCreated -= AddPresentGameItemsList;
         MasterEventListener.Instance.OnDestroyedMasterEvent -= DestroyedItemcheck;
-        SceneController.Instance.OnSceneLoaded += SceneConfig;
+        SceneController.Instance.OnSceneLoaded -= SceneConfig;
         if (rewardPanel) rewardPanel.GetComponent<Rewards>().OnRewardItemGiven -= AddPresentRewardItemsList;
     }
 
@@ -115,10 +136,13 @@ public class QuestManager : MonoBehaviour //, ISaveable
 
     void AddPresentGameItemsList(object  sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
+        Debug.Log(e.gameItem.isRewardPanelItem);
         if(e.gameItem.isRewardPanelItem == false)
         {
             _presentGameItems.Add(e.gameItem);
+            Debug.Log("Game item is listened from Questmanager" + _presentGameItems.Count);
         }
+        
     }
 
     void AddPresentRewardItemsList(GameItems itemfrommRewardPanel)
@@ -189,11 +213,22 @@ public class QuestManager : MonoBehaviour //, ISaveable
 
     public object CaptureState()
     {
-        throw new NotImplementedException();
+        Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
+
+        List<(int , int )> _activeQuestLevelsTupleList = new List<(int , int )>(); 
+        foreach (Quest activeQuest in _activeQuests)
+        {
+            _activeQuestLevelsTupleList.Add((activeQuest.zoneNumber, activeQuest.taskNumber));
+        }
+        _variablesDict.Add("activeQuestLevelsTupleList",_activeQuestLevelsTupleList);
+
+        return _variablesDict;
     }
 
     public void RestoreState(object state)
     {
-        throw new NotImplementedException();
+        Dictionary<string, object> _variablesDictIN = (Dictionary<string, object>)state;
+
+        activeLevelTuplesToLoadList = (List<(int,int)>)_variablesDictIN["activeQuestLevelsTupleList"];
     }
 }

@@ -5,11 +5,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed class PlayerInfo : MonoBehaviour , ISaveable
+public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 {
     private static PlayerInfo _instance;
     public static PlayerInfo Instance { get { return _instance; } }
     private static readonly object _lock = new object();
+
+    private int initializeOrder = 1;
 
     private GameObject levelPanel;
     private Button_Claim button_Claim;
@@ -43,6 +45,12 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
         public int currentXP;
         public int xpToNextLevel;
     }
+
+    public int  GetInitializeOrder()
+    {
+        return initializeOrder;
+    }
+
 
     private void Awake()
     {
@@ -106,6 +114,9 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable
             levelPanel.GetComponent<Rewards>().ConfigPanel(listOfRewardLevelsToClaim, currentLevel);
             levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated += UpdateListOfRewardLevelsToClaim;
             button_Claim.OnClaimed += UpdateLastLevelClaimed;
+
+            //SceneController.Instance.ModifyInitializedPanels(initializeOrder);
+
         }
     }
 

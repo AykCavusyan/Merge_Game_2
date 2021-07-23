@@ -75,9 +75,7 @@ public class Quest_Slots : MonoBehaviour
 
     private void InitialObjectAvailibilityCheck(Item containedQuestItemIN)
     {
-        //var existingSlotItemsList = SlotsCounter.Instance.slotDictionary.Values.Where(x => x != null).ToList();
         List<GameItems> presentGameItems = QuestManager.Instance._presentGameItems;
-
         foreach (GameItems gameItem in presentGameItems)
         {
             if(gameItem.itemType == containedQuestItemIN.itemType)

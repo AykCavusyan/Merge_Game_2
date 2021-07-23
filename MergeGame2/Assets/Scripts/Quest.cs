@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Quest
 {
-    private int zoneNumber;
-    private int taskNumber;
+    public int zoneNumber { get; private set; }
+    public int taskNumber{ get; private set; }
     public string questName { get; private set; }
     public List<Item> itemsNeeded { get; private set; }
     public Item questItemReward { get; private set; }

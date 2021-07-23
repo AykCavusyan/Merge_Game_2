@@ -59,12 +59,15 @@ public class GameSlots : MonoBehaviour, ISaveable
     }
 
 
-    public void Drop (GameItems gameItem) 
+    public void Drop (GameItems gameItem, Vector3 itemDroppedPositionIN =  default(Vector3))
     {
         OnDropHandler?.Invoke(gameItem); // is there even a listener ??
+        Vector3 itemDroppedPosition = new Vector3();
 
-        Vector3 itemDroppedPosition = gameItem.transform.position;
-
+        if (itemDroppedPositionIN == default(Vector3)) itemDroppedPosition = gameItem.transform.position;
+        
+        else itemDroppedPosition = itemDroppedPositionIN;
+        
         if (gameItem.transform.localScale == default(Vector3))
         {
             SizeItem(gameItem);

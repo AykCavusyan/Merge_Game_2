@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public sealed  class SlotsCounter : MonoBehaviour , ISaveable
+public sealed  class SlotsCounter : MonoBehaviour , ISaveable , IInitializerScript
 {
 
     private static SlotsCounter _instance;
@@ -13,6 +14,8 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable
 
     private GameObject[] gameSlots;
 
+    private int initializeOrder  = 2;
+
     // bunu private get yapacaktým ama debugda bile listenin içeriði gözükmedi !!
     public  List<GameObject> emptySlots = new List<GameObject>();
 
@@ -20,6 +23,10 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable
     private Dictionary<string, object> _itemsDictToLoad = new Dictionary<string, object>();
     //public int emptySlots = 0;
 
+    public int GetInitializeOrder()
+    {
+        return initializeOrder;
+    }
 
     private void Awake()
     {
@@ -54,6 +61,8 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable
 
         if (e._sceneName == activeSceneName)
         {
+            
+
             gameSlots = GameObject.FindGameObjectsWithTag("Container");
 
             for (int i = 0; i < gameSlots.Length; i++)
@@ -73,6 +82,8 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable
             }
 
             GenerateEMptySlotList();
+
+            //SceneController.Instance.ModifyInitializedPanels(initializeOrder);
         }
     }
 

@@ -434,6 +434,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         GameItems mergedItem = ItemBag.Instance.GenerateItem( gameItemDragged.itemGenre, gameItemDragged.itemLevel +1 ).GetComponent<GameItems>();
         mergedItem.transform.localScale = default(Vector3);
 
+        if (mergedItem.givesXP)
+        {
+            GameObject newItemXpStar = ItemBag.Instance.GenerateItem(Item.ItemGenre.Star);
+            ItemBag.Instance.AddGeneratedItem(newItemXpStar, this.transform.position);
+        }
+
         return mergedItem;
     }
 
@@ -476,7 +482,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         if (canReactToClick == true && isSpawner == true && isInventoryItem == false)
         {
             GameObject newGameItem = ItemBag.Instance.GenerateItem(itemGenre);
-            ItemBag.Instance.AddGeneratedItem(newGameItem);           
+            ItemBag.Instance.AddGeneratedItem(newGameItem, this.transform.position);           
         }
     }
 
@@ -603,8 +609,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
 
-        if (!isRewardPanelItem) //test method later to  delete and arrage 
-        {
+        //if (!isRewardPanelItem) //test method later to  delete and arrage 
+        //{
 
             SerializableVector2 size = new SerializableVector2(originalSizeDelta);
             //data.sizeDelta = new SerializableVector2(originalSizeDelta);
@@ -621,11 +627,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             _variablesDict.Add("xpValue", this.xpValue);
             _variablesDict.Add("itemPanelID", this.itemPanelID);
             _variablesDict.Add("isQuestItem", this.isQuestItem);
-            _variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
+            //_variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
 
             Debug.Log(_variablesDict.Count + "save system of gameitems working -- dict created");
             
-        }
+        //}
         return _variablesDict;
     }
 
@@ -651,8 +657,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         Debug.Log("load system of gameitems working ");
         Dictionary<string, object> _variablesDictIN = (Dictionary<string, object>)state;
 
-        if (!isRewardPanelItem) //test method later to  delete and arrage 
-        {
+        //if (!isRewardPanelItem) //test method later to  delete and arrage 
+        ///{
 
             SerializableVector2 size = (SerializableVector2)_variablesDictIN["originalSizeDelta"];
             originalSizeDelta = size.ToVector2();
@@ -667,11 +673,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             xpValue = (int)_variablesDictIN["xpValue"];
             itemPanelID = (int)_variablesDictIN["itemPanelID"];
             isQuestItem = (bool)_variablesDictIN["isQuestItem"]; ;
-            isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
+            //isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
 
             CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, itemPanelID, isQuestItem, isRewardPanelItem);
             //DropToRestoredSLot(this, initialGameSlotName);
-        }
+        //}
     }
 
 }

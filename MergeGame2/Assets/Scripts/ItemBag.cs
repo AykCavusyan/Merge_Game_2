@@ -102,30 +102,6 @@ public sealed class ItemBag : MonoBehaviour
             currentEmptyGameSlot = SlotsCounter.Instance.emptySlots[UnityEngine.Random.Range(0, SlotsCounter.Instance.emptySlots.Count)].GetComponent<GameSlots>();
         }
         return currentEmptyGameSlot;
-        #region
-        //for (int i = UnityEngine.Random.Range(0,gameSlots.Length) ; i < gameSlots.Length; i++)
-        //{
-        //    Debug.Log("calling i" +i);
-        //    if (gameSlots[i].GetComponent<GameSlots>().canDrop)
-        //    {  
-        //     return i;
-        //    }
-
-        //    if (i == gameSlots.Length -1)
-        //    {
-        //        for (int j = i; j >= 0; j--)
-        //        {
-        //            Debug.Log("calling j " + j);
-        //            if (gameSlots[j].GetComponent<GameSlots>().canDrop)
-        //            {
-        //                return j;
-        //            }
-
-        //        }
-        //    }
-        //}
-        //return -1;
-        #endregion
     }
 
 
@@ -153,12 +129,12 @@ public sealed class ItemBag : MonoBehaviour
         //newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
         newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem);
         
-        if (item.givesXP == true)
-        {
-            GameObject newExtraItem = GenerateItem(itemGenre);
-            AddGeneratedItem(newExtraItem);
-            //AddGeneratedItem(Item.ItemGenre.Star);
-        }
+        //if (item.givesXP == true)
+        //{
+        //    GameObject newItemXPStar = GenerateItem(Item.ItemGenre.Star);
+        //    AddGeneratedItem(newItemXPStar, newGameItem.transform.position);
+        //    //AddGeneratedItem(Item.ItemGenre.Star);
+        //}
         
         //newGameItem.layer = 5;
 
@@ -169,7 +145,7 @@ public sealed class ItemBag : MonoBehaviour
 
 
 
-    public void AddGeneratedItem(GameObject newGameItemIN) //Item.ItemGenre itemGenre, Vector3 itemGeneratedPosition =default(Vector3))
+    public void AddGeneratedItem(GameObject newGameItemIN, Vector3 itemDroppedPositionIN = default(Vector3)) //Item.ItemGenre itemGenre, Vector3 itemGeneratedPosition =default(Vector3))
      {
         GameSlots currentEmptyGameSlot = FindEmptySlotPosition();
         
@@ -177,7 +153,7 @@ public sealed class ItemBag : MonoBehaviour
         {
             //GameObject newGameItem = GenerateItem(itemGenre);
             //newGameItem.name = "GameItem" + 1;
-            currentEmptyGameSlot.Drop(newGameItemIN.GetComponent<GameItems>()); //, itemGeneratedPosition);
+            currentEmptyGameSlot.Drop(newGameItemIN.GetComponent<GameItems>(), itemDroppedPositionIN); //, itemGeneratedPosition);
         }
         else
         {
