@@ -609,14 +609,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         Dictionary<string, object> _variablesDict = new Dictionary<string, object>();
 
-        //if (!isRewardPanelItem) //test method later to  delete and arrage 
-        //{
-
             SerializableVector2 size = new SerializableVector2(originalSizeDelta);
-            //data.sizeDelta = new SerializableVector2(originalSizeDelta);
 
             _variablesDict.Add("originalSizeDelta", size);
-            //_variablesDict.Add("initialGameSlot", this.initialGameSlot.GetComponent<GameSlots>().slotName);
             _variablesDict.Add("isInventoryItem", this.isInventoryItem);
             _variablesDict.Add("itemLevel", this.itemLevel);
             _variablesDict.Add("itemGenre", this.itemGenre.ToString());
@@ -629,40 +624,17 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             _variablesDict.Add("isQuestItem", this.isQuestItem);
             //_variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
 
-            Debug.Log(_variablesDict.Count + "save system of gameitems working -- dict created");
-            
-        //}
         return _variablesDict;
     }
 
-    //[System.Serializable]
-    //struct SizeSaveData
-    //{
-    //    public SerializableVector2 sizeDelta;
-    //}
-
-    //void DropToRestoredSLot(GameItems gameItemLoaded, string slotName)
-    //{
-    //    foreach (KeyValuePair<GameObject,GameItems> gameSlotPair in SlotsCounter.Instance.slotDictionary)
-    //    {
-    //        if (gameSlotPair.Key.GetComponent<GameSlots>().slotName == slotName)
-    //        {
-    //            gameSlotPair.Key.GetComponent<GameSlots>().Drop(gameItemLoaded);
-    //        }
-    //    }
-    //}
 
     public void RestoreState(object state)
     {
-        Debug.Log("load system of gameitems working ");
         Dictionary<string, object> _variablesDictIN = (Dictionary<string, object>)state;
 
-        //if (!isRewardPanelItem) //test method later to  delete and arrage 
-        ///{
-
             SerializableVector2 size = (SerializableVector2)_variablesDictIN["originalSizeDelta"];
+
             originalSizeDelta = size.ToVector2();
-            //string initialGameSlotName = (string)_variablesDictIN["initialGameSlot"];
             isInventoryItem = (bool)_variablesDictIN["isInventoryItem"];
             itemLevel = (int)_variablesDictIN["itemLevel"];
             itemGenre = (Item.ItemGenre)Enum.Parse(typeof(Item.ItemGenre), (string)_variablesDictIN["itemGenre"]);
@@ -676,8 +648,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             //isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
 
             CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, itemPanelID, isQuestItem, isRewardPanelItem);
-            //DropToRestoredSLot(this, initialGameSlotName);
-        //}
+
     }
 
 }

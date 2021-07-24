@@ -14,7 +14,7 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable , IInitializerScri
 
     private GameObject[] gameSlots;
 
-    private int initializeOrder  = 2;
+    private int initializeOrder;
 
     // bunu private get yapacaktým ama debugda bile listenin içeriði gözükmedi !!
     public  List<GameObject> emptySlots = new List<GameObject>();
@@ -45,23 +45,20 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable , IInitializerScri
                 }
             }
         }
-
         //emptySlots = new List<GameObject>();
     }
 
     private void OnEnable()
     {
         SceneController.Instance.OnSceneLoaded += SceneConfig;
-
     }
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
     {
-        string activeSceneName = SceneManager.GetActiveScene().name;
+        //string activeSceneName = SceneManager.GetActiveScene().name;
 
-        if (e._sceneName == activeSceneName)
+        if (e._sceneToLoad == SceneNames.Scene.MergeScene && e.initializeOrder == 3)
         {
-            
 
             gameSlots = GameObject.FindGameObjectsWithTag("Container");
 
@@ -92,7 +89,7 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable , IInitializerScri
     {
         SceneController.Instance.OnSceneLoaded -= SceneConfig;
 
-        if (gameSlots.Length > 0)
+        if (gameSlots !=null && gameSlots.Length > 0)
         {
             for (int i = 0; i < gameSlots.Length; i++)
             {

@@ -8,6 +8,8 @@ public static class SceneNames
     {
         MainMenu,
         MergeScene,
+        TownScene,
+        WorldScene,
     }
 
 }

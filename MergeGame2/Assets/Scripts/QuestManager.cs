@@ -12,7 +12,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
     public static QuestManager Instance { get { return _instance; } }
     private static readonly object _lock = new object(); // bu mu yoksa büyük harf class olan mý ??????
 
-    private int initializeOrder = 3;
+    private int initializeOrder;
 
     private Quest newQuest;
     private GameObject questPanel;
@@ -64,9 +64,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
                 }
             }
         }
-
-        ItemBag itemBag = GetComponent<ItemBag>(); // bu lazým mý ??
-        
+        ItemBag itemBag = GetComponent<ItemBag>(); // bu lazým mý ??     
     }
 
     private void OnEnable()
@@ -78,9 +76,9 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e )
     {
-        string activeSceneName = SceneManager.GetActiveScene().name;
+        //string activeSceneName = SceneManager.GetActiveScene().name;
         
-        if(e._sceneName == activeSceneName)
+        if(e._sceneToLoad == SceneNames.Scene.MergeScene && e.initializeOrder ==1)
         {
 
             questPanel = GameObject.Find("Panel_QuestPanel");
@@ -136,8 +134,8 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
     void AddPresentGameItemsList(object  sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
-        Debug.Log(e.gameItem.isRewardPanelItem);
-        if(e.gameItem.isRewardPanelItem == false)
+        Debug.Log("ITEM CREATED EVENT LISTENED !!!");
+        if (e.gameItem.isRewardPanelItem == false)
         {
             _presentGameItems.Add(e.gameItem);
             Debug.Log("Game item is listened from Questmanager" + _presentGameItems.Count);

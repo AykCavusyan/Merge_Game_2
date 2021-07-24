@@ -44,13 +44,13 @@ public sealed class ItemBag : MonoBehaviour
                 }
             }
         }
-
+        Debug.Log("ItemBag Awoken");
     }
     
     private void OnEnable()
     {
         SceneController.Instance.OnSceneLoaded += SceneConfig;
-
+        Debug.Log("ItemBag OnEnable Worked");
     }
 
     private void OnDisable()
@@ -61,9 +61,9 @@ public sealed class ItemBag : MonoBehaviour
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
     {
-        string activeSceneName = SceneManager.GetActiveScene().name;
+        //string activeSceneName = SceneManager.GetActiveScene().name;
 
-        if (e._sceneName == activeSceneName)
+        if (e._sceneToLoad == SceneNames.Scene.MergeScene)
         {
             panel_Gameslots = GameObject.Find("Panel_GameSlots");
             canvas = GameObject.Find("Canvas");
@@ -119,30 +119,36 @@ public sealed class ItemBag : MonoBehaviour
 
 
 
-    public GameObject GenerateItem(Item.ItemGenre itemGenre , int itemLevel = 1, bool isRewardPanelItem = false)
+    public GameObject GenerateItem(Item.ItemGenre itemGenre, int itemLevel = 1, bool isRewardPanelItem = false)
     {
+
         item = new Item(itemGenre, itemLevel, isRewardPanelItem);
 
         GameObject newGameItem = new GameObject();
-        
         newGameItem.transform.SetParent(panel_Gameslots.transform);
-        //newGameItem.AddComponent<Image>().sprite = item.GetSprite(item.itemType);
         newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem);
-        
-        //if (item.givesXP == true)
-        //{
-        //    GameObject newItemXPStar = GenerateItem(Item.ItemGenre.Star);
-        //    AddGeneratedItem(newItemXPStar, newGameItem.transform.position);
-        //    //AddGeneratedItem(Item.ItemGenre.Star);
-        //}
-        
-        //newGameItem.layer = 5;
 
         OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
+
+        Debug.Log("ITEM CREATED EVENT FIREDDDDD!!!");
 
         return newGameItem;
     }
 
+    public GameObject GenerateItem(Dictionary<string, object> _dictFromItemIN)
+    {
+
+        GameObject newGameItem = new GameObject();
+        newGameItem.transform.SetParent(panel_Gameslots.transform);
+        newGameItem.AddComponent<GameItems>().RestoreState(_dictFromItemIN);
+
+
+        OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
+
+        Debug.Log("ITEM CREATED EVENT FIREDDDDD!!!");
+
+        return newGameItem;
+    }
 
 
     public void AddGeneratedItem(GameObject newGameItemIN, Vector3 itemDroppedPositionIN = default(Vector3)) //Item.ItemGenre itemGenre, Vector3 itemGeneratedPosition =default(Vector3))

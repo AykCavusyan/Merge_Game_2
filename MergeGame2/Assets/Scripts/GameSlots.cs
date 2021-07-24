@@ -91,7 +91,6 @@ public class GameSlots : MonoBehaviour, ISaveable
     private void PlaceItem(GameItems gameItem, Vector3 itemDroppedPosition )
     {
         RectTransform rtGameItem = gameItem.GetComponent<RectTransform>();
-        Debug.Log(RectTransformUtility.RectangleContainsScreenPoint(rt, itemDroppedPosition));
 
         rtGameItem.SetParent(panel_Gameslots.transform);
         rtGameItem.sizeDelta = (GetComponent<RectTransform>().sizeDelta) * .85f ; //new Vector2(122, 122);
@@ -243,16 +242,14 @@ public class GameSlots : MonoBehaviour, ISaveable
 
         Dictionary<string, object> _dictFromItemIN = (Dictionary<string, object>)state;
 
-        GameObject gameItemtoLoad = new GameObject();
-        gameItemtoLoad.transform.SetParent(panel_Gameslots.transform);
+        GameObject gameItemtoLoad = ItemBag.Instance.GenerateItem(_dictFromItemIN);
 
-        //if (containedItem != null) 
-        //{
-        Debug.Log("restorestatte of ameslots working");
+        //GameObject gameItemtoLoad = new GameObject();
+        //gameItemtoLoad.transform.SetParent(panel_Gameslots.transform);
+        //gameItemtoLoad.AddComponent<GameItems>().RestoreState(_dictFromItemIN);
 
-        gameItemtoLoad.AddComponent<GameItems>().RestoreState(_dictFromItemIN);
         Drop(gameItemtoLoad.GetComponent<GameItems>());
-        //}
+        
 
     }
 }

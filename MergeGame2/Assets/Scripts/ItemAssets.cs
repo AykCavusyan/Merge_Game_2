@@ -5,13 +5,29 @@ using UnityEngine;
 
 public class ItemAssets : MonoBehaviour
 {
-    public static ItemAssets Instance { get; private set; }
+    public static ItemAssets Instance { get { return _instance; } }
+    private static ItemAssets _instance;
+    private static readonly object _lock = new object();
 
     private void Awake()
     {
-        Instance = this;
-    }
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
 
+        else
+        {
+            lock (_lock)
+            {
+                if (_instance == null)
+                {
+                    _instance = this;
+                    DontDestroyOnLoad(this.gameObject);
+                }
+            }
+        }
+    }
 
     public Sprite GetAssetSprite(Item.ItemType itemType)
     {

@@ -147,6 +147,14 @@ public class Inventory : MonoBehaviour
 
     private void OnDisable()
     {
-        currentNewSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt -= PurchaseSlot;
+        InventorySlots[] currentInventorySlots = FindObjectsOfType<InventorySlots>();
+
+        if (currentInventorySlots.Length > 0)
+        {
+            foreach (InventorySlots inventorySlot in currentInventorySlots)
+            {
+                inventorySlot.onSlotPurchaseAttempt -= PurchaseSlot;
+            }
+        }
     }
 }

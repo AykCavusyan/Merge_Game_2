@@ -11,7 +11,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     public static PlayerInfo Instance { get { return _instance; } }
     private static readonly object _lock = new object();
 
-    private int initializeOrder = 1;
+    private int initializeOrder;
 
     private GameObject levelPanel;
     private Button_Claim button_Claim;
@@ -103,10 +103,11 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
     {
-        string activeSceneName = SceneManager.GetActiveScene().name;
+        //string activeSceneName = SceneManager.GetActiveScene().name;
 
-        if (e._sceneName == activeSceneName)
+        if (e._sceneToLoad == SceneNames.Scene.MergeScene && initializeOrder ==2)
         {
+
             GameObject.Find("Panel_BackToGame").GetComponent<Inventory>().ConfigPanel(_itemsDictToLoad);
             levelPanel = GameObject.Find("Panel_LevelPanel");
             button_Claim = levelPanel.transform.GetChild(3).GetComponent<Button_Claim>();
