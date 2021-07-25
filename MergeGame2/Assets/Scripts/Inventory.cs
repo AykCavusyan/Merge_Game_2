@@ -52,6 +52,7 @@ public class Inventory : MonoBehaviour
     public void ConfigPanel(Dictionary<int, object> _itemsDictIN)
     {
         currentSlotAmount = PlayerInfo.Instance.currentInventorySlotAmount;
+        Debug.Log(currentSlotAmount);
 
         if (currentSlotAmount > 0)
         {
@@ -64,6 +65,7 @@ public class Inventory : MonoBehaviour
 
         for (int i = 0; i < currentSlotAmountIN; i++)
         {
+
             GameObject instantiatedSlot = CreateNewSlot(true);
             int inventorySlotID = instantiatedSlot.GetComponent<InventorySlots>().slotIDNumber;
 

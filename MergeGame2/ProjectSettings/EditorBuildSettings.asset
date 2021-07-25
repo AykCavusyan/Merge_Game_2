@@ -10,7 +10,7 @@ EditorBuildSettings:
     guid: d07e8b2e8eaa33d4cb6257d02cf3108d
   - enabled: 1
     path: Assets/Scenes/MergeScene.unity
-    guid: 468080736ab5aa94a81d53b45c38372c
+    guid: e1c7d4c29fc9c1547b372927d282be83
   - enabled: 1
     path: Assets/Scenes/TownScene.unity
     guid: 1053ca29ba3371442a6400d521d0b40f

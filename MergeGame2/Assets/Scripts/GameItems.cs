@@ -19,6 +19,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         public Item.ItemType itemType;
     }
 
+    public event EventHandler<OnGameItemClickedEventArgs> OnGameItemClicked;
+    public class OnGameItemClickedEventArgs
+    {
+        public Item.ItemType itemType;
+        public int goldValue;
+    }
 
     public event EventHandler<OnItemDestroyedEventArgs> OnItemDestroyed;
     public class OnItemDestroyedEventArgs : EventArgs
@@ -65,12 +71,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     [SerializeField] private bool givesXP;
     [SerializeField] private bool isSpawner = false;
     [SerializeField] private bool isCollectible;
+    [SerializeField] public int goldValue { get; private set; } 
     [SerializeField] private int xpValue;
     [SerializeField] private int itemPanelID;
     [SerializeField] public bool isQuestItem;
     [SerializeField] public bool isRewardPanelItem;
 
-    public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int itemPanelIDIn, bool isQuestItemIN, bool isRewardPanelItemIN)
+    public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int goldValueIN, int itemPanelIDIn, bool isQuestItemIN, bool isRewardPanelItemIN)
     {
         gameObject.AddComponent<Image>().sprite = GetSpriteImage(itemTypeIn);
         itemLevel = itemLevelIn;
@@ -80,6 +87,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         isSpawner = isSpawnerIn;
         isCollectible = isCollectibleIn;
         xpValue = xpValueIn;
+        goldValue = goldValueIN;
         itemPanelID = itemPanelIDIn;
         isQuestItem = isQuestItemIN;
         isRewardPanelItem = isRewardPanelItemIN;
@@ -171,7 +179,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         {
             isQuestItem = true;
             checkMark.enabled = true;
-            //OnQuestCheckmarkOn?.Invoke(this, new OnQuestItemEventArgs { itemType = this.itemType });
         }
     }
 
@@ -267,7 +274,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             {
                 canDrag = false;
 
-                gameSlot.Drop(this);//, new Vector3(eventData.position.x, eventData.position.y,0));
+                gameSlot.Drop(this);
                 Vector3 pointerDropPos = new Vector3(eventData.position.x, eventData.position.y, 0);
 
                 OnEndDragHandler?.Invoke(eventData, true);
@@ -286,13 +293,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     GameObject containedItem = gameSlot.containedItem;
                     canDrag = false;
 
-                    //Vector3 mergePosition = gameSlot.containedItem.transform.position;
                     GameItems mergedItem = Merge(this, gameSlot, this.itemLevel);
                     mergedItem.transform.position = containedItem.transform.position;
 
                     DestroyItem(gameSlot.containedItem);
 
-                    gameSlot.Drop(mergedItem); //, mergePosition);
+                    gameSlot.Drop(mergedItem); 
 
                     OnEndDragHandler?.Invoke(eventData, true);
                     OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = containedItem.transform.position, sprite = containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel });
@@ -445,7 +451,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        //Vector2 oldsize = rectTransform.sizeDelta;
+        if(!isRewardPanelItem && !isInventoryItem)
+        OnGameItemClicked?.Invoke(this, new OnGameItemClickedEventArgs { itemType = itemType , goldValue = goldValue});
+
         if(cr_Running==false)StartCoroutine(DownsizeItemOnClick());
 
         if (canReactToClick == true)
@@ -479,6 +487,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public void OnPointerUp(PointerEventData eventData)
     {
+
         if (canReactToClick == true && isSpawner == true && isInventoryItem == false)
         {
             GameObject newGameItem = ItemBag.Instance.GenerateItem(itemGenre);
@@ -620,6 +629,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             _variablesDict.Add("isSpawner", this.isSpawner);
             _variablesDict.Add("isCollectible", this.isCollectible);
             _variablesDict.Add("xpValue", this.xpValue);
+            _variablesDict.Add("goldValue",this.goldValue);
             _variablesDict.Add("itemPanelID", this.itemPanelID);
             _variablesDict.Add("isQuestItem", this.isQuestItem);
             //_variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
@@ -643,11 +653,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             isSpawner = (bool)_variablesDictIN["isSpawner"];
             isCollectible = (bool)_variablesDictIN["isCollectible"];
             xpValue = (int)_variablesDictIN["xpValue"];
+            goldValue = (int)_variablesDictIN["goldValue"];
             itemPanelID = (int)_variablesDictIN["itemPanelID"];
             isQuestItem = (bool)_variablesDictIN["isQuestItem"]; ;
             //isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
 
-            CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, itemPanelID, isQuestItem, isRewardPanelItem);
+            CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, goldValue, itemPanelID, isQuestItem, isRewardPanelItem);;
 
     }
 

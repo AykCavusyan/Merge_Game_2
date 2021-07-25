@@ -44,13 +44,11 @@ public sealed class ItemBag : MonoBehaviour
                 }
             }
         }
-        Debug.Log("ItemBag Awoken");
     }
     
     private void OnEnable()
     {
         SceneController.Instance.OnSceneLoaded += SceneConfig;
-        Debug.Log("ItemBag OnEnable Worked");
     }
 
     private void OnDisable()
@@ -126,11 +124,10 @@ public sealed class ItemBag : MonoBehaviour
 
         GameObject newGameItem = new GameObject();
         newGameItem.transform.SetParent(panel_Gameslots.transform);
-        newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem);
+        newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.goldValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem);
 
         OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
 
-        Debug.Log("ITEM CREATED EVENT FIREDDDDD!!!");
 
         return newGameItem;
     }
@@ -145,7 +142,6 @@ public sealed class ItemBag : MonoBehaviour
 
         OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
 
-        Debug.Log("ITEM CREATED EVENT FIREDDDDD!!!");
 
         return newGameItem;
     }

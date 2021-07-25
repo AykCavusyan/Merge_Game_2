@@ -12,7 +12,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
     public static QuestManager Instance { get { return _instance; } }
     private static readonly object _lock = new object(); // bu mu yoksa büyük harf class olan mý ??????
 
-    private int initializeOrder;
+    //private int initializeOrder;
 
     private Quest newQuest;
     private GameObject questPanel;
@@ -41,10 +41,10 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
         public Item.ItemType itemType;
     }
 
-    public int GetInitializeOrder()
-    {
-        return initializeOrder;
-    }
+    //public int GetInitializeOrder()
+    //{
+    //    return initializeOrder;s
+    //}
 
 
     private void Awake()
@@ -134,11 +134,9 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
     void AddPresentGameItemsList(object  sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
-        Debug.Log("ITEM CREATED EVENT LISTENED !!!");
         if (e.gameItem.isRewardPanelItem == false)
         {
             _presentGameItems.Add(e.gameItem);
-            Debug.Log("Game item is listened from Questmanager" + _presentGameItems.Count);
         }
         
     }

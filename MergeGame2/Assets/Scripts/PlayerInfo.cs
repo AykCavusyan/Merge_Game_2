@@ -11,10 +11,11 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     public static PlayerInfo Instance { get { return _instance; } }
     private static readonly object _lock = new object();
 
-    private int initializeOrder;
+    //private int initializeOrder;
 
     private GameObject levelPanel;
     private Button_Claim button_Claim;
+    private Button_Action_ItemInfo buttonActionItemInfo;
 
     private Dictionary<InventorySlots, GameItems> inventory = new Dictionary<InventorySlots, GameItems>();
 
@@ -28,6 +29,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
     private List<int> listOfRewardLevelsToClaim = new List<int>();
 
+    public int currentGold { get; private set; } = 10;
     public int currentXP { get; private set; }
     public int XPToNextLevel { get; private set; }
     public int currentLevel { get; private set; }
@@ -46,10 +48,13 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         public int xpToNextLevel;
     }
 
-    public int  GetInitializeOrder()
-    {
-        return initializeOrder;
-    }
+    public event Action<EventArgs> OnCurrentGoldChanged;
+
+
+    //public int  GetInitializeOrder()
+    //{
+    //    return initializeOrder;
+    //}
 
 
     private void Awake()
@@ -97,15 +102,16 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         QuestManager.Instance.OnQuestCompleted -= CalculateXPFromQuests;
         if (levelPanel) levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated -= UpdateListOfRewardLevelsToClaim;
         if (button_Claim) button_Claim.OnClaimed += UpdateLastLevelClaimed;
-
+        if (buttonActionItemInfo) buttonActionItemInfo.OnItemSold -= CalculateCurrentGold;
 
     }
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
     {
         //string activeSceneName = SceneManager.GetActiveScene().name;
+       
 
-        if (e._sceneToLoad == SceneNames.Scene.MergeScene && initializeOrder ==2)
+        if (e._sceneToLoad == SceneNames.Scene.MergeScene && e.initializeOrder ==2)
         {
 
             GameObject.Find("Panel_BackToGame").GetComponent<Inventory>().ConfigPanel(_itemsDictToLoad);
@@ -116,7 +122,9 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
             levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated += UpdateListOfRewardLevelsToClaim;
             button_Claim.OnClaimed += UpdateLastLevelClaimed;
 
-            //SceneController.Instance.ModifyInitializedPanels(initializeOrder);
+            buttonActionItemInfo = GameObject.Find("Panel_ItemInfo_BG").transform.GetChild(4).GetComponent<Button_Action_ItemInfo>();
+            buttonActionItemInfo.OnItemSold += CalculateCurrentGold;
+            
 
         }
     }
@@ -170,25 +178,23 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
     }
 
-
+    void CalculateCurrentGold(int newValueIN)
+    {
+        currentGold += newValueIN;
+        OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
+    }
 
 
     void CalculateXPFromStars(object sender, GameItems.OnItemCollectedEventArgs e)
     {
         currentXP += e.xpValue;
         UpdateXpPoints();
-
-        Debug.Log("xp came from star is" + e.xpValue);
-        Debug.Log("current XP is " + currentXP);
     }
 
     void CalculateXPFromQuests(Quest q)
     {
         currentXP += q.questXPReward;  
         UpdateXpPoints();
-
-        Debug.Log("xp came from quest is" + q.questXPReward);
-        Debug.Log("current XP is " + currentXP);
     }
 
     void SetCurrentLevel(int savedLevel = 1)
@@ -271,6 +277,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
         _variablesDict.Add("listOfRewardLevelsToClaim", listOfRewardLevelsToClaim);
         _variablesDict.Add("currentXP", currentXP);
+        _variablesDict.Add("currentGold", currentGold);
         _variablesDict.Add("XPToNextLevel", XPToNextLevel);
         _variablesDict.Add("currentInventorySlotAmount", currentInventorySlotAmount);
         _variablesDict.Add("currentLevel", currentLevel);
@@ -292,6 +299,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         listOfRewardLevelsToClaim = (List<int>)_VariablesDictIN["listOfRewardLevelsToClaim"];
         currentInventorySlotAmount = (int)_VariablesDictIN["currentInventorySlotAmount"];
         currentXP = (int)_VariablesDictIN["currentXP"];
+        currentGold = (int)_VariablesDictIN["currentGold"];
         XPToNextLevel = (int)_VariablesDictIN["XPToNextLevel"];
         currentLevel = (int)_VariablesDictIN["currentLevel"];
 

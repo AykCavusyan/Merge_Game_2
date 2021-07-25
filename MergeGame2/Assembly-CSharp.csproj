@@ -99,6 +99,7 @@
     <Compile Include="Assets\Scripts\Quest_List.cs" />
     <Compile Include="Assets\Scripts\Rewards.cs" />
     <Compile Include="Assets\Scripts\Quest.cs" />
+    <Compile Include="Assets\Scripts\Scene\SceneTransitions.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDirectionTranslate.cs" />
     <Compile Include="Assets\Scripts\Panel_Base.cs" />
     <Compile Include="Assets\Scripts\MergeConditions.cs" />
@@ -111,7 +112,10 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\Scene\SceneTransitions.cs" />
+    <Compile Include="Assets\Scripts\ItemInfoPanel\ItemInfoPanel_Logic.cs" />
+    <Compile Include="Assets\Scripts\GoldBar.cs" />
+    <Compile Include="Assets\Scripts\ItemSelector.cs" />
+    <Compile Include="Assets\Scripts\Button_Action_ItemInfo.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

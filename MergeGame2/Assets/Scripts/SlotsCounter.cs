@@ -14,7 +14,7 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable , IInitializerScri
 
     private GameObject[] gameSlots;
 
-    private int initializeOrder;
+    //private int initializeOrder;
 
     // bunu private get yapacaktým ama debugda bile listenin içeriði gözükmedi !!
     public  List<GameObject> emptySlots = new List<GameObject>();
@@ -23,10 +23,10 @@ public sealed  class SlotsCounter : MonoBehaviour , ISaveable , IInitializerScri
     private Dictionary<string, object> _itemsDictToLoad = new Dictionary<string, object>();
     //public int emptySlots = 0;
 
-    public int GetInitializeOrder()
-    {
-        return initializeOrder;
-    }
+    //public int GetInitializeOrder()
+    //{
+    //    return initializeOrder;
+    //}
 
     private void Awake()
     {

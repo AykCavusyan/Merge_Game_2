@@ -12,15 +12,19 @@ public class Item
     public bool isSpawner { get; private set; } = false;
     public bool isCollectible { get; private set; } = false;
     public int xpValue { get; private set; } = 0;
+    public int goldValue { get; private set; } = 0;
     public bool isMergeable { get; private set; } = true; // bunu daha sonra yapýcaz!!
     public int itemPanelID { get; private set; } = 0;
     public bool isQuestItem { get; private set; } = false;
     public bool isRewardPanelItem { get; private set; }
+    public string itemName { get; private set; }
+    public string itemDescription { get; private set; }
 
     public Item(ItemGenre itemGenre, int itemLevel, bool isRewardPanelItemIN =false)
     {
 
         this.itemType = CreateItemForRelevatLevel(itemLevel, itemGenre);
+        this.goldValue = SetGoldValue(itemType);
         this.itemGenre = itemGenre;
         this.itemLevel = itemLevel;
         this.isRewardPanelItem = isRewardPanelItemIN;
@@ -47,14 +51,49 @@ public class Item
         }
     }
 
-    //public Item(ItemType itemType)
-    //{
+    public ItemType CreateItemForRelevatLevel(int inputItemLevel, ItemGenre itemGenre)
+    {
+        _itemDictionary.TryGetValue(inputItemLevel, out Dictionary<ItemGenre, ItemType> _innerDictionary);
+        _innerDictionary.TryGetValue(itemGenre, out ItemType generatedItem);
 
-    //}
+        return generatedItem;
+
+    }
+
+    private int SetGoldValue(ItemType itemTypeIN)
+    {
+        switch (itemTypeIN)
+        {
+            case ItemType.Armor_1:
+            case ItemType.Meal_1:
+                return 1;
+            case ItemType.Armor_2:
+            case ItemType.Meal_2:
+                return 2;
+            case ItemType.Armor_3:
+            case ItemType.Meal_3:
+                return 4;
+            case ItemType.Armor_4:
+            case ItemType.Meal_4:
+                return 6;
+            case ItemType.Armor_5:
+            case ItemType.Meal_5:
+                return 12;
+            case ItemType.Armor_6:
+            case ItemType.Meal_6:
+                return 25;
+            case ItemType.Armor_7:
+            case ItemType.Meal_7:
+                return 51;
+            default: return 0;
+        }
+    }
+
 
     private void SetXpValue(int itemLevel)
     {
-        switch (itemLevel) {
+        switch (itemLevel) 
+        {
             case 1:   xpValue = 1;
                 break;
             case 2:   xpValue = 3;
@@ -202,35 +241,7 @@ public class Item
         Ranged
     }
 
-    //public Sprite GetSprite(ItemType itemType)
-    //{
-    //    string itemTypeName = Enum.GetName(typeof(ItemType),(int)itemType);
-    //    return ItemAssets.Instance.GetAssetSprite(itemTypeName);
-    //}
 
-    public ItemType CreateItemForRelevatLevel(int inputItemLevel, ItemGenre itemGenre)
-    {
-        _itemDictionary.TryGetValue(inputItemLevel, out Dictionary<ItemGenre, ItemType> _innerDictionary);
-        _innerDictionary.TryGetValue(itemGenre, out ItemType generatedItem);
 
-        return generatedItem;
 
-    }
-
-  //public ItemGenre GetItemGenre(int itemLevel, ItemType itemType)
-  //  {
-  //      _itemDictionary.TryGetValue(itemLevel, out Dictionary<ItemGenre, ItemType> _innerDictionary);
-
-  //      foreach (KeyValuePair<ItemGenre, ItemType> item in _innerDictionary)
-  //      {
-  //          if (item.Value == itemType )
-  //          {
-  //              return item.Key;
-  //          }
-            
-  //      }
-
-  //      return ItemGenre.Other;
-
-  //  }
 }

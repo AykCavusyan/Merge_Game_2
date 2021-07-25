@@ -89,7 +89,6 @@ public class SceneController : MonoBehaviour
         
         while (animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1 || animator.IsInTransition(0))
         {
-            Debug.Log("start animation trigger");
 
             yield return null;
         }
@@ -101,7 +100,7 @@ public class SceneController : MonoBehaviour
 
         while (!asyncOperation.isDone)
         {
-            SceneTransitions.Instance.sceneLoadingPercentage.text = asyncOperation.progress.ToString();
+            SceneTransitions.Instance.sceneLoadingPercentage.text = asyncOperation.progress.ToString("F0");
 
             yield return null;
         }
@@ -121,12 +120,10 @@ public class SceneController : MonoBehaviour
 
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName("ReposState") || animator.IsInTransition(0))
         {
-            Debug.Log("fininsh trigger");
             
             yield return null;
         }
 
-        Debug.Log("finish animation finished");
         SceneTransitions.Instance.SetSceneTransitionCanvas(false) ;
     }
 

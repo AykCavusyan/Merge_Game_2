@@ -77,7 +77,6 @@ public class LevelBar : MonoBehaviour
         levelText.text = level;
         yield return null;
 
-        //particleSystem.Play();
         cr_Running = false;
         
         Dequeue();
@@ -118,8 +117,6 @@ public class LevelBar : MonoBehaviour
        }
         
        bar.fillAmount = lerpAmount;
-
-       Debug.Log(bar.fillAmount);
 
        cr_Running = false;
 

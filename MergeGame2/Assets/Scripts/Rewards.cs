@@ -85,7 +85,6 @@ public class Rewards : MonoBehaviour
         foreach (int level in levelsToClaim)
         {
             var newLevelRewardsList = new Rewards_LevelUp(level);
-            Debug.Log(level);
             rewardsDict.Add(level, newLevelRewardsList.rewardList);
         }
     }
