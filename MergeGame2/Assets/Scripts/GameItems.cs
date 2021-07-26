@@ -38,6 +38,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         public Vector3 mergePos;
         public Sprite sprite;
         public int itemLevel;
+        public GameItems mergedItem;
     }
 
     public event EventHandler<OnItemCollectedEventArgs> OnItemCollected;
@@ -260,7 +261,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             gameSlot = result.gameObject.GetComponent<GameSlots>();
             inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
 
-            if (gameSlot != null || inventoryButton != null && inventoryButton.buttonlIndex == 1) 
+            if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1) 
             {
 
                 break;
@@ -301,7 +302,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     gameSlot.Drop(mergedItem); 
 
                     OnEndDragHandler?.Invoke(eventData, true);
-                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = containedItem.transform.position, sprite = containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel });
+                    OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = containedItem.transform.position, sprite = containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel ,mergedItem =mergedItem});
 
                     DestroyItem(this.gameObject);
                     
@@ -321,7 +322,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             }
         }
 
-        else if (inventoryButton != null && inventoryButton.buttonlIndex == 1 )
+        else if (inventoryButton != null && inventoryButton.buttonIndex == 1 )
         {
             if (PlayerInfo.Instance.emptySlots.Count > 0)
             {
@@ -336,7 +337,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                         invSlot.Drop(this);
                         canDrag = false;
                         cr_Running = false;
-                        //isInventoryItem = true;                  
                         return;
                     }
                     else
@@ -459,16 +459,18 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         if (canReactToClick == true)
         {
             if (isInventoryItem == true)
-            {
+            {       
                 StopAllCoroutines();
                 cr_Running = false;
 
+                InventorySlots inventorySlot = this.initialGameSlot.GetComponent<InventorySlots>();
+
                 GameSlots slotToMove = ItemBag.Instance.FindEmptySlotPosition();
-                initialGameSlot.GetComponent<InventorySlots>().DischargeItem(this);
-                slotToMove.Drop(this);
+                slotToMove.Drop(this); // bu aþaðýdaki boþluktaydý sýkýntý çýkartýrsa diye comment 
+                inventorySlot.GetComponent<InventorySlots>().DischargeItem(this);
+                
                 isInventoryItem = false;
                 canDrag = true;
-                
 
             }
             else if ( isCollectible == true)

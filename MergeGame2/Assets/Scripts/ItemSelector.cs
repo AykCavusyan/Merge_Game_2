@@ -8,6 +8,7 @@ public class ItemSelector : MonoBehaviour
 {
     public GameItems selectedItem { get; private set; }
     private GameObject selectionSquare;
+    private Inventory inventory;
 
     public event EventHandler<OnGameItemSelectedEventArgs> OnGameItemSelected;
     public event EventHandler<OnGameItemSelectedEventArgs> OnGameItemDeSelected;
@@ -22,54 +23,74 @@ public class ItemSelector : MonoBehaviour
     {
         selectionSquare = GameObject.Find("SelectionSquare");
         selectionSquare.SetActive(false);
+
+        inventory = GameObject.FindObjectOfType<Inventory>();
     }
 
     private void OnEnable()
     {
-        MasterEventListener.Instance.OnDestroyedMasterEvent += DisableSelection;
+        MasterEventListener.Instance.OnDestroyedMasterEvent += DisableSelectionForDestroyedItem;
         ItemBag.Instance.OnGameItemCreated += StartListeningGameItem;
+        inventory.OnInventorySlotCreated += StartListeningInventorySlot;
     }
 
     private void OnDisable()
     {
-        MasterEventListener.Instance.OnDestroyedMasterEvent -= DisableSelection;
+        MasterEventListener.Instance.OnDestroyedMasterEvent -= DisableSelectionForDestroyedItem;
         ItemBag.Instance.OnGameItemCreated -= StartListeningGameItem;
+        if(!inventory) inventory.OnInventorySlotCreated -= StartListeningInventorySlot;
+
+        GameItems[] gameItems = FindObjectsOfType<GameItems>();
+        if (gameItems.Length > 0)
+        {
+            foreach (GameItems gameItem in gameItems)
+            {
+                if (gameItem)
+                {
+                    gameItem.OnGameItemClicked -= EnableSelection;
+                    gameItem.OnBeginDragHandler -= PauseSelectionOnItemMove;
+                    gameItem.OnEndDragHandler -= ResumeSelectionOnItemRelease;
+                    gameItem.OnMerged -= SelectNextMergedItem;
+                }
+            }
+        }
+
+        InventorySlots[] inventorySlots = FindObjectsOfType<InventorySlots>();
+        if (inventorySlots.Length > 0)
+        {
+            foreach (InventorySlots inventorySlot in inventorySlots)
+            {
+                if (inventorySlot)
+                {
+                    inventorySlot.onInventoryPlacedItem -= DisableSelectionToInventoryDrop;
+                    inventorySlot.onInventoryRemovedItem -= EnableSelectionFromInventoryDrop;
+                }
+            }
+        }
     }
 
     void StartListeningGameItem(object sender, ItemBag.OnGameItemCreatedEventArgs e )
     {
         e.gameItem.OnGameItemClicked += EnableSelection;
-        e.gameItem.OnBeginDragHandler += DisableSelectionOnMove; //bundan unsubscribe olmak LAZIM !!!!
-        e.gameItem.OnEndDragHandler += EnableSelectionOnStopMove; //bundan unsubscribe olmak LAZIM !!!!
+        e.gameItem.OnBeginDragHandler += PauseSelectionOnItemMove; 
+        e.gameItem.OnEndDragHandler += ResumeSelectionOnItemRelease; 
+        e.gameItem.OnMerged += SelectNextMergedItem; 
     }
 
     void StopListeningGameItem(GameItems gameItemIN)
     {
-        gameItemIN.OnGameItemClicked -= EnableSelection;      
+        gameItemIN.OnGameItemClicked -= EnableSelection;
+        gameItemIN.OnBeginDragHandler -= PauseSelectionOnItemMove;
+        gameItemIN.OnEndDragHandler -= ResumeSelectionOnItemRelease;
+        gameItemIN.OnMerged -= SelectNextMergedItem;
     }
 
-    private void DisableSelection(object sender, GameItems.OnItemDestroyedEventArgs e )
+    void StartListeningInventorySlot(object sender, Inventory.OnInventorySlotCreatedEventArgs e)
     {
-        if(selectedItem == e.gameItems)
-        {
-            StopListeningGameItem(e.gameItems);
-            selectedItem = null;
-            selectionSquare.SetActive(false);
-            OnGameItemDeSelected?.Invoke(this, null);
-        } 
+        e.newActiveOrInactiveInventorySlot.onInventoryPlacedItem += DisableSelectionToInventoryDrop;
+        e.newActiveOrInactiveInventorySlot.onInventoryRemovedItem += EnableSelectionFromInventoryDrop;
     }
 
-    private void DisableSelectionOnMove(PointerEventData pointerEventData)
-    {
-        selectionSquare.SetActive(false);
-    }
-
-    private void EnableSelectionOnStopMove(PointerEventData pointerEventData, bool canEnd)
-    {
-        selectionSquare.transform.SetParent(selectedItem.initialGameSlot.transform);
-        selectionSquare.transform.position = selectedItem.initialGameSlot.transform.position;
-        selectionSquare.SetActive(true);
-    }
 
     public void EnableSelection(object sender, GameItems.OnGameItemClickedEventArgs e)
     {
@@ -77,6 +98,7 @@ public class ItemSelector : MonoBehaviour
         GameItems gameItemToSelect = (GameItems)sender;
 
         {
+            Debug.Log("trying to select");
             if (selectedItem == null || gameItemToSelect.initialGameSlot != selectedItem.initialGameSlot)
             {
                 selectedItem = gameItemToSelect;
@@ -88,5 +110,60 @@ public class ItemSelector : MonoBehaviour
 
             }
         }
+    }
+
+    private void DisableSelectionForDestroyedItem(object sender, GameItems.OnItemDestroyedEventArgs e )
+    {
+        if(selectedItem == e.gameItems)
+        {
+            StopListeningGameItem(selectedItem);
+            DisableItemSelector(selectedItem);
+        } 
+    }
+
+    private void ResumeSelectionOnItemRelease(PointerEventData pointerEventData, bool canEnd)
+    {
+        selectionSquare.transform.SetParent(selectedItem.initialGameSlot.transform);
+        selectionSquare.transform.position = selectedItem.initialGameSlot.transform.position;
+        selectionSquare.SetActive(true);
+
+    }
+
+    private void PauseSelectionOnItemMove(PointerEventData pointerEventData)
+    {
+        selectionSquare.SetActive(false);
+    }
+
+    void DisableSelectionToInventoryDrop(object sender, InventorySlots.onInventoryItemModificationEventArgs e)
+    {
+        DisableItemSelector(e.gameItem);
+    }
+
+    void EnableSelectionFromInventoryDrop(object sender, InventorySlots.onInventoryItemModificationEventArgs e)
+    {
+        EnableItemSelector(e.gameItem);
+    }
+
+    void SelectNextMergedItem(object sender, GameItems.OnMergedEventArgs e)
+    {
+        EnableItemSelector(e.mergedItem);
+    }
+
+    void EnableItemSelector(GameItems gameItemIN)
+    {
+        selectedItem = gameItemIN;
+        selectionSquare.transform.SetParent(gameItemIN.initialGameSlot.transform);
+        selectionSquare.transform.position = gameItemIN.initialGameSlot.transform.position;
+        selectionSquare.SetActive(true);
+
+        OnGameItemSelected?.Invoke(gameItemIN, new OnGameItemSelectedEventArgs { itemType = gameItemIN.itemType, goldValue = gameItemIN.goldValue });
+    }
+
+    void DisableItemSelector(GameItems selectedItemIN)
+    {      
+        selectedItem = null;
+        selectionSquare.SetActive(false);
+
+        OnGameItemDeSelected?.Invoke(this, null);
     }
 }

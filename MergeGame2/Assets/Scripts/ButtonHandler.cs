@@ -8,51 +8,26 @@ using UnityEngine.UIElements;
 
 public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandler
 {
-    //private RectTransform rectTransform;
     private Vector3 originalScale;
     private Vector3 downScaleFactor;
     private Vector3 upScaleFactor;
     private float lerpDuration = .12f;
    
-    //public int buttonlIndex;
-
-
-
-    //public event EventHandler<OnButtonPressedEventArgs> OnButtonPressed;
-    //public class OnButtonPressedEventArgs : EventArgs
-    //{
-      //  public int buttonIndex;
-    //}
-
-    //private GameObject backgroundPanel;
-    //private Transform canvas;
 
     protected override void Awake()
     {
         base.Awake();
-        //rectTransform = GetComponent<RectTransform>();
         originalScale = new Vector3(rectTransform.localScale.x, rectTransform.localScale.y, rectTransform.localScale.y);
         downScaleFactor = new Vector3(0.9f, 0.9f, 1);
         upScaleFactor = new Vector3(1.1f, 1.1f, 1);
         
-        //if (buttonlIndex == 1) 
-        //{
-        //    GetInventoryStatus();
-        //}
-
-        //canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Transform>();
-        //backgroundPanel = canvas.Find("Background_PanelHolder").gameObject;
     }
 
-    //void GetInventoryStatus()
-    //{
-    //    //BURASI YAPILACAK
-    //}
-
-    //void SendItemToEmptySlot() 
-    //{
-    //    //BURASI YAPILACAK
-    //}
+    protected override void NotificationBehavior(bool canDo)
+    {
+        if (canDo) notificationImage.enabled = true;
+        else notificationImage.enabled = false;
+    }
 
     private void ButtonClicked()
     {
@@ -117,14 +92,8 @@ public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandle
 
     public new void OnPointerUp(PointerEventData eventData)
     {
-        //OnButtonPressed?.Invoke(this, new Button_Base.OnButtonPressedEventArgs { buttonIndex = this.buttonlIndex });
-        RaiseOnButtonPressed(new OnButtonPressedEventArgs { buttonIndex = this.buttonlIndex});
-        
-        //Debug.Log("called again pointerUP");
-        //if (backgroundPanel.activeSelf == false)
-        //{
-        //    backgroundPanel.SetActive(true);
-        //}
-        
+        RaiseOnButtonPressed(new OnButtonPressedEventArgs { buttonIndex = this.buttonIndex});            
     }
+
+
 }

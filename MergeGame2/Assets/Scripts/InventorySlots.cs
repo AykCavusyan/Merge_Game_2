@@ -17,8 +17,8 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     public Color originalColor { get; private set; }
 
     public bool isActive;
-
     public bool isFree;
+    private int slotActivateCost = 5;
     public GameObject containedItem { get; private set; }
 
     private GameObject slot_Item_Holder;
@@ -29,13 +29,14 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     Vector3 lerpedSize;
     Vector3 originalSize;
 
-    public event Action <GameObject> onSlotPurchaseAttempt;
+    public event EventHandler <MasterEventListener.OnFinancialEvent> OnSlotPurchased;
     public event EventHandler<onInventoryItemModificationEventArgs> onInventoryPlacedItem;
     public event EventHandler<onInventoryItemModificationEventArgs> onInventoryRemovedItem;
     public class onInventoryItemModificationEventArgs
     {
         public GameItems gameItem;
         public InventorySlots slot;
+        public int slotActivateCost;
     }
 
     private void Awake()
@@ -45,16 +46,6 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         childImage = transform.GetComponentsInChildren<Image>(true).ToList();
         rectTransform = GetComponent<RectTransform>();
         originalColor = transform.GetChild(0).GetComponent<Image>().color;
-
-
-        // bu kýsma daha sonra bakarýz, sadece geüvenlik
-        //if (image.enabled == true)
-        //{
-        //    image.enabled = false;
-
-        //}
-
-        //parentPanel = GameObject.Find("Panel_BackToGame");
         parentPanel = transform.parent.parent.parent.gameObject;
         originalSize = new Vector3(0f, 0f, 0f);
         lerpedSize = new Vector3(1f, 1f, 1f);
@@ -70,12 +61,6 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
             parentPanel.GetComponent<Panel_Invetory>().OnPanelSized += PlaceSlots;
             parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear += DeplaceSlots;
         }
-
-        //for (int i = 0; i < gameSlots.Length; i++)
-        //{
-        //    if(gameSlots[i] != null)
-        //    gameSlots[i].onSlotFilled += UpdateChildImagesList;
-        //}
     }
 
 
@@ -87,11 +72,6 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
             parentPanel.GetComponent<Panel_Invetory>().OnPanelDisappear -= DeplaceSlots;
         }
 
-        //for (int i = 0; i < gameSlots.Length; i++)
-        //{
-        //    if (gameSlots[i] != null)
-        //        gameSlots[i].onSlotFilled -= UpdateChildImagesList;
-        //}
     }
 
     private void Start()
@@ -142,7 +122,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         isFree = true;
         containedItem = null;
 
-        onInventoryRemovedItem?.Invoke(this, new onInventoryItemModificationEventArgs { slot = this });
+        onInventoryRemovedItem?.Invoke(this, new onInventoryItemModificationEventArgs { slot = this , gameItem =gameItemIN});
     }
 
     void UpdateChildImagesList(GameItems gameItem)
@@ -229,15 +209,6 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         }
     }
 
-
-    void ActivateSlot()
-    {
-        //transform.GetChild(0).GetComponent<Image>().color = originalColor;
-        //isActive = true;
-        //transform.Find("Lock").gameObject.SetActive(false);
-        onSlotPurchaseAttempt?.Invoke(this.gameObject);
-    }
-
     public void OnPointerDown(PointerEventData eventData)
     {
         
@@ -245,17 +216,21 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        //if( moneyis enough){
-        //    purchase slot evet fired
-        //}
 
-        if ( isActive == false)
+        if (isActive == false && 
+            PlayerInfo.Instance.currentGold > slotActivateCost && 
+            PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
         {
-            ActivateSlot();
-            //onSlotPurchaseAttempt?.Invoke(this.gameObject);
+           ActivateSlot();
         }
 
     }
+
+    void ActivateSlot()
+    {
+        OnSlotPurchased?.Invoke(this, new MasterEventListener.OnFinancialEvent { inventorySlot = this, inventorySlotCost = slotActivateCost });// slot = this, slotActivateCost = slotActivateCost }); //this.gameObject);
+    }
+
 
     public object CaptureState()
     {

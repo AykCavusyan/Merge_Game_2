@@ -69,6 +69,7 @@ public class ItemInfoPanel_Logic : MonoBehaviour
 
     void ChangeTextAlpha(Text textIN)
     {
+        StopAllCoroutines();
         StartCoroutine(ChangeTextAlphaEnum(textIN));
     }
 

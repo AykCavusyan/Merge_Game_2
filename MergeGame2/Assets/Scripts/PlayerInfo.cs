@@ -16,6 +16,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     private GameObject levelPanel;
     private Button_Claim button_Claim;
     private Button_Action_ItemInfo buttonActionItemInfo;
+    private Inventory inventoryScript;
 
     private Dictionary<InventorySlots, GameItems> inventory = new Dictionary<InventorySlots, GameItems>();
 
@@ -100,10 +101,25 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         SceneController.Instance.OnSceneLoaded -= SceneConfig;
         MasterEventListener.Instance.OnItemCollectted -= CalculateXPFromStars;
         QuestManager.Instance.OnQuestCompleted -= CalculateXPFromQuests;
+
         if (levelPanel) levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated -= UpdateListOfRewardLevelsToClaim;
         if (button_Claim) button_Claim.OnClaimed += UpdateLastLevelClaimed;
         if (buttonActionItemInfo) buttonActionItemInfo.OnItemSold -= CalculateCurrentGold;
 
+        InventorySlots[] inventorySlots = FindObjectsOfType<InventorySlots>(); 
+        if (inventorySlots.Length > 0)
+        {
+            foreach (InventorySlots inventorySlot in inventorySlots)
+            {
+                if (inventorySlot)
+                {
+                    inventorySlot.onInventoryPlacedItem -= AddToDictionnary;
+                    inventorySlot.onInventoryRemovedItem -= RemoveFromDictionnary;
+                    inventorySlot.OnSlotPurchased -= CalculateCurrentGold;
+                } 
+            }
+        }
+        
     }
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
@@ -113,8 +129,11 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
         if (e._sceneToLoad == SceneNames.Scene.MergeScene && e.initializeOrder ==2)
         {
+            inventoryScript = GameObject.Find("Panel_BackToGame").GetComponent<Inventory>();
+            inventoryScript.OnInventorySlotCreated += ListenInventorySlots;
+            inventoryScript.ConfigPanel(_itemsDictToLoad);
+            
 
-            GameObject.Find("Panel_BackToGame").GetComponent<Inventory>().ConfigPanel(_itemsDictToLoad);
             levelPanel = GameObject.Find("Panel_LevelPanel");
             button_Claim = levelPanel.transform.GetChild(3).GetComponent<Button_Claim>();
 
@@ -124,8 +143,8 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
             buttonActionItemInfo = GameObject.Find("Panel_ItemInfo_BG").transform.GetChild(4).GetComponent<Button_Action_ItemInfo>();
             buttonActionItemInfo.OnItemSold += CalculateCurrentGold;
-            
 
+            
         }
     }
 
@@ -140,10 +159,13 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         currentInventorySlotAmount = updatedCurrentInventorySLotAmount;
     }
 
-    public void ListenInventorySlots(InventorySlots inventorySlots)
+    public void ListenInventorySlots(object sender, Inventory.OnInventorySlotCreatedEventArgs e)
     {
-        inventorySlots.onInventoryPlacedItem += AddToDictionnary;
-        inventorySlots.onInventoryRemovedItem += RemoveFromDictionnary;
+
+        Debug.Log("listened");
+        e.newActiveOrInactiveInventorySlot.onInventoryPlacedItem += AddToDictionnary; 
+        e.newActiveOrInactiveInventorySlot.onInventoryRemovedItem += RemoveFromDictionnary;
+        e.newActiveOrInactiveInventorySlot.OnSlotPurchased += CalculateCurrentGold;
         
     }
     public void GenerateDictionary(InventorySlots newInventorySlot)
@@ -178,9 +200,12 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
     }
 
-    void CalculateCurrentGold(int newValueIN)
+    
+    
+    void CalculateCurrentGold(object sender, MasterEventListener.OnFinancialEvent e)
     {
-        currentGold += newValueIN;
+        if (e.itemValue != default(int)) currentGold += e.itemValue;
+        if (e.inventorySlotCost != default(int)) currentGold -= e.inventorySlotCost;
         OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
     }
 

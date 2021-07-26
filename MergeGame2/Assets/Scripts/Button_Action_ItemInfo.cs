@@ -11,7 +11,7 @@ public class Button_Action_ItemInfo : MonoBehaviour ,IPointerDownHandler
     private Text actionText;
     private ItemSelector itemSelector;
 
-    public event Action<int> OnItemSold;
+    public event EventHandler<MasterEventListener.OnFinancialEvent> OnItemSold;
 
     private void Awake()
     {
@@ -30,7 +30,7 @@ public class Button_Action_ItemInfo : MonoBehaviour ,IPointerDownHandler
     {
         GameItems itemToSell = itemSelector.selectedItem;
 
-        OnItemSold?.Invoke(itemToSell.goldValue);
+        OnItemSold?.Invoke(this, new MasterEventListener.OnFinancialEvent { itemValue = itemToSell.goldValue });
    
         itemToSell.DestroyItem(itemToSell.gameObject);
     }

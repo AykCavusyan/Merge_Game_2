@@ -19,6 +19,13 @@ public sealed class MasterEventListener : MonoBehaviour
     public event EventHandler<GameItems.OnItemDestroyedEventArgs> OnDestroyedMasterEvent;
     public event EventHandler<GameItems.OnQuestItemEventArgs> OnItemIsQuestEventMaster;
 
+    public class OnFinancialEvent
+    {
+        public InventorySlots inventorySlot;
+        public int inventorySlotCost;
+        public int itemValue;
+    }
+
     #region
     //private VisualEffects visualEffects;
     //private ScoreManager scoreManager;

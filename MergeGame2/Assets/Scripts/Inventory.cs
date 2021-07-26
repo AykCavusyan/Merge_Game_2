@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,12 @@ public class Inventory : MonoBehaviour
 
     private int currentSlotAmount;
     private GameObject currentNewSlot;
+
+    public event EventHandler<OnInventorySlotCreatedEventArgs> OnInventorySlotCreated;
+    public class OnInventorySlotCreatedEventArgs
+    {
+        public InventorySlots newActiveOrInactiveInventorySlot;
+    }
 
     private int slotIDNumber = 0;
 
@@ -86,11 +93,13 @@ public class Inventory : MonoBehaviour
 
         currentNewSlot.transform.SetParent(inner_Panel_Container, false);
         currentNewSlot.AddComponent<InventorySlots>().isActive = isActive;
-        //currentNewSlot.AddComponent<SaveableEntitiy>();
         slotIDNumber++;
         currentNewSlot.GetComponent<InventorySlots>().slotIDNumber = slotIDNumber;
         currentNewSlot.GetComponent<InventorySlots>().isPurchasedOnSession = isPurchasedOnSession;
-        PlayerInfo.Instance.ListenInventorySlots(currentNewSlot.GetComponent<InventorySlots>());   // event daha iyi olaiblir mi ?
+
+        Debug.Log("event raised");
+        OnInventorySlotCreated?.Invoke(this, new OnInventorySlotCreatedEventArgs { newActiveOrInactiveInventorySlot = currentNewSlot.GetComponent<InventorySlots>() });
+        //PlayerInfo.Instance.ListenInventorySlots(currentNewSlot.GetComponent<InventorySlots>());   // event daha iyi olaiblir mi ?
 
         if (isActive == true)
         {
@@ -99,7 +108,7 @@ public class Inventory : MonoBehaviour
 
         else if (isActive == false)
         {
-            ListenInactiveSlot(currentNewSlot);
+            currentNewSlot.GetComponent<InventorySlots>().OnSlotPurchased += PurchaseSlot;
         }
 
         return currentNewSlot;
@@ -117,34 +126,34 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void ListenInactiveSlot(GameObject currentNewSlot)
-    {
-        currentNewSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt += PurchaseSlot;
-    }
+    //void ListenInactiveSlot(object sender, InventorySlots.onInventoryItemModificationEventArgs e)
+    //{
+    //    e.slot.OnSlotPurchased += PurchaseSlot;
+    //}
 
  
 
-    void PurchaseSlot(GameObject sender)
+    void PurchaseSlot(object sender, MasterEventListener.OnFinancialEvent e) //  InventorySlots.onInventoryItemModificationEventArgs e)
     {
-        InventorySlots inventorySlot = sender.GetComponent<InventorySlots>();
-        sender.transform.GetChild(0).GetComponent<Image>().color = inventorySlot.originalColor;
-        sender.transform.Find("Lock").gameObject.SetActive(false);
-        inventorySlot.isActive = true;
+        //InventorySlots inventorySlot = sender.GetComponent<InventorySlots>();
+        e.inventorySlot.transform.GetChild(0).GetComponent<Image>().color = e.inventorySlot.originalColor;
+        e.inventorySlot.transform.Find("Lock").gameObject.SetActive(false);
+        e.inventorySlot.isActive = true;
 
 
-        if (PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
-        {
+        //if (PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
+        //{
             currentSlotAmount++;
             PlayerInfo.Instance.AugmentCurrentInventorySlotAmount(currentSlotAmount);
-            PlayerInfo.Instance.GenerateDictionary(sender.GetComponent<InventorySlots>());
+            PlayerInfo.Instance.GenerateDictionary(e.inventorySlot);
 
             CreateNewSlot(false,true);
-            StopListeningPreviousSlot(sender);
-        }
+            StopListeningPreviousSlot(e.inventorySlot);
+        //}
     }
-    void StopListeningPreviousSlot(GameObject oldSlot)
+    void StopListeningPreviousSlot(InventorySlots inventorySlotIN)
     {
-        oldSlot.GetComponent<InventorySlots>().onSlotPurchaseAttempt -= PurchaseSlot;
+        inventorySlotIN.OnSlotPurchased -= PurchaseSlot;
     }
 
     private void OnDisable()
@@ -155,7 +164,7 @@ public class Inventory : MonoBehaviour
         {
             foreach (InventorySlots inventorySlot in currentInventorySlots)
             {
-                inventorySlot.onSlotPurchaseAttempt -= PurchaseSlot;
+                inventorySlot.OnSlotPurchased -= PurchaseSlot;
             }
         }
     }

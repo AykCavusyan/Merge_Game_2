@@ -32,7 +32,6 @@ public class Rewards : MonoBehaviour
         inner_Panel_Container = transform.GetChild(2);
         claimButton = transform.GetChild(3).GetComponent<Button_Claim>();
         player = GameObject.FindGameObjectWithTag("Player");
-        //levelsToClaim.Add(1);
         
     }
 
@@ -57,7 +56,6 @@ public class Rewards : MonoBehaviour
         levelsToClaim = levelsToClaimIN;
         if(levelsToClaimIN.Count == 0) levelsToClaim.Add(1);
         GenerateRewardsDict();
-        //UpdateRewardsList(null, null);
         InstantiateSlots();
     }
 
@@ -69,16 +67,6 @@ public class Rewards : MonoBehaviour
         }
     }
 
-    //void UpdateRewardsList(int playerLevelIN)
-    //{
-
-    //}
-
-    //private int SetplayerLevel()
-    //{
-    //    playerLevel = PlayerInfo.Instance.currentLevel;
-    //    return playerLevel;
-    //}
 
     void GenerateRewardsDict()
     {
