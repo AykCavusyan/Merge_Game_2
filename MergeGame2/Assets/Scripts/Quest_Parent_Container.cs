@@ -61,10 +61,6 @@ public class Quest_Parent_Container : MonoBehaviour
 
             slots[i] = newSlot;
 
-            //newSlot.AddComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
-            //newSlot.GetComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
-            //newSlot.GetComponent<Quest_Slots>().OnDisableQuestSlot += TryActivateCompleteButton;
-
             newSlot.AddComponent<Quest_Slots>().OnActivateQuestSlot += TryActivateCompleteButton;
             newSlot.GetComponent<Quest_Slots>().OnDisableQuestSlot += TryActivateCompleteButton;
             newSlot.GetComponent<Quest_Slots>().CreateQuestSlot(reqItemType[i], i);
@@ -92,19 +88,17 @@ public class Quest_Parent_Container : MonoBehaviour
 
     void TryActivateCompleteButton(object sender, Quest_Slots.OnQuestSlotStateChange e)
     {
-        Debug.Log("tryactivatecompletebutton");
+
+        Debug.Log("try activate working");
         allSlotsCheck[e.questSlot.slotID] = e.isActive;
 
         if (!allSlotsCheck.Any(x => x == false))
         {
-            Debug.Log("allSlotsCheck slots ALL TRUE");
             canComplete = true;
             SetActivateButtonState(canComplete);
         }
         else
         {
-            Debug.Log("allSlotsCheck slots CONTAINS FALSE");
-
             canComplete = false;
             SetActivateButtonState(canComplete);
         }

@@ -218,7 +218,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     {
 
         if (isActive == false && 
-            PlayerInfo.Instance.currentGold > slotActivateCost && 
+            PlayerInfo.Instance.currentGold >= slotActivateCost && 
             PlayerInfo.Instance.currentInventorySlotAmount < PlayerInfo.Instance.maxInventorySlotAmount)
         {
            ActivateSlot();

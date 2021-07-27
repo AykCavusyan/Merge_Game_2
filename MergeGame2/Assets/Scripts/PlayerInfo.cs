@@ -216,9 +216,9 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         UpdateXpPoints();
     }
 
-    void CalculateXPFromQuests(Quest q)
+    void CalculateXPFromQuests(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
     {
-        currentXP += q.questXPReward;  
+        currentXP += e.quest.questXPReward; //q.questXPReward;  
         UpdateXpPoints();
     }
 

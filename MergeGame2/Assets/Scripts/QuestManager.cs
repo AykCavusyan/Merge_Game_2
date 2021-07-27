@@ -25,26 +25,21 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
     public List<(int , int )> activeLevelTuplesToLoadList = new List<(int , int )>();
 
-    public event Action<Quest> OnQuestCompleted;
-
+    public event EventHandler<OnQuestAddRemoveEventArgs> OnQuestCompleted;
     public event EventHandler<OnQuestAddRemoveEventArgs> OnQuestAdded;
-    public event EventHandler<OnQuestAddRemoveEventArgs> OnQuestRemoved;
+    public event EventHandler<OnQuestAddRemoveEventArgs> OnItemIsNotQuestItemAnymore;
     public class OnQuestAddRemoveEventArgs
     {
-        //public Quest quest;
+        public Quest quest;
         public Item.ItemType itemType;
+        public Button_CompleteQuest button_CompleteQuest;
     }
-
     public event EventHandler<AddRemoveQuestItemEventArgs> OnQuestItemNoMore;
     public class AddRemoveQuestItemEventArgs
     {
         public Item.ItemType itemType;
     }
 
-    //public int GetInitializeOrder()
-    //{
-    //    return initializeOrder;s
-    //}
 
 
     private void Awake()
@@ -75,12 +70,9 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
     }
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e )
-    {
-        //string activeSceneName = SceneManager.GetActiveScene().name;
-        
+    {        
         if(e._sceneToLoad == SceneNames.Scene.MergeScene && e.initializeOrder ==1)
         {
-
             questPanel = GameObject.Find("Panel_QuestPanel");
             rewardPanel = GameObject.Find("Panel_LevelPanel");
 
@@ -93,8 +85,6 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
                     GenerateNewQuest(activeQuestLevelTuple.Item1, activeQuestLevelTuple.Item2);
                 }
             }
-
-            //SceneController.Instance.ModifyInitializedPanels(initializeOrder);
         }
     }
 
@@ -129,7 +119,10 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
         _activeQuests.Add(newQuest);
         CheckAndFlagExistingItems(newQuest);
         GameObject newParentQuestContainer = questPanel.GetComponent<Quest_List>().InstantiateParentQuestContainers(newQuest);
-        newParentQuestContainer.transform.GetChild(3).GetChild(1).GetComponent<Button_CompleteQuest>().OnQuestCompleted += CompleteQuest;
+        Button_CompleteQuest button_CompleteQuest = newParentQuestContainer.transform.GetChild(3).GetChild(1).GetComponent<Button_CompleteQuest>();
+        button_CompleteQuest.OnQuestCompleted += CompleteQuest;
+
+        OnQuestAdded?.Invoke(this, new OnQuestAddRemoveEventArgs { button_CompleteQuest = button_CompleteQuest });
     }
 
     void AddPresentGameItemsList(object  sender, ItemBag.OnGameItemCreatedEventArgs e)
@@ -161,7 +154,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
         questPanel.GetComponent<Quest_List>().RemoveParentSlotContainers(e.quest);
 
-        OnQuestCompleted?.Invoke(e.quest);
+        OnQuestCompleted?.Invoke(this, new OnQuestAddRemoveEventArgs { quest = e.quest, button_CompleteQuest = completeButton }); //e.quest);
 
         foreach (Item item in e.quest.itemsNeeded)
         {
@@ -178,7 +171,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
             if(!_activeQuestItemsList.Any(itemType => itemType == questItem.itemType))
             {
-                OnQuestRemoved?.Invoke(this, new OnQuestAddRemoveEventArgs { itemType = questItem.itemType });
+                OnItemIsNotQuestItemAnymore?.Invoke(this, new OnQuestAddRemoveEventArgs { itemType = questItem.itemType });
             }
         }
     }

@@ -16,7 +16,7 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
     //private Item questReward;
     private Quest activeQuest;
 
-    public Action<bool> OnQuestCanComplete;
+    public Action<Button_CompleteQuest,bool> OnQuestCanComplete;
     public event EventHandler<OnQuestCompletedEventArgs> OnQuestCompleted;
     public class OnQuestCompletedEventArgs
     {
@@ -29,8 +29,6 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
         base.Awake();
         buttonOriginalColor = transform.GetChild(1).GetComponent<Image>().color;
         buttonFadedColor = new Color(.5f, .5f, .5f, .5f);
-        //GameObject.Find("Button_Tasklist").GetComponent<ButtonHandler>().
-
     }
 
     public void CreateButton(Quest quest)
@@ -43,15 +41,18 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
     {
         if(canCompleteIN)
         {
+            Debug.Log("buton availability on button initialization YES");
             canClaim = true;
             transform.GetChild(1).GetComponent<Image>().color = buttonOriginalColor;
-            OnQuestCanComplete?.Invoke(canCompleteIN);
+            OnQuestCanComplete?.Invoke(this, canCompleteIN);
         }
         else
         {
+            Debug.Log("buton availability on button initialization NO");
+
             canClaim = false;
             transform.GetChild(1).GetComponent<Image>().color = buttonFadedColor;
-            OnQuestCanComplete?.Invoke(canCompleteIN);
+            OnQuestCanComplete?.Invoke(this, canCompleteIN);
         }
     }
 

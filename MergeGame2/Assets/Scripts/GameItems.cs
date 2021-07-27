@@ -116,13 +116,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         Init();
         QuestManager.Instance.OnQuestAdded += SetCheckMark;
-        QuestManager.Instance.OnQuestRemoved += RemoveCheckMark;
+        QuestManager.Instance.OnItemIsNotQuestItemAnymore += RemoveCheckMark;
     }
 
     private void OnDisable()
     {
         QuestManager.Instance.OnQuestAdded -= SetCheckMark;
-        QuestManager.Instance.OnQuestRemoved -= RemoveCheckMark;
+        QuestManager.Instance.OnItemIsNotQuestItemAnymore -= RemoveCheckMark;
     }
 
     private void Start()
