@@ -26,7 +26,6 @@ public class Quest_Slots : MonoBehaviour
     }
 
 
-
     private void Awake()
     {
         itemImage = transform.GetChild(0).GetChild(0).GetComponent<Image>();
@@ -52,7 +51,6 @@ public class Quest_Slots : MonoBehaviour
         QuestManager.Instance.OnQuestItemNoMore -= DisableCheckMark;
         rewardPanel.GetComponent<Rewards>().OnRewardItemGiven -= EnableCheckMarkFromRewardItems;
     }
-
 
 
     void Init()
@@ -83,6 +81,7 @@ public class Quest_Slots : MonoBehaviour
                 questItemExists = true;
                 checkMark.SetActive(true);
                 OnActivateQuestSlot?.Invoke(this, new OnQuestSlotStateChange { questSlot = this, isActive = true });
+                Debug.Log("event fired");
 
                 return;
             }
@@ -93,7 +92,6 @@ public class Quest_Slots : MonoBehaviour
 
     public void EnableCheckMarkFromGameItems(object sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
-        Debug.Log("shoudnt work!!");
         if (containedQuestItem == e.gameItem.itemType && e.gameItem.isRewardPanelItem == false)
         {
             questItemExists = true;

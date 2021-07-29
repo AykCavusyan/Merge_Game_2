@@ -97,7 +97,6 @@ public class Inventory : MonoBehaviour
         currentNewSlot.GetComponent<InventorySlots>().slotIDNumber = slotIDNumber;
         currentNewSlot.GetComponent<InventorySlots>().isPurchasedOnSession = isPurchasedOnSession;
 
-        Debug.Log("event raised");
         OnInventorySlotCreated?.Invoke(this, new OnInventorySlotCreatedEventArgs { newActiveOrInactiveInventorySlot = currentNewSlot.GetComponent<InventorySlots>() });
         //PlayerInfo.Instance.ListenInventorySlots(currentNewSlot.GetComponent<InventorySlots>());   // event daha iyi olaiblir mi ?
 

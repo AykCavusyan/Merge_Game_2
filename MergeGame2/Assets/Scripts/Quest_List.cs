@@ -38,15 +38,13 @@ public class Quest_List : MonoBehaviour
 
     public GameObject InstantiateParentQuestContainers(Quest questIN)
     {
-        //Debug.Log(e.quest.itemsNeeded.Count);
         GameObject newParentSlotContainer = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuest_Parent"));
         newParentSlotContainer.transform.SetParent(innerPanelContainer.transform, false);
         newParentSlotContainer.GetComponent<Quest_Parent_Container>().CreateQuestParentContainer(questIN);
 
         parentSlotConainers.Add(newParentSlotContainer);
-        Debug.Log(parentSlotConainers.Count);
         return newParentSlotContainer;
-
+        
     }
 
     public void RemoveParentSlotContainers(Quest questIN)

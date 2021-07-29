@@ -38,7 +38,7 @@ public class Quest_Parent_Container : MonoBehaviour
         allSlotsCheck = new bool[slotAmount];
         PopulateReqItemArray(slotAmount, questIN);
         CreateSlotsAndButton(slotAmount, reqItemTypes, questIN);
-        SetActivateButtonState(canComplete);
+        //SetActivateButtonState(canComplete);  // bu fazla olabilir mi ?
         SetQuestName(questIN);
     }
 
@@ -74,7 +74,7 @@ public class Quest_Parent_Container : MonoBehaviour
         }
         
     }
-
+    
     void PopulateReqItemArray(int slotAmountIN, Quest questIN)
     {
         reqItemTypes = new Item[slotAmountIN];
@@ -88,7 +88,6 @@ public class Quest_Parent_Container : MonoBehaviour
 
     void TryActivateCompleteButton(object sender, Quest_Slots.OnQuestSlotStateChange e)
     {
-
         Debug.Log("try activate working");
         allSlotsCheck[e.questSlot.slotID] = e.isActive;
 

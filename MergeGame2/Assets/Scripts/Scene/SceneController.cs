@@ -19,19 +19,6 @@ public class SceneController : MonoBehaviour
         public int initializeOrder;
     }
 
-    //public Dictionary<int, bool> _initializedPanelsDict = new Dictionary<int, bool>();
-
-    //public void ModifyInitializedPanels(int panel)
-    //{
-    //    if (_initializedPanelsDict.ContainsKey(panel)) _initializedPanelsDict[panel] = true;
-    //}
-
-    //public bool CheckItitializedPanel(int panel)
-    //{
-    //    if (_initializedPanelsDict[panel - 1] == true) return true;
-    //    else return false;
-    //}
-
     private void Awake()
     {
         if (_instance != null && _instance != this)

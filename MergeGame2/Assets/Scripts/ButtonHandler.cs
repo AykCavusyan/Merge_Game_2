@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-//using System.Numerics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-//using UnityEngine.UIElements;
 
 public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandler
 {
@@ -17,8 +15,7 @@ public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandle
     private Image notificationImage;
     private Text notificationText;
     private Dictionary<Button_CompleteQuest,bool> buttonOriginalStatesDict = new Dictionary<Button_CompleteQuest, bool>();
-    private int notificationAmount = 0;
-    //private object subscribedScriptObject;
+
 
 
     protected override void Awake()
@@ -27,7 +24,6 @@ public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandle
         originalScale = new Vector3(rectTransform.localScale.x, rectTransform.localScale.y, rectTransform.localScale.y);
         downScaleFactor = new Vector3(0.9f, 0.9f, 1);
         upScaleFactor = new Vector3(1.1f, 1.1f, 1);
-        SubscribeToEvents();
 
     }
     private void OnDisable()
@@ -35,25 +31,27 @@ public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandle
         UnSubscribeFromEvents();
     }
 
-    private void  SubscribeToEvents()
+    public void  SubscribeToEvents(Button_CompleteQuest buttonIn)
     {
-        if (buttonIndex == 3)
-        {
-            notificationImage = transform.GetChild(1).GetComponent<Image>();
-            notificationImage.enabled = false;
-            notificationText = notificationImage.transform.GetChild(0).GetComponent<Text>();
-            notificationText.enabled = false;
 
-            QuestManager.Instance.OnQuestAdded += StartListeningQuestButtons;
-            QuestManager.Instance.OnQuestCompleted += StopListeningQuestButton;
-        }
+        Debug.Log("subscribed");
+        buttonIn.OnQuestCanComplete += NotificationBehavior;
+        QuestManager.Instance.OnQuestCompleted += StopListeningQuestButton;
+        buttonOriginalStatesDict.Add(buttonIn, buttonIn.canClaim);
+
+
+        notificationImage = transform.GetChild(1).GetComponent<Image>();
+        notificationImage.enabled = false;
+        notificationText = notificationImage.transform.GetChild(0).GetComponent<Text>();
+        notificationText.enabled = false;
+
+
     }
 
     protected virtual void UnSubscribeFromEvents()
     {
         if (buttonIndex == 3)
         {
-            QuestManager.Instance.OnQuestAdded -= StartListeningQuestButtons;
             QuestManager.Instance.OnQuestCompleted -= StopListeningQuestButton;
 
             Button_CompleteQuest[] button_CompleteQuestArray = FindObjectsOfType<Button_CompleteQuest>();
@@ -67,57 +65,53 @@ public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandle
         }
     }
 
-    void StartListeningQuestButtons(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
-    {
-        if (e.button_CompleteQuest)
-        {
-            e.button_CompleteQuest.OnQuestCanComplete += NotificationBehavior;
-            buttonOriginalStatesDict.Add(e.button_CompleteQuest, e.button_CompleteQuest.canClaim);
-        }
-    }
+
+
     void StopListeningQuestButton(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
     {
         if (e.button_CompleteQuest) 
         {
-            DecrementNotification(e.button_CompleteQuest);
+
             buttonOriginalStatesDict.Remove(e.button_CompleteQuest);
+            GetCurrentnotificationAmount();
             e.button_CompleteQuest.OnQuestCanComplete -= NotificationBehavior;
         }         
     }
 
     private void NotificationBehavior(Button_CompleteQuest sender, bool canDo)
     {
-        if (!buttonOriginalStatesDict.ContainsKey(sender) || buttonOriginalStatesDict[sender] == canDo) return;
+        Debug.Log("notiffication behav listenint woking ");
 
         if (canDo)
         {
             if (!notificationImage.enabled) EnableNotification();
-            IncrementNotification(sender);
+            buttonOriginalStatesDict[sender] = true;
+
         }
         else
         {
-            DecrementNotification(sender);
+            buttonOriginalStatesDict[sender] = false;
         }
+
+        GetCurrentnotificationAmount();
     }
+
+    void GetCurrentnotificationAmount()
+    {
+        int notificationAmount = 0;
+        foreach (KeyValuePair<Button_CompleteQuest, bool> pair in buttonOriginalStatesDict)
+        {
+            if (pair.Value == true) notificationAmount++;
+        }
+        notificationText.text = notificationAmount.ToString();
+
+        if (notificationAmount < 1) DisableNotification();
+    }
+
     void EnableNotification()
     {
         notificationImage.enabled = true;
         notificationText.enabled = true;
-    }
-
-    void IncrementNotification (Button_CompleteQuest senderIN)
-    {
-        buttonOriginalStatesDict[senderIN] = true;
-        notificationAmount++;
-        notificationText.text = notificationAmount.ToString();
-    }
-
-    void DecrementNotification(Button_CompleteQuest senderIN)
-    {
-        buttonOriginalStatesDict[senderIN] = false;
-        notificationAmount--;
-        notificationText.text = notificationAmount.ToString();
-        if (notificationAmount < 1) DisableNotification();
     }
 
     void DisableNotification()
@@ -125,6 +119,7 @@ public class ButtonHandler : Button_Base , IPointerDownHandler, IPointerUpHandle
         notificationText.enabled = false;
         notificationImage.enabled = false;
     }
+
 
     private void ButtonClicked()
     {

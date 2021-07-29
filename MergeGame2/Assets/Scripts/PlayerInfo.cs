@@ -123,9 +123,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     }
 
     private void SceneConfig(object sender, SceneController.OnSceneLoadedEventArgs e)
-    {
-        //string activeSceneName = SceneManager.GetActiveScene().name;
-       
+    {       
 
         if (e._sceneToLoad == SceneNames.Scene.MergeScene && e.initializeOrder ==2)
         {
@@ -162,7 +160,6 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     public void ListenInventorySlots(object sender, Inventory.OnInventorySlotCreatedEventArgs e)
     {
 
-        Debug.Log("listened");
         e.newActiveOrInactiveInventorySlot.onInventoryPlacedItem += AddToDictionnary; 
         e.newActiveOrInactiveInventorySlot.onInventoryRemovedItem += RemoveFromDictionnary;
         e.newActiveOrInactiveInventorySlot.OnSlotPurchased += CalculateCurrentGold;
