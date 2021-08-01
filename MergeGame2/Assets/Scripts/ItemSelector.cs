@@ -98,7 +98,6 @@ public class ItemSelector : MonoBehaviour
         GameItems gameItemToSelect = (GameItems)sender;
 
         {
-            Debug.Log("trying to select");
             if (selectedItem == null || gameItemToSelect.initialGameSlot != selectedItem.initialGameSlot)
             {
                 selectedItem = gameItemToSelect;

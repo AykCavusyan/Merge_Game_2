@@ -78,7 +78,6 @@ public sealed class MasterEventListener : MonoBehaviour
     void ItemCollectEvent(object sender, GameItems.OnItemCollectedEventArgs e)
     {
         OnItemCollectted?.Invoke(sender, e);
-        
     }
 
     void ItemIsQuestItemEvent(object sender, GameItems.OnQuestItemEventArgs e)

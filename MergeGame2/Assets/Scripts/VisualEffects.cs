@@ -62,14 +62,9 @@ public class VisualEffects : MonoBehaviour
         }
     }
 
-    //private void OnGameItemAdded(object sender, GameSlots.OnDroppedEventHandler e)
-    //{
-    //    e.gameItem.OnMerged += MergeAnimation;
-       
-    //}
-
      void MergeAnimation(object sender, GameItems.OnMergedEventArgs e)
     {
+        
         particles.gameObject.GetComponent<RectTransform>().position = e.mergePos;
         particles.textureSheetAnimation.SetSprite(0, e.sprite);
         particles.Play();

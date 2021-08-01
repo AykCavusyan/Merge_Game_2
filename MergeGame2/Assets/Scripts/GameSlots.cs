@@ -116,20 +116,20 @@ public class GameSlots : MonoBehaviour, ISaveable
     }
  
     IEnumerator LerpItemSize(GameItems gameItem)
-    {
+    {   
         float lerpDuration = .5f;
         float timeElapsed = 0;
-
-        while (timeElapsed < lerpDuration)
+        
+        while (timeElapsed < lerpDuration && gameItem)
         {
 
-            // bu kýsým daha iyi olabilir
-            gameItem.transform.localScale = Vector3.Lerp(new Vector3(0, 0, 0), new Vector3(1, 1, 1), timeElapsed / lerpDuration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
+         gameItem.transform.localScale = Vector3.Lerp(new Vector3(0, 0, 0), new Vector3(1, 1, 1), timeElapsed / lerpDuration);
+         timeElapsed += Time.deltaTime;           
+
+         yield return null;
         }
 
-        gameItem.transform.localScale = new Vector3(1, 1, 1);
+        if (gameItem) gameItem.transform.localScale = new Vector3(1, 1, 1);
     }
 
 

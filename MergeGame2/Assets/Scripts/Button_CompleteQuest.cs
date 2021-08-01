@@ -80,7 +80,7 @@ public class Button_CompleteQuest : Button_Base, IPointerDownHandler,IPointerUpH
     {
         if (canClaim == true)
         {
-            OnQuestCompleted?.Invoke(this, new OnQuestCompletedEventArgs { quest = activeQuest });
+            OnQuestCompleted?.Invoke(this, new OnQuestCompletedEventArgs { quest = activeQuest});
         }
     }
 }

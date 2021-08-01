@@ -37,7 +37,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     public int lastClaimedLevel { get; private set; } = 1;
     //private GameObject levelBar;
     
-    private MasterEventListener masterEventListener; // bu gerekli mi bakmak lazým
+    //private MasterEventListener masterEventListener; // bu gerekli mi bakmak lazým
 
     public event EventHandler<OnLevelChangedEventArgs> OnResetBar;
     public event EventHandler<OnLevelChangedEventArgs> OnLevelTextChanged;
@@ -82,7 +82,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
         SetCurrentLevel();
 
-        masterEventListener = GetComponent<MasterEventListener>();
+        //masterEventListener = GetComponent<MasterEventListener>();
     }
     
     //private void OnEnable()
@@ -103,7 +103,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         QuestManager.Instance.OnQuestCompleted -= CalculateXPFromQuests;
 
         if (levelPanel) levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated -= UpdateListOfRewardLevelsToClaim;
-        if (button_Claim) button_Claim.OnClaimed += UpdateLastLevelClaimed;
+        if (button_Claim) button_Claim.OnClaimed -= UpdateLastLevelClaimed;
         if (buttonActionItemInfo) buttonActionItemInfo.OnItemSold -= CalculateCurrentGold;
 
         InventorySlots[] inventorySlots = FindObjectsOfType<InventorySlots>(); 
@@ -233,20 +233,16 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         {
 
             OnLevelNumberChanged?.Invoke(this, new OnLevelChangedEventArgs {xpToNextLevel= XPToNextLevel, currentXP = XPToNextLevel });
-            //levelBar.GetComponent<LevelBar>().UpdateBarFill();
             currentXP -= XPToNextLevel;
             UpdateLevel(currentLevel);
 
             OnLevelTextChanged?.Invoke(this, new OnLevelChangedEventArgs { levelText = currentLevel.ToString() }); // bunu
 
             OnResetBar?.Invoke(this, null);
-            //levelBar.GetComponent<LevelBar>().ResetBarFill();
-            //levelBar.GetComponent<LevelBar>().ResetBarFillAmount();
+
         }
 
-        Debug.Log("xp being added on event");
         OnLevelNumberChanged?.Invoke(this, new OnLevelChangedEventArgs { xpToNextLevel = XPToNextLevel, currentXP =currentXP});
-        //levelBar.GetComponent<LevelBar>().UpdateBarFill( XPToNextLevel, currentXP);
 
     }
 

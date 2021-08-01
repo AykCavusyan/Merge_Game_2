@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\CameraController.cs" />
+    <Compile Include="Assets\Scripts\ItemSelector.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightIntensityFade.cs" />
     <Compile Include="Assets\Scripts\ItemBag.cs" />
     <Compile Include="Assets\Scripts\Scene\SceneNames.cs" />
@@ -84,17 +85,21 @@
     <Compile Include="Assets\Scripts\QuestManager.cs" />
     <Compile Include="Assets\Scripts\Quest_Slots.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_AutoDestructShuriken.cs" />
+    <Compile Include="Assets\Scripts\GoldBar.cs" />
     <Compile Include="Assets\Scripts\XButton_Panel.cs" />
     <Compile Include="Assets\Scripts\ItemAssets.cs" />
     <Compile Include="Assets\Scripts\RewardSlots.cs" />
     <Compile Include="Assets\Scripts\TopPanelID.cs" />
     <Compile Include="Assets\Scripts\Button_Claim.cs" />
+    <Compile Include="Assets\Scripts\ItemInfoPanel\ItemInfoPanel_Logic.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RotateCamera.cs" />
+    <Compile Include="Assets\Scripts\Button_Action_ItemInfo.cs" />
     <Compile Include="Assets\Scripts\LevelBar.cs" />
     <Compile Include="Assets\Scripts\MergeRecipes.cs" />
     <Compile Include="Assets\Scripts\SavingSystem\SavingSystem.cs" />
     <Compile Include="Assets\Scripts\Panel_BackgroundPanelHolder.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
+    <Compile Include="Assets\Scripts\VisualEffectsGather.cs" />
     <Compile Include="Assets\Scripts\Button_Base.cs" />
     <Compile Include="Assets\Scripts\Quest_List.cs" />
     <Compile Include="Assets\Scripts\Rewards.cs" />
@@ -112,10 +117,8 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\ItemInfoPanel\ItemInfoPanel_Logic.cs" />
-    <Compile Include="Assets\Scripts\GoldBar.cs" />
-    <Compile Include="Assets\Scripts\ItemSelector.cs" />
-    <Compile Include="Assets\Scripts\Button_Action_ItemInfo.cs" />
+    <Compile Include="Assets\Scripts\ParticleReceiver.cs" />
+    <Compile Include="Assets\Scripts\VisualEffectsCanDrop.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

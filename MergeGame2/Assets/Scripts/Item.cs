@@ -115,6 +115,7 @@ public class Item
        {1, 
         new Dictionary<ItemGenre, ItemType> 
         {
+            {ItemGenre.Gold, ItemType.Gold_1 },
             {ItemGenre.Armor, ItemType.Armor_1 },
             {ItemGenre.Meals, ItemType.Meal_1 },
             {ItemGenre.Star, ItemType.Star_1 },
@@ -200,6 +201,7 @@ public class Item
 
     public enum ItemType
     {
+        Gold_1,
         Star_1,
         Star_2,
         Star_3,
@@ -229,6 +231,7 @@ public class Item
 
     public enum ItemGenre
     {
+        Gold,
         Star,
         Meals,
         Other,

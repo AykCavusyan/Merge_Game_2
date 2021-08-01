@@ -9,7 +9,8 @@ public class LevelBar : MonoBehaviour
     private Image bar;
     private Text levelText;
     private GameObject levelIcon;
-    // private ParticleSystem particleSystem;
+    private ParticleSystem particles;
+    private Button_Claim button_Claim;
 
     private bool cr_Running = false;
 
@@ -23,13 +24,20 @@ public class LevelBar : MonoBehaviour
         bar = transform.GetChild(1).GetChild(0).GetComponent<Image>();
         levelIcon = transform.GetChild(0).gameObject;
         levelText = levelIcon.transform.GetChild(0).GetComponent<Text>();
-        //particleSystem = levelIcon.transform.GetChild(1).GetChild(0). GetComponent<ParticleSystem>();
+
+        button_Claim = GameObject.Find("LevelUp_Button_levelPanel_Parent").GetComponent<Button_Claim>();
+        particles = transform.GetChild(2).GetComponent<ParticleSystem>();
+        particles.Stop();
+
+        EnableParticleSystem(null,null);
     }
 
     private void OnEnable()
     {
         Init();
         PlayerInfo.Instance.OnLevelTextChanged += UpdateText;
+        PlayerInfo.Instance.OnLevelTextChanged += EnableParticleSystem;
+        button_Claim.OnClaimed += DisableParticleSystem;
         PlayerInfo.Instance.OnLevelNumberChanged += UpdateBarFill;
         PlayerInfo.Instance.OnResetBar += ResetBarFill;
     }
@@ -37,6 +45,8 @@ public class LevelBar : MonoBehaviour
     private void OnDisable()
     {
         PlayerInfo.Instance.OnLevelTextChanged -= UpdateText;
+        PlayerInfo.Instance.OnLevelTextChanged -= EnableParticleSystem;
+        button_Claim.OnClaimed -= DisableParticleSystem;
         PlayerInfo.Instance.OnLevelNumberChanged -= UpdateBarFill;
         PlayerInfo.Instance.OnResetBar -= ResetBarFill;
     }
@@ -47,6 +57,23 @@ public class LevelBar : MonoBehaviour
         {
             Instantiate(player); 
         }
+    }
+
+    void EnableParticleSystem(object sender, PlayerInfo.OnLevelChangedEventArgs e)
+    {
+        int currentLevel ;
+        if (e == null) currentLevel = PlayerInfo.Instance.currentLevel;
+        else currentLevel = int.Parse(e.levelText);
+
+        Debug.Log(PlayerInfo.Instance.lastClaimedLevel);
+        Debug.Log(currentLevel);
+
+        if (currentLevel > PlayerInfo.Instance.lastClaimedLevel) particles.Play(); 
+    }
+
+    void DisableParticleSystem(int lastClaimedLevelIN)
+    {
+        if (PlayerInfo.Instance.currentLevel <= lastClaimedLevelIN) particles.Stop();
     }
 
     void Start()

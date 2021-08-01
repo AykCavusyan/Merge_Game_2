@@ -45,6 +45,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public class OnItemCollectedEventArgs : EventArgs
     {
         public int xpValue;
+        public int itemLevel;
+        public int itemPanelID;
+        public Vector2 position;
+        public Item.ItemType ItemType;
+        //public Sprite sprite;
     }
 
     public GameObject player;
@@ -131,17 +136,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         originalSizeDelta = rectTransform.sizeDelta;
     }
 
-    void Update()
-    {
-        //if (Input.GetKeyDown(KeyCode.G))
-        //{
-        //    CaptureState();
-        //}
-        //if (Input.GetKeyDown(KeyCode.H))
-        //{
-        //    RestoreState(_variablesDict);
-        //}
-    }
+
 
     void Init()
     {
@@ -235,11 +230,36 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
+
+
         OnDragHandler?.Invoke(eventData);
 
         if (followCursor)
         {
             rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, results);
+
+            GameSlots gameSlot = null;
+            ButtonHandler inventoryButton = null;
+
+            foreach (var result in results)
+            {
+                gameSlot = result.gameObject.GetComponent<GameSlots>();
+                inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
+
+                if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1)
+                {
+                    break;
+                }
+            }
+            if (gameSlot.containedItem != null && gameSlot.containedItem.GetComponent<GameItems>().itemType == this.itemType)
+            {
+                Debug.Log("there is a gameitem within");
+            }
+
+
         }
     }
 
@@ -554,15 +574,16 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         canDrag = false;
 
         initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
-        OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs { xpValue = this.xpValue });
-        MoveItemToTopPanel();
+        OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs {  itemLevel=this.itemLevel , xpValue = this.xpValue , itemPanelID = itemPanelID , position = GetComponent<RectTransform>().position, ItemType= itemType});
+        //MoveItemToTopPanel();
+        DestroyItem(this.gameObject);
     }
 
-    void MoveItemToTopPanel()
-    {
-        GameObject panelToMove = ChoosePanelToMove(itemPanelID);
-        StartCoroutine(MoveItemToPanelEnum(panelToMove));
-    }
+    //void MoveItemToTopPanel()
+    //{
+    //    GameObject panelToMove = ChoosePanelToMove(itemPanelID);
+    //    StartCoroutine(MoveItemToPanelEnum(panelToMove));
+    //}
 
     private GameObject ChoosePanelToMove(int itemPanelID)
     {
@@ -576,29 +597,29 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         return null;
     }
 
-    IEnumerator MoveItemToPanelEnum(GameObject paneltoMove)
-    {
-        float elapsedTime = 0f;
-        float lerpDuration = .5f;
+    //IEnumerator MoveItemToPanelEnum(GameObject paneltoMove)
+    //{
+    //    float elapsedTime = 0f;
+    //    float lerpDuration = .5f;
 
-        Vector2 originalPosition = GetComponent<RectTransform>().position;
-        Vector2 lerpPosition = paneltoMove.transform.GetChild(0).GetComponent<RectTransform>().position;
-        Vector2 oldSize = GetComponent<RectTransform>().sizeDelta;
-        Vector2 lerpSizeFactor = new Vector2(.6f, .6f);
+    //    Vector2 originalPosition = GetComponent<RectTransform>().position;
+    //    Vector2 lerpPosition = paneltoMove.transform.GetChild(0).GetComponent<RectTransform>().position;
+    //    Vector2 oldSize = GetComponent<RectTransform>().sizeDelta;
+    //    Vector2 lerpSizeFactor = new Vector2(.6f, .6f);
 
 
-        while (elapsedTime < lerpDuration)
-        {
-            GetComponent<RectTransform>().position = Vector2.Lerp(originalPosition, lerpPosition, elapsedTime / lerpDuration);
-            GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(oldSize, oldSize * lerpSizeFactor, elapsedTime / lerpDuration);
-            GetComponent<RectTransform>().localEulerAngles += new Vector3(0, 0, 10f);
-            elapsedTime += Time.deltaTime;
+    //    while (elapsedTime < lerpDuration)
+    //    {
+    //        GetComponent<RectTransform>().position = Vector2.Lerp(originalPosition, lerpPosition, elapsedTime / lerpDuration);
+    //        GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(oldSize, oldSize * lerpSizeFactor, elapsedTime / lerpDuration);
+    //        GetComponent<RectTransform>().localEulerAngles += new Vector3(0, 0, 10f);
+    //        elapsedTime += Time.deltaTime;
 
-            yield return null;
-        }
-        transform.position = lerpPosition;
-        DestroyItem(this.gameObject);
-    }
+    //        yield return null;
+    //    }
+    //    transform.position = lerpPosition;
+    //    DestroyItem(this.gameObject);
+    //}
 
     public void DestroyItem(GameObject gameItem)
     {
