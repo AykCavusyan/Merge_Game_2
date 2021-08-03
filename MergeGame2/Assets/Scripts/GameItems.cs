@@ -13,6 +13,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public event Action<PointerEventData> OnDragHandler;
     public event Action<PointerEventData, bool> OnEndDragHandler;
 
+    public event EventHandler<OnPossibleDropEffectsEventArgs> OnPossibleDropEffects;
+    public class OnPossibleDropEffectsEventArgs
+    {
+        public Vector3 effectLocation;
+        public bool canPlay;
+    }
+
     public event EventHandler<OnQuestItemEventArgs> OnQuestCheckmarkOn;
     public class OnQuestItemEventArgs
     {
@@ -230,8 +237,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
-
-
         OnDragHandler?.Invoke(eventData);
 
         if (followCursor)
@@ -250,14 +255,16 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
 
                 if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1)
-                {
+                {  
                     break;
                 }
             }
+
             if (gameSlot.containedItem != null && gameSlot.containedItem.GetComponent<GameItems>().itemType == this.itemType)
             {
-                Debug.Log("there is a gameitem within");
+                OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = gameSlot.containedItem.transform.position });
             }
+            else OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = false });
 
 
         }

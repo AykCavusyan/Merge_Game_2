@@ -16,6 +16,7 @@ public sealed class MasterEventListener : MonoBehaviour
         
     public event EventHandler<GameItems.OnMergedEventArgs> OnMerged;
     public event EventHandler<GameItems.OnItemCollectedEventArgs> OnItemCollectted;
+    public event EventHandler<GameItems.OnPossibleDropEffectsEventArgs> OnPossibleDropEffectMasterEvent;
     public event EventHandler<GameItems.OnItemDestroyedEventArgs> OnDestroyedMasterEvent;
     public event EventHandler<GameItems.OnQuestItemEventArgs> OnItemIsQuestEventMaster;
 
@@ -63,12 +64,17 @@ public sealed class MasterEventListener : MonoBehaviour
     {
         e.gameItem.OnMerged += MergeEvent;
         e.gameItem.OnItemCollected += ItemCollectEvent;
+        e.gameItem.OnPossibleDropEffects += OnPossibleDropEffectMaster;
         //e.gameItem.OnQuestCheckmarkOn += ItemIsQuestItemEvent;
         e.gameItem.OnItemDestroyed += StopListeningDeadGameIteEvent;
 
         //e.gameItem.OnItemDestroyed += OnGameItemDestroyed;
     }
 
+    void OnPossibleDropEffectMaster(object sender, GameItems.OnPossibleDropEffectsEventArgs e)
+    {
+        OnPossibleDropEffectMasterEvent?.Invoke(sender, e);
+    }
 
     void MergeEvent(object sender, GameItems.OnMergedEventArgs e)
     {
@@ -91,6 +97,7 @@ public sealed class MasterEventListener : MonoBehaviour
 
         e.gameItems.OnMerged -= MergeEvent;
         e.gameItems.OnItemCollected -= ItemCollectEvent;
+        e.gameItems.OnPossibleDropEffects -= OnPossibleDropEffectMaster;
         //e.gameItems.OnQuestCheckmarkOn -= ItemIsQuestItemEvent;
         e.gameItems.OnItemDestroyed -= StopListeningDeadGameIteEvent;
     }

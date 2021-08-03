@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\Quest_Slots.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_AutoDestructShuriken.cs" />
     <Compile Include="Assets\Scripts\GoldBar.cs" />
+    <Compile Include="Assets\Scripts\ParticleReceiver.cs" />
     <Compile Include="Assets\Scripts\XButton_Panel.cs" />
     <Compile Include="Assets\Scripts\ItemAssets.cs" />
     <Compile Include="Assets\Scripts\RewardSlots.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Assets\Scripts\Quest.cs" />
     <Compile Include="Assets\Scripts\Scene\SceneTransitions.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_RandomDirectionTranslate.cs" />
+    <Compile Include="Assets\Scripts\VisualEffectsCanDrop.cs" />
     <Compile Include="Assets\Scripts\Panel_Base.cs" />
     <Compile Include="Assets\Scripts\MergeConditions.cs" />
     <Compile Include="Assets\Scripts\GameItems.cs" />
@@ -117,8 +119,7 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\ParticleReceiver.cs" />
-    <Compile Include="Assets\Scripts\VisualEffectsCanDrop.cs" />
+    <Compile Include="Assets\Scripts\Popup_Panel_Scripts\Popup_Panel.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
