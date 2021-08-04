@@ -133,7 +133,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
             
 
             levelPanel = GameObject.Find("Panel_LevelPanel");
-            button_Claim = levelPanel.transform.GetChild(3).GetComponent<Button_Claim>();
+            button_Claim = levelPanel.transform.GetChild(4).GetComponent<Button_Claim>();
 
             levelPanel.GetComponent<Rewards>().ConfigPanel(listOfRewardLevelsToClaim, currentLevel);
             levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated += UpdateListOfRewardLevelsToClaim;

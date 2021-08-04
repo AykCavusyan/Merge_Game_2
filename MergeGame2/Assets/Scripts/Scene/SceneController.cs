@@ -103,7 +103,6 @@ public class SceneController : MonoBehaviour
         SceneTransitions.Instance.sceneLoadingScreen.SetActive(false);
 
         animator.SetTrigger("Finish");
-        Debug.Log(animator.GetCurrentAnimatorClipInfo(0)[0].clip.name);
 
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName("ReposState") || animator.IsInTransition(0))
         {

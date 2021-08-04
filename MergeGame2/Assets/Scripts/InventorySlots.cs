@@ -154,7 +154,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     }
 
 
-    void DeplaceSlots(object  sender, EventArgs e)
+    void DeplaceSlots(object  sender, Panel_Invetory.OnPanelStateChangeEventArgs e)
     {
         StopAllCoroutines();
         StartCoroutine(SlotsDownSize());

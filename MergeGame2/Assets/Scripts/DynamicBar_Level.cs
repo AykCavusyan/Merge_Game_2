@@ -66,7 +66,7 @@ public class DynamicBar_Level : MonoBehaviour
         StartCoroutine(UpdateBarFillEnum(originalAmount, lerpAmount));
     }
 
-    void ResetBarFill(object sender, EventArgs e)
+    void ResetBarFill(object sender, Panel_Invetory.OnPanelStateChangeEventArgs e)
     {
         StopAllCoroutines();
 

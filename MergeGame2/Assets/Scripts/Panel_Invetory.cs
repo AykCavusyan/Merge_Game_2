@@ -16,7 +16,11 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     public int panelIndex; // bunun public olmasýna sonra çare bulalým 
 
     public event EventHandler<EventArgs> OnPanelSized;
-    public event EventHandler<EventArgs> OnPanelDisappear;
+    public event EventHandler<OnPanelStateChangeEventArgs> OnPanelDisappear;
+    public class OnPanelStateChangeEventArgs
+    {
+        public bool isAnimatable;
+    }
 
     private Image[] childImagesToEnable;
     private Text[] textToEnable;
@@ -80,7 +84,7 @@ public class Panel_Invetory : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         if (panelIndex == e.activePanel)
         {
             StopAllCoroutines();
-            OnPanelDisappear?.Invoke(this , EventArgs.Empty);
+            OnPanelDisappear?.Invoke(this , new OnPanelStateChangeEventArgs { isAnimatable=false });
             StartCoroutine(DownsizePanel());   
         }
     }

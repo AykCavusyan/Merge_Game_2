@@ -8,19 +8,21 @@ using UnityEngine.UI;
 public class RewardSlots : MonoBehaviour
 {
     private RectTransform rectTransform;
-    private float lerpDuration =.1f;
+    private float lerpDuration = .1f;
     private GameObject parentPanel;
     private List<Image> childImage;
     public GameItems containedItem;
-
+    public bool cr_Runnning { get; private set; } = false;
+    private ParticleSystem particles;
 
     private Color claimableColor;
 
     private GameObject slot_Item_Holder;
     public int slotIDNumber;
 
-    Vector3 originalSize;
-    Vector3 lerpedSize;
+    Vector3 zeroSize;
+    Vector3 upSize;
+    Vector3 normalSize;
 
 
     private void Awake()
@@ -29,10 +31,12 @@ public class RewardSlots : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
 
         parentPanel = transform.parent.parent.gameObject;
-        originalSize = new Vector3(0f, 0f, 0f);
-        lerpedSize = new Vector3(1f, 1f, 1f);
+        zeroSize = new Vector3(0f, 0f, 0f);
+        upSize = new Vector3(1.25f, 1.25f, 1.25f);
+        normalSize = new Vector3(1f, 1f, 1f);
 
         slot_Item_Holder = transform.GetChild(0).GetChild(0).gameObject;
+        
     }
     private void OnEnable()
     {
@@ -88,6 +92,12 @@ public class RewardSlots : MonoBehaviour
         gameItemIN.initialGameSlot = this.gameObject;
     }
 
+    public void SetupParticleSystem(ParticleSystem particlesIN)
+    {
+        particles = particlesIN;
+        //particles.transform.position = this.transform.position;
+        particles.Stop();
+    }
 
     void PlaceSlots(object sender, EventArgs e)
     {
@@ -97,10 +107,12 @@ public class RewardSlots : MonoBehaviour
         StartCoroutine(SlotUpsize(slotAppearOrder));
     }
 
-    void DeplaceSlots(object sender, EventArgs e)
+    public void DeplaceSlots(object sender, Panel_Invetory.OnPanelStateChangeEventArgs e)
     {
         StopAllCoroutines();
-        StartCoroutine(SlotsDownSize());
+        int slotAppearOrder = slotIDNumber;
+
+        StartCoroutine(SlotsDownSize(slotAppearOrder,e.isAnimatable));
     }
 
     IEnumerator SlotUpsize(int slotAppearOrder)
@@ -116,30 +128,60 @@ public class RewardSlots : MonoBehaviour
 
         while(elapsedTime < lerpDuration)
         {
-            rectTransform.localScale = Vector3.Lerp(originalSize, lerpedSize, elapsedTime / lerpDuration);
+            rectTransform.localScale = Vector3.Lerp(zeroSize, normalSize, elapsedTime / lerpDuration);
             elapsedTime += Time.deltaTime;
 
             yield return null;
         }
 
-        rectTransform.localScale = lerpedSize;
-    }
+        rectTransform.localScale = normalSize;
+    }    
 
-    IEnumerator SlotsDownSize()
+    IEnumerator SlotsDownSize(int slotAppearOrder, bool isAnimatable) 
     {
+        cr_Runnning = true;
+
+        yield return new WaitForSeconds(slotAppearOrder * .05f);
+        
         float elapsedTime = 0f;
+        
         while (elapsedTime < lerpDuration)
         {
-            rectTransform.localScale = Vector3.Lerp(lerpedSize, originalSize, elapsedTime / lerpDuration);
+            rectTransform.localScale = Vector3.Lerp(normalSize, upSize, elapsedTime / lerpDuration);
             elapsedTime += Time.deltaTime;
 
             yield return null;
         }
-        rectTransform.localScale = originalSize;
 
+        rectTransform.localScale = upSize;
+
+        elapsedTime = 0f;
+        while (elapsedTime < lerpDuration)
+        {
+            rectTransform.localScale = Vector3.Lerp(upSize, zeroSize, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        rectTransform.localScale = zeroSize;
+
+        if (isAnimatable == true)
+        {
+            
+            particles.Play();
+            while (particles.isPlaying)
+            {
+                yield return null;
+            }
+
+            particles.Stop();
+        
+        }
         for (int i = 0; i < childImage.Count; i++)
         {
             childImage[i].enabled = false;
         }
+
+        cr_Runnning = false;
     }
 }

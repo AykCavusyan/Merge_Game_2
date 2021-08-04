@@ -8,17 +8,18 @@ using UnityEngine.UI;
 public class Rewards : MonoBehaviour
 {
     private Transform inner_Panel_Container;
+    private Transform visualEffects_Container;
     private GameObject player;
     private Button_Claim claimButton;
+    private bool cr_Running;
+    private ParticleSystem currentParticle;
+    private List<ParticleSystem> particleSystems = new List<ParticleSystem>();
 
     public int currentLevelToClaim { get; private set; }
     private int slotIDNumber = 0;
     private List<int> levelsToClaim = new List<int>();
 
-    //private Rewards_LevelUp newLevelRewardsList; // bu gerekli olmayabilir aþaðýda olsa yetebilir
    
-    //public List<List<Item.ItemGenre>> rewardsList = new List<List<Item.ItemGenre>>();
-
     public Dictionary<int, List<Item.ItemGenre>> rewardsDict = new Dictionary<int, List<Item.ItemGenre>>();
     private List<GameObject> currentRewardSlots = new List<GameObject>();
 
@@ -30,7 +31,8 @@ public class Rewards : MonoBehaviour
     private void Awake()
     {
         inner_Panel_Container = transform.GetChild(2);
-        claimButton = transform.GetChild(3).GetComponent<Button_Claim>();
+        visualEffects_Container = transform.GetChild(3);
+        claimButton = transform.GetChild(4).GetComponent<Button_Claim>();
         player = GameObject.FindGameObjectWithTag("Player");
         
     }
@@ -106,7 +108,7 @@ public class Rewards : MonoBehaviour
             slotIDNumber++;
             currentRewardSlots.Add(CreateNewSLot(slotIDNumber,rewardsDict[currentLevelToClaim] ,i));
         }
-        
+        DisableInactiveParticles(rewardsDict[currentLevelToClaim]);
         DisableChildrenImages();
     }
 
@@ -114,16 +116,44 @@ public class Rewards : MonoBehaviour
     private GameObject CreateNewSLot(int slotIDNumberIN,List<Item.ItemGenre> list ,int listIndex)
     {
         GameObject currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotRewards"));
-
+       
         currentNewSlot.transform.SetParent(inner_Panel_Container, false);
         currentNewSlot.AddComponent<RewardSlots>().slotIDNumber = slotIDNumberIN;
+
+        if (particleSystems.Count >= listIndex + 1 && particleSystems[listIndex] != null)
+        {
+            currentParticle = particleSystems[listIndex];
+        }
+        else 
+        {
+            currentParticle = Instantiate(Resources.Load<ParticleSystem>("Prefabs/" + "ParticleEffects/" + "CFX4 Hit Paint C (Cyan)"));
+            particleSystems.Add(currentParticle);
+        }
+
+        currentParticle.transform.SetParent(visualEffects_Container, false);
+        currentParticle.GetComponent<RectTransform>().localScale = (inner_Panel_Container.GetComponent<GridLayoutGroup>().cellSize)/1.7f;
+
+        currentNewSlot.GetComponent<RewardSlots>().SetupParticleSystem(currentParticle);
 
         GameObject itemToAdd = ItemBag.Instance.GenerateItem(list[listIndex], currentLevelToClaim, true);
         currentNewSlot.GetComponent<RewardSlots>().Drop(itemToAdd.GetComponent<GameItems>());
 
-
+        
         return currentNewSlot;
     }
+    void DisableInactiveParticles(List<Item.ItemGenre> listIN)
+    {
+        if (particleSystems.Count > listIN.Count)
+        {
+            int difference = particleSystems.Count - listIN.Count;
+            for (int i = 0; i < difference; i++)
+            {
+                Destroy(particleSystems[listIN.Count + i].gameObject);
+                particleSystems.RemoveAt(listIN.Count + i); // bunu da ha sonra active deacactivate ile yaparýz BELKÝ
+            }
+        }
+    }
+
 
     void DisableChildrenImages()
     {
@@ -136,8 +166,17 @@ public class Rewards : MonoBehaviour
 
     void ClaimReward(int i)
     {
+        StartCoroutine(ClaimRewardProcess());
+    }
+
+    IEnumerator ClaimRewardProcess()
+    {
         TransferClaimedItems();
-        DestroySlots();
+        StartCoroutine(DestroySlots());
+        while (cr_Running == true)
+        {
+            yield return null;
+        }
         RemoveClaimedListFromDict();
         InstantiateSlots();
     }
@@ -155,14 +194,27 @@ public class Rewards : MonoBehaviour
         }
     }
 
-    void DestroySlots()
+    IEnumerator DestroySlots()
     {
+        cr_Running = true;
 
+        for (int i = 0; i < currentRewardSlots.Count; i++)
+        {
+            currentRewardSlots[i].GetComponent<RewardSlots>().DeplaceSlots(null,new Panel_Invetory.OnPanelStateChangeEventArgs { isAnimatable = true });
+        }
+        while (currentRewardSlots[currentRewardSlots.Count - 1].GetComponent<RewardSlots>().cr_Runnning == true)
+        {
+            yield return null;
+        }
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
             Destroy(currentRewardSlots[i]);
         }
+
         currentRewardSlots.Clear();
+
+        cr_Running = false;
+
     }
 
     void RemoveClaimedListFromDict()
