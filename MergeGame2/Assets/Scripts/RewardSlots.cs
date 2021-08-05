@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class RewardSlots : MonoBehaviour
 {
     private RectTransform rectTransform;
-    private float lerpDuration = .1f;
+    private float lerpDuration = .06f;
     private GameObject parentPanel;
     private List<Image> childImage;
     public GameItems containedItem;
@@ -32,7 +32,7 @@ public class RewardSlots : MonoBehaviour
 
         parentPanel = transform.parent.parent.gameObject;
         zeroSize = new Vector3(0f, 0f, 0f);
-        upSize = new Vector3(1.25f, 1.25f, 1.25f);
+        upSize = new Vector3(1.35f, 1.35f, 1.35f);
         normalSize = new Vector3(1f, 1f, 1f);
 
         slot_Item_Holder = transform.GetChild(0).GetChild(0).gameObject;
@@ -67,6 +67,7 @@ public class RewardSlots : MonoBehaviour
 
     public void Drop(GameItems gameItem)
     {
+        Debug.Log(gameItem.GetInstanceID());
         containedItem = gameItem;
         PlaceItem(gameItem);
         UpdateItemParentSlot(gameItem);
@@ -119,7 +120,7 @@ public class RewardSlots : MonoBehaviour
     {
         float elapsedTime = 0;
 
-        yield return new WaitForSeconds(slotAppearOrder * .05f);
+        yield return new WaitForSeconds(slotAppearOrder * .03f);
 
         for (int i = 0; i < childImage.Count; i++)
         {
@@ -165,23 +166,26 @@ public class RewardSlots : MonoBehaviour
         }
         rectTransform.localScale = zeroSize;
 
-        if (isAnimatable == true)
-        {
-            
+         
+        if (isAnimatable)
+        {            
             particles.Play();
+            float particleElapsedTime = 0f;
             while (particles.isPlaying)
-            {
-                yield return null;
-            }
+            {                
+                particleElapsedTime += Time.deltaTime; Debug.Log(particleElapsedTime);
 
+                if (particleElapsedTime > (particles.main.duration) / 5f && cr_Runnning) cr_Runnning = false; 
+                else yield return null;
+            }
             particles.Stop();
-        
         }
+        else cr_Runnning = false;
+
         for (int i = 0; i < childImage.Count; i++)
         {
             childImage[i].enabled = false;
         }
-
-        cr_Runnning = false;
+        
     }
 }

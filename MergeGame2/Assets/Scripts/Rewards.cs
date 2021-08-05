@@ -9,6 +9,8 @@ public class Rewards : MonoBehaviour
 {
     private Transform inner_Panel_Container;
     private Transform visualEffects_Container;
+    private Transform temporartItem_Container;
+    private float lerpDuration = .3f;
     private GameObject player;
     private Button_Claim claimButton;
     private bool cr_Running;
@@ -32,6 +34,7 @@ public class Rewards : MonoBehaviour
     {
         inner_Panel_Container = transform.GetChild(2);
         visualEffects_Container = transform.GetChild(3);
+        temporartItem_Container = transform.GetChild(5);
         claimButton = transform.GetChild(4).GetComponent<Button_Claim>();
         player = GameObject.FindGameObjectWithTag("Player");
         
@@ -136,7 +139,7 @@ public class Rewards : MonoBehaviour
         currentNewSlot.GetComponent<RewardSlots>().SetupParticleSystem(currentParticle);
 
         GameObject itemToAdd = ItemBag.Instance.GenerateItem(list[listIndex], currentLevelToClaim, true);
-        currentNewSlot.GetComponent<RewardSlots>().Drop(itemToAdd.GetComponent<GameItems>());
+        currentNewSlot.GetComponent<RewardSlots>().Drop(itemToAdd.GetComponent<GameItems>()); 
 
         
         return currentNewSlot;
@@ -171,29 +174,56 @@ public class Rewards : MonoBehaviour
 
     IEnumerator ClaimRewardProcess()
     {
-        TransferClaimedItems();
+        //TransferClaimedItems();
+        StartCoroutine(TransferClaimedItems());
+        while (cr_Running == true)
+        {
+            yield return null;
+        }
         StartCoroutine(DestroySlots());
         while (cr_Running == true)
         {
             yield return null;
         }
-        RemoveClaimedListFromDict();
-        InstantiateSlots();
+        RemoveClaimedListFromDict(); 
+        InstantiateSlots(); 
     }
 
-    void TransferClaimedItems()
+    IEnumerator TransferClaimedItems()
     {
+        cr_Running = true;
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
             GameItems itemtoTransfer = currentRewardSlots[i].GetComponent<RewardSlots>().containedItem;
+            (Vector3, Vector3) itemPosInfoTuple = PrepareItemToTransfer(itemtoTransfer);
+
+            float elapsedTime = 0f;
+            while (elapsedTime < lerpDuration)
+            {
+                itemtoTransfer.GetComponent<RectTransform>().localPosition = Vector3.Lerp(itemPosInfoTuple.Item1, itemPosInfoTuple.Item2, elapsedTime / lerpDuration);
+                elapsedTime += Time.deltaTime;
+
+                yield return null;
+            }
+            itemtoTransfer.GetComponent<RectTransform>().localPosition = itemPosInfoTuple.Item2;
+            //GameItems itemtoTransfer = currentRewardSlots[i].GetComponent<RewardSlots>().containedItem;
             itemtoTransfer.CheckIfRewardItemIsQuestItem();
 
             OnRewardItemGiven?.Invoke(itemtoTransfer);
 
             PlayerInfo.Instance.emptySlots.First().Drop (itemtoTransfer);
         }
+        cr_Running = false;
     }
 
+    private (Vector3,Vector3) PrepareItemToTransfer(GameItems gameItemIN)
+    {
+        Vector3 originalPos = gameItemIN.GetComponent<RectTransform>().position;
+        //gameItemIN.GetComponent<RectTransform>().SetParent(temporartItem_Container);       
+        Vector3 lepedPos = new Vector3(originalPos.x, originalPos.y+100f, originalPos.z);
+
+        return (originalPos, lepedPos);
+    }
     IEnumerator DestroySlots()
     {
         cr_Running = true;
@@ -201,11 +231,13 @@ public class Rewards : MonoBehaviour
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
             currentRewardSlots[i].GetComponent<RewardSlots>().DeplaceSlots(null,new Panel_Invetory.OnPanelStateChangeEventArgs { isAnimatable = true });
+
+            while (currentRewardSlots[currentRewardSlots.Count-1].GetComponent<RewardSlots>().cr_Runnning == true)
+            {
+                yield return null;
+            }
         }
-        while (currentRewardSlots[currentRewardSlots.Count - 1].GetComponent<RewardSlots>().cr_Runnning == true)
-        {
-            yield return null;
-        }
+        
         for (int i = 0; i < currentRewardSlots.Count; i++)
         {
             Destroy(currentRewardSlots[i]);
@@ -214,7 +246,7 @@ public class Rewards : MonoBehaviour
         currentRewardSlots.Clear();
 
         cr_Running = false;
-
+        yield return null;
     }
 
     void RemoveClaimedListFromDict()
