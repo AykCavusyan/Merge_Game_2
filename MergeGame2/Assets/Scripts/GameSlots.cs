@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 
 public class GameSlots : MonoBehaviour, ISaveable
 {
+    private GameObject panel_GameItems;
     public GameObject panel_Gameslots;
     private RectTransform rt;
     private Transform crossMark;
@@ -41,6 +42,7 @@ public class GameSlots : MonoBehaviour, ISaveable
         rt = GetComponent<RectTransform>(); 
         crossMark = transform.Find("CrossMark");
         panel_Gameslots = GameObject.Find("Panel_GameSlots");
+        panel_GameItems = GameObject.Find("Panel_GameItems");
 
     }
 
@@ -62,7 +64,7 @@ public class GameSlots : MonoBehaviour, ISaveable
     public void Drop (GameItems gameItem, Vector3 itemDroppedPositionIN =  default(Vector3))
     {
         OnDropHandler?.Invoke(gameItem); // is there even a listener ??
-        Vector3 itemDroppedPosition = new Vector3();
+        Vector3 itemDroppedPosition = new Vector3(); // is it necessary ???
 
         if (itemDroppedPositionIN == default(Vector3)) itemDroppedPosition = gameItem.transform.position;
         
@@ -92,7 +94,8 @@ public class GameSlots : MonoBehaviour, ISaveable
     {
         RectTransform rtGameItem = gameItem.GetComponent<RectTransform>();
 
-        rtGameItem.SetParent(panel_Gameslots.transform);
+        //rtGameItem.SetParent(panel_Gameslots.transform);
+        rtGameItem.SetParent(panel_GameItems.transform);
         rtGameItem.sizeDelta = (GetComponent<RectTransform>().sizeDelta) * .85f ; //new Vector2(122, 122);
         rtGameItem.localScale = new Vector3(1, 1, 1);
         containedItem = gameItem.gameObject;

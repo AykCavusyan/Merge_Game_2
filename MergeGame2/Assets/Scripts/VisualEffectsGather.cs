@@ -9,6 +9,7 @@ public class VisualEffectsGather : MonoBehaviour
     private ParticleSystem.Particle[] allParticles ;
     private int allParticlesCount = 0 ;
     [SerializeField]private Item.ItemType itemType;
+    private Item.ItemGenre itemGenre;
     private Sprite sprite;
 
     private float lerpDuration = .25f;
@@ -25,6 +26,7 @@ public class VisualEffectsGather : MonoBehaviour
         levelBar = GameObject.Find("Level_Icon");
         goldBar = GameObject.Find("Gold_Icon");
         sprite = ItemAssets.Instance.GetAssetSprite(itemType);
+
     }
 
     private void OnEnable()
@@ -37,6 +39,14 @@ public class VisualEffectsGather : MonoBehaviour
     {
         MasterEventListener.Instance.OnItemCollectted -= SetTargetAndPlayCollect;
         QuestManager.Instance.OnQuestCompleted -= SetTargetAndPlayQuest;
+    }
+
+    void SetItemGenre(Item.ItemType itemTypeIN)
+    {
+        foreach (var item in collection)
+        {
+
+        }
     }
 
     private void LateUpdate()
@@ -62,8 +72,11 @@ public class VisualEffectsGather : MonoBehaviour
 
     private void SetTargetAndPlayCollect(object sender, GameItems.OnItemCollectedEventArgs e)
     {
+        Debug.Log("item explode event listened" + sender);
+        GameItems gameItem = (GameItems)sender;
+       if(gameItem.itemGenre == Item.ItemGenre.)
 
-        if (e.ItemType != itemType) return;
+        //if (e.ItemType != itemType) return;
 
         particles.textureSheetAnimation.SetSprite(0, sprite);
        
@@ -152,10 +165,9 @@ public class VisualEffectsGather : MonoBehaviour
     IEnumerator ExplodeEnum(int particleAmount)
     {
         //if (particleAmount > 30) particleAmount = 30;
-
+        Debug.Log("explode");
         for (int i = 0; i < particleAmount; i++)
         {
-
             particles.Emit(1);
             yield return new WaitForSeconds(.03f);
         }

@@ -60,6 +60,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     }
 
     public GameObject player;
+    private GameObject panel_GameItems_Temporary;
     private TopPanelID[] topPanels;
     private Canvas canvas;
     private RectTransform rectTransform;
@@ -79,7 +80,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public bool isInventoryItem;
 
     [SerializeField] private int itemLevel;
-    [SerializeField] private Item.ItemGenre itemGenre;
+    [SerializeField] public Item.ItemGenre itemGenre;// get set olarak ayarlanmalý !!!!!
     [SerializeField] public  Item.ItemType itemType; // get set olarak ayarlanmalý !!!!!
     [SerializeField] private bool givesXP;
     [SerializeField] private bool isSpawner = false;
@@ -121,6 +122,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     {
         rectTransform = gameObject.AddComponent<RectTransform>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        panel_GameItems_Temporary = GameObject.Find("Panel_GameItems_Temporary");
         topPanels = FindObjectsOfType<TopPanelID>();       
     }
 
@@ -206,7 +208,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
-        rectTransform.SetParent(canvas.transform);
+        rectTransform.SetParent(panel_GameItems_Temporary.transform);
         rectTransform.SetAsLastSibling();
         
         isMoving = true;
@@ -269,6 +271,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         }
     }
+
+ 
 
     public void OnEndDrag(PointerEventData eventData)
     {
@@ -579,7 +583,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     void CollectItem()
     {
         canDrag = false;
-
+        Debug.Log("collecting");
         initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
         OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs {  itemLevel=this.itemLevel , xpValue = this.xpValue , itemPanelID = itemPanelID , position = GetComponent<RectTransform>().position, ItemType= itemType});
         //MoveItemToTopPanel();
