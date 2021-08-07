@@ -93,14 +93,16 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     private void Start()
     {
         SceneController.Instance.OnSceneLoaded += SceneConfig;
-        MasterEventListener.Instance.OnItemCollectted += CalculateXPFromStars;
-        QuestManager.Instance.OnQuestCompleted += CalculateXPFromQuests; // singletonu patatýyor diye burada normal yerine almak lazým
+        MasterEventListener.Instance.OnItemCollectted += CalculateXPnGoldFromGameItems;
+        QuestManager.Instance.OnQuestCompleted += CalculateXPnGoldFromQuests; // singletonu patatýyor diye burada normal yerine almak lazým
     }
     private void OnDisable()
     {
         SceneController.Instance.OnSceneLoaded -= SceneConfig;
-        MasterEventListener.Instance.OnItemCollectted -= CalculateXPFromStars;
-        QuestManager.Instance.OnQuestCompleted -= CalculateXPFromQuests;
+        MasterEventListener.Instance.OnItemCollectted -= CalculateXPnGoldFromGameItems;
+        QuestManager.Instance.OnQuestCompleted -= CalculateXPnGoldFromQuests;
+
+
 
         if (levelPanel) levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated -= UpdateListOfRewardLevelsToClaim;
         if (button_Claim) button_Claim.OnClaimed -= UpdateLastLevelClaimed;
@@ -201,22 +203,38 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     
     void CalculateCurrentGold(object sender, MasterEventListener.OnFinancialEvent e)
     {
-        if (e.itemValue != default(int)) currentGold += e.itemValue;
+        //if (e.itemValue != default(int)) currentGold += e.itemValue;
         if (e.inventorySlotCost != default(int)) currentGold -= e.inventorySlotCost;
         OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
     }
 
 
-    void CalculateXPFromStars(object sender, GameItems.OnItemCollectedEventArgs e)
+    void CalculateXPnGoldFromGameItems(object sender, GameItems.OnItemCollectedEventArgs e)
     {
-        currentXP += e.xpValue;
-        UpdateXpPoints();
+        if(e.xpValue != default(int))
+        {
+            currentXP += e.xpValue;
+            UpdateXpPoints();
+        }
+        if(e.goldValue != default(int))
+        {
+            currentGold += e.goldValue;
+            OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
+        }
     }
 
-    void CalculateXPFromQuests(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
+    void CalculateXPnGoldFromQuests(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
     {
-        currentXP += e.quest.questXPReward; //q.questXPReward;  
-        UpdateXpPoints();
+        if(e.quest.questXPReward != default(int))
+        {
+            currentXP += e.quest.questXPReward;
+            UpdateXpPoints();
+        }
+        if(e.quest.questGoldReward != default(int))
+        {
+            currentGold += e.quest.questGoldReward;
+            OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
+        }
     }
 
     void SetCurrentLevel(int savedLevel = 1)

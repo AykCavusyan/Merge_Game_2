@@ -9,13 +9,14 @@ public class VisualEffectsGather : MonoBehaviour
     private ParticleSystem.Particle[] allParticles ;
     private int allParticlesCount = 0 ;
     [SerializeField]private Item.ItemType itemType;
-    private Item.ItemGenre itemGenre;
+    [SerializeField]private Item.ItemGenre itemGenre;
     private Sprite sprite;
 
     private float lerpDuration = .25f;
     private GameObject levelBar;
     private GameObject goldBar;
     private Transform target;
+    private Button_Action_ItemInfo button_Action_ItemInfo;
 
     private void Awake()
     {
@@ -26,28 +27,25 @@ public class VisualEffectsGather : MonoBehaviour
         levelBar = GameObject.Find("Level_Icon");
         goldBar = GameObject.Find("Gold_Icon");
         sprite = ItemAssets.Instance.GetAssetSprite(itemType);
+        button_Action_ItemInfo = GameObject.Find("Textbox_ItemInfo_ActionButton_BG").GetComponent<Button_Action_ItemInfo>();
 
     }
 
     private void OnEnable()
     {
-        MasterEventListener.Instance.OnItemCollectted += SetTargetAndPlayCollect;
+        MasterEventListener.Instance.OnItemCollectted += SetTargetAndPlayCollectibles;
+        MasterEventListener.Instance.OnItemCollectted += SetTargetAndPlaySellables;
         QuestManager.Instance.OnQuestCompleted += SetTargetAndPlayQuest;
     }
 
     private void OnDisable()
     {
-        MasterEventListener.Instance.OnItemCollectted -= SetTargetAndPlayCollect;
+        MasterEventListener.Instance.OnItemCollectted -= SetTargetAndPlayCollectibles;
+        MasterEventListener.Instance.OnItemCollectted -= SetTargetAndPlaySellables;
         QuestManager.Instance.OnQuestCompleted -= SetTargetAndPlayQuest;
     }
 
-    void SetItemGenre(Item.ItemType itemTypeIN)
-    {
-        foreach (var item in collection)
-        {
-
-        }
-    }
+   
 
     private void LateUpdate()
     {
@@ -60,7 +58,6 @@ public class VisualEffectsGather : MonoBehaviour
             {
                 if(allParticles[i].remainingLifetime <= allParticles[i].startLifetime / 1.2f)
                 {
-
                     allParticles[i].position = Vector2.Lerp(allParticles[i].position, target.position, lerpDuration);
                 }
             }
@@ -70,13 +67,12 @@ public class VisualEffectsGather : MonoBehaviour
         }
     }
 
-    private void SetTargetAndPlayCollect(object sender, GameItems.OnItemCollectedEventArgs e)
+    private void SetTargetAndPlayCollectibles(object sender, GameItems.OnItemCollectedEventArgs e)
     {
-        Debug.Log("item explode event listened" + sender);
+        
         GameItems gameItem = (GameItems)sender;
-       if(gameItem.itemGenre == Item.ItemGenre.)
+        if (gameItem.itemGenre != itemGenre) return;
 
-        //if (e.ItemType != itemType) return;
 
         particles.textureSheetAnimation.SetSprite(0, sprite);
        
@@ -88,13 +84,22 @@ public class VisualEffectsGather : MonoBehaviour
         {
             target = goldBar.transform;
         }
-        //particles.transform.SetParent(target.transform.parent);
         particles.transform.position = e.position;
    
         StartCoroutine(ExplodeEnum(GetParticleAmount(e.itemLevel)));
-        
-        //particles.Play();
-        //MoveParticles();
+
+    }
+
+    private void SetTargetAndPlaySellables(object sender,GameItems.OnItemCollectedEventArgs e)
+    {
+        GameItems gameItem = (GameItems)sender;
+        if (gameItem.itemGenre == Item.ItemGenre.Star || gameItem.itemGenre == Item.ItemGenre.Gold ||itemGenre!=Item.ItemGenre.Gold) return;
+
+        particles.textureSheetAnimation.SetSprite(0, sprite);
+        target = goldBar.transform;
+        particles.transform.position = e.position;
+
+        StartCoroutine(ExplodeEnum(GetParticleAmount(e.itemLevel))); 
     }
 
     private void SetTargetAndPlayQuest(object sender, QuestManager.OnQuestAddRemoveEventArgs e)

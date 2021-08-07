@@ -52,11 +52,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public class OnItemCollectedEventArgs : EventArgs
     {
         public int xpValue;
+        public int goldValue;
         public int itemLevel;
         public int itemPanelID;
         public Vector2 position;
         public Item.ItemType ItemType;
-        //public Sprite sprite;
     }
 
     public GameObject player;
@@ -580,12 +580,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         cr_Running = false;
     }
 
-    void CollectItem()
+    public void CollectItem()
     {
         canDrag = false;
         Debug.Log("collecting");
         initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
-        OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs {  itemLevel=this.itemLevel , xpValue = this.xpValue , itemPanelID = itemPanelID , position = GetComponent<RectTransform>().position, ItemType= itemType});
+        OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs {  itemLevel=this.itemLevel , xpValue = this.xpValue , goldValue=this.goldValue, itemPanelID = itemPanelID , position = GetComponent<RectTransform>().position, ItemType= itemType});
         //MoveItemToTopPanel();
         DestroyItem(this.gameObject);
     }

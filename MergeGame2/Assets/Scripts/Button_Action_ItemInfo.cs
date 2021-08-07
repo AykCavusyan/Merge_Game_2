@@ -29,10 +29,12 @@ public class Button_Action_ItemInfo : MonoBehaviour ,IPointerDownHandler
     private void SellItem()
     {
         GameItems itemToSell = itemSelector.selectedItem;
+        itemToSell.CollectItem();
 
-        OnItemSold?.Invoke(this, new MasterEventListener.OnFinancialEvent { itemValue = itemToSell.goldValue });
+
+        //OnItemSold?.Invoke(this, new MasterEventListener.OnFinancialEvent { itemValue = itemToSell.goldValue });
    
-        itemToSell.DestroyItem(itemToSell.gameObject);
+        //itemToSell.DestroyItem(itemToSell.gameObject);
     }
 
     public void OnPointerDown(PointerEventData eventData)
