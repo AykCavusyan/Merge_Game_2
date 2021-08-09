@@ -5,7 +5,7 @@ using UnityEngine;
 public class Quest_List : MonoBehaviour
 {
     private GameObject player;
-    private GameObject innerPanelContainer;
+    private GameObject innerPanelContainerActiveQuest;   
     private List<GameObject> parentSlotConainers = new List<GameObject>();
     
     //private GameObject slotQuestParent;
@@ -14,16 +14,14 @@ public class Quest_List : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        innerPanelContainer = transform.GetChild(1).GetChild(0).gameObject;
+        innerPanelContainerActiveQuest = transform.GetChild(1).GetChild(0).gameObject;
+
     }
+
 
     private void OnEnable()
     {
         Init();
-    }
-
-    private void OnDisable()
-    {
     }
 
     void Init()
@@ -35,11 +33,10 @@ public class Quest_List : MonoBehaviour
     }
 
 
-
     public GameObject InstantiateParentQuestContainers(Quest questIN)
     {
         GameObject newParentSlotContainer = Instantiate(Resources.Load<GameObject>("Prefabs/" + "SlotQuest_Parent"));
-        newParentSlotContainer.transform.SetParent(innerPanelContainer.transform, false);
+        newParentSlotContainer.transform.SetParent(innerPanelContainerActiveQuest.transform, false);
         newParentSlotContainer.GetComponent<Quest_Parent_Container>().CreateQuestParentContainer(questIN);
 
         parentSlotConainers.Add(newParentSlotContainer);

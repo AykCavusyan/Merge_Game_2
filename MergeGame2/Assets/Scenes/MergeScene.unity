@@ -6290,7 +6290,7 @@ GameObject:
   - component: {fileID: 216224406}
   - component: {fileID: 216224405}
   m_Layer: 5
-  m_Name: InactiveTab
+  m_Name: InactiveQuestsTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6337,7 +6337,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 765c7c321d878a14699124fcd4f4a7a2, type: 2}
-  m_Type: 1
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -9254,7 +9254,7 @@ GameObject:
   - component: {fileID: 777636979}
   - component: {fileID: 777636978}
   m_Layer: 5
-  m_Name: ActiveTab
+  m_Name: ActiveQuestsTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12065,7 +12065,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -14245,6 +14245,7 @@ GameObject:
   - component: {fileID: 1448808100}
   - component: {fileID: 1448808102}
   - component: {fileID: 1448808103}
+  - component: {fileID: 1448808104}
   m_Layer: 5
   m_Name: Panel_QuestPanel
   m_TagString: Untagged
@@ -14334,6 +14335,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e0a4bc26acb5d354798b029931adf060, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1448808104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448808098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f32053d621c7f3d419cbc03407db591b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1450794442
@@ -14492,7 +14505,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
