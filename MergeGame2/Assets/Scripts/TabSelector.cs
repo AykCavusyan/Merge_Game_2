@@ -11,10 +11,11 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
 {
     private GameObject innerPanelContainerActiveQuest;
     private GameObject innerPanelContainerInactiveQuest;
-    private GameObject focusedPanel;
+    public GameObject focusedPanel { get; private set; }
     private GameObject activeQuestsTab;
     private GameObject inactiveQuestsTab;
     private GameObject activeTab;
+    private ScrollRect scrollRect;
 
     private float panelWidth;
     private float lerpDuration = .1f;
@@ -22,7 +23,7 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
     private GameObject[] panels;
     private GameObject[] tabs;
 
-    private List<(Vector3, Vector3)> listOfPanelPpositions = new List<(Vector3, Vector3)>();
+    private List<(Vector2, Vector2, Vector2)> listOfPanelPpositions = new List<(Vector2, Vector2,Vector2)>();
 
     private void Awake()
     {
@@ -30,7 +31,7 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
         innerPanelContainerInactiveQuest = transform.GetChild(1).GetChild(1).gameObject;
         activeQuestsTab = GameObject.Find("ActiveQuestsTab");
         inactiveQuestsTab = GameObject.Find("InactiveQuestsTab");
-
+        scrollRect = transform.GetChild(1).GetComponent<ScrollRect>();
 
 
         panels = new GameObject[2];
@@ -54,7 +55,7 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
 
         foreach (GameObject panel in panels)
         {       
-            panel.GetComponent<RectTransform>().anchoredPosition = new Vector3(panelPositionX, 0, 0);
+            panel.GetComponent<RectTransform>().anchoredPosition = new Vector2(panelPositionX, 0);
             panelPositionX += panelWidth;
         }
         focusedPanel = panels[0];
@@ -64,17 +65,20 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
     void SlidePanels(int clickedButtonIndexIN)
     {
         float lateralDisplacementAmount = (Array.IndexOf(panels,focusedPanel) - clickedButtonIndexIN) * panelWidth;
-        
+        float overFloatAmout = lateralDisplacementAmount * 1.1f;
 
         foreach (GameObject panel in panels)
         {
             RectTransform rt = panel.GetComponent<RectTransform>();
-            listOfPanelPpositions.Add((rt.anchoredPosition, new Vector3(rt.anchoredPosition.x + lateralDisplacementAmount, rt.anchoredPosition.y, rt.anchoredPosition.x)));
+            Vector2 originalPpos = new Vector2(rt.anchoredPosition.x, rt.anchoredPosition.y);
+            Vector2 floatPos = new Vector2((rt.anchoredPosition.x + overFloatAmout), rt.anchoredPosition.y);
+            Vector2 finalPos = new Vector2(rt.anchoredPosition.x + lateralDisplacementAmount, rt.anchoredPosition.y);
+            listOfPanelPpositions.Add((originalPpos, floatPos ,finalPos));
         }
         StartCoroutine(SlidePanelsEnum(listOfPanelPpositions, clickedButtonIndexIN));
     }
 
-    IEnumerator SlidePanelsEnum(List<(Vector3,Vector3)> listOfPanelPpositionsIN, int clickedButtonIndexIN)
+    IEnumerator SlidePanelsEnum(List<(Vector2,Vector2,Vector2)> listOfPanelPpositionsIN, int clickedButtonIndexIN)
     {
         float elapsedTime = 0f;
 
@@ -82,19 +86,38 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
         {
             for (int i = 0; i < panels.Length; i++)
             {
-                panels[i].GetComponent<RectTransform>().anchoredPosition = Vector3.Lerp(listOfPanelPpositionsIN[i].Item1, listOfPanelPpositionsIN[i].Item2, elapsedTime / lerpDuration);
+                panels[i].GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(listOfPanelPpositionsIN[i].Item1, listOfPanelPpositionsIN[i].Item2, elapsedTime / lerpDuration);
+            }
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        for (int i = 0; i < panels.Length; i++)
+        {
+            panels[i].GetComponent<RectTransform>().anchoredPosition = listOfPanelPpositionsIN[i].Item2;
+        }
+
+        elapsedTime = 0f;
+
+        while (elapsedTime < lerpDuration)
+        {
+            for (int i = 0; i < panels.Length; i++)
+            {
+                panels[i].GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(listOfPanelPpositionsIN[i].Item2, listOfPanelPpositionsIN[i].Item3, elapsedTime / lerpDuration);
             }
             elapsedTime += Time.deltaTime;
 
             yield return null;
         }
 
-        //for (int i = 0; i < panels.Length; i++)
-        //{
-        //    panels[i].GetComponent<RectTransform>().anchoredPosition = listOfPanelPpositionsIN[i].Item2;
-        //}
+        for (int i = 0; i < panels.Length; i++)
+        {
+            panels[i].GetComponent<RectTransform>().anchoredPosition = listOfPanelPpositionsIN[i].Item3;
+        }
 
         focusedPanel = panels[clickedButtonIndexIN];
+        listOfPanelPpositions.Clear();
+
         yield return null;
     }
 
@@ -126,6 +149,11 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
         activeTab = tabs[clickedButtonIndexIN];
     }
 
+    void SetScrollRectFocus(int clickedButtonIndexIN)
+    {
+        scrollRect.content = panels[clickedButtonIndexIN].GetComponent<RectTransform>();
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         var results = new List<RaycastResult>();
@@ -140,6 +168,7 @@ public class TabSelector : MonoBehaviour,IPointerDownHandler
                     int clickedButtonIndex = Array.IndexOf(tabs, tab);
                     ActivateTab(clickedButtonIndex);
                     SlidePanels(clickedButtonIndex);
+                    SetScrollRectFocus(clickedButtonIndex);
                 }              
             }
             return;
