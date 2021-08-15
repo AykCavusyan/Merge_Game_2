@@ -65,7 +65,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     private Canvas canvas;
     private RectTransform rectTransform;
 
-    public List<MergeConditions> mergeCondisitons = new List<MergeConditions>();
     public bool followCursor { get; set; } = true;
     public Vector3 startPosition;
     public bool canDrag { get; set; } = true;
@@ -256,15 +255,21 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 gameSlot = result.gameObject.GetComponent<GameSlots>();
                 inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
 
-                if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1)
+                if (gameSlot != null || inventoryButton != null)
                 {  
                     break;
                 }
             }
 
-            if (gameSlot.containedItem != null && gameSlot.containedItem.GetComponent<GameItems>().itemType == this.itemType)
+            if (gameSlot!=null && gameSlot.containedItem != null && gameSlot.containedItem.GetComponent<GameItems>().itemType == this.itemType)
             {
-                OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = gameSlot.containedItem.transform.position });
+                StartCoroutine(ActivateOnpossibleDropEffects(gameSlot.gameObject));
+                //OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = gameSlot.containedItem.transform.position });
+            }
+            else if (inventoryButton!=null && inventoryButton.buttonIndex == 1)
+            {
+                StartCoroutine(ActivateOnpossibleDropEffects(inventoryButton.gameObject));
+                //OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = inventoryButton.transform.position });
             }
             else OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = false });
 
@@ -272,7 +277,42 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         }
     }
 
- 
+    IEnumerator ActivateOnpossibleDropEffects(GameObject focusedItemIN)
+    {
+        float elapsedTime = 0f;
+        float requiredTime = .45f;
+
+        while (elapsedTime < requiredTime)
+        {
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        var results = new List<RaycastResult>();
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+
+        EventSystem.current.RaycastAll(eventData, results);
+
+        GameSlots gameSlot = null;
+        ButtonHandler inventoryButton = null;
+
+        foreach (var result in results)
+        {
+            gameSlot = result.gameObject.GetComponent<GameSlots>();
+            inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
+
+            if (gameSlot != null || inventoryButton != null)
+            {
+                break;
+            }
+        }
+
+        if (gameSlot != null && gameSlot.gameObject == focusedItemIN)
+            OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = gameSlot.containedItem.transform.position });
+        else if (inventoryButton!= null && inventoryButton.gameObject ==focusedItemIN)
+            OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = inventoryButton.transform.position });
+    }
 
     public void OnEndDrag(PointerEventData eventData)
     {
@@ -548,9 +588,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         cr_Running = true;
 
         Vector2 oldSize = rectTransform.sizeDelta;
-        Vector2 scaleFactor = new Vector2(.5f, .5f);
+        Vector2 scaleFactor = new Vector2(.87f, .87f);
 
-        float lerpDuration = .2f;
+        float lerpDuration = .1f;
         float elapsedTime = 0f;
 
         while (elapsedTime < lerpDuration)
@@ -579,6 +619,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         cr_Running = false;
     }
+
+
 
     public void CollectItem()
     {

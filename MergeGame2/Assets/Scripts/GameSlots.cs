@@ -9,21 +9,14 @@ using UnityEngine.UIElements;
 public class GameSlots : MonoBehaviour, ISaveable
 {
     private GameObject panel_GameItems;
-    public GameObject panel_Gameslots;
+    public GameObject panel_Gameslots { get; private set; }
     private RectTransform rt;
     private Transform crossMark;
     public List<DropConditions> dropConditions = new List<DropConditions>();
     [SerializeField] public bool canDrop { get; private set; }
     [SerializeField] public GameObject containedItem { get; private set; }
-    //public string slotName { get; private set; }
 
     public event Action<GameItems> OnDropHandler;
-
-    //public event EventHandler<OnDroppedEventHandler> OnDropped;
-    //public class OnDroppedEventHandler : EventArgs
-    //{
-    //    public GameItems gameItem;
-    //}
 
     public event EventHandler<OnSlotAvailabilityEventHandler> onSlotFilled;
     public event EventHandler<OnSlotAvailabilityEventHandler> onSlotDischarged;
@@ -37,7 +30,6 @@ public class GameSlots : MonoBehaviour, ISaveable
 
     private void Awake()
     {
-        //slotName = gameObject.name;
         canDrop = true;
         rt = GetComponent<RectTransform>(); 
         crossMark = transform.Find("CrossMark");
@@ -94,9 +86,8 @@ public class GameSlots : MonoBehaviour, ISaveable
     {
         RectTransform rtGameItem = gameItem.GetComponent<RectTransform>();
 
-        //rtGameItem.SetParent(panel_Gameslots.transform);
         rtGameItem.SetParent(panel_GameItems.transform);
-        rtGameItem.sizeDelta = (GetComponent<RectTransform>().sizeDelta) * .85f ; //new Vector2(122, 122);
+        rtGameItem.sizeDelta = (GetComponent<RectTransform>().sizeDelta) * .85f ; 
         rtGameItem.localScale = new Vector3(1, 1, 1);
         containedItem = gameItem.gameObject;
         rtGameItem.SetAsLastSibling();
@@ -183,48 +174,6 @@ public class GameSlots : MonoBehaviour, ISaveable
 
 
         return new Vector3(anchorPoint.x,anchorPoint.y, 0);
-
-        #region
-        //float anchorY;
-
-        //if (itemDroppedPositionIN.y == transform.position.y)
-        //{
-        //    anchorY = transform.position.y + 1;
-
-        //}
-
-        //float dx;
-        //float dy;
-
-        //if (itemDroppedPositionIN.x < transform.position.x )
-        //{
-        //     dx = transform.position.x - itemDroppedPositionIN.x;
-        //}
-        //else
-        //{
-        //     dx =  itemDroppedPositionIN.x - transform.position.x ;
-        //}
-
-        //if (itemDroppedPositionIN.y < transform.position.y)
-        //{
-        //    dy = transform.position.y - itemDroppedPositionIN.y;
-        //}
-        //else
-        //{
-        //    dy =  itemDroppedPositionIN.y - transform.position.y;
-        //}
-
-
-        //float lenghtAB = Mathf.Sqrt(Mathf.Pow(dx, 2) + Mathf.Pow(dy, 2));
-        //float angleAB = Mathf.Atan(dy / dx);
-
-        //Vector3 lerpAnchorPoint = new Vector3();
-        //lerpAnchorPoint.x = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.x;
-        //lerpAnchorPoint.y = lenghtAB * Mathf.Cos(angleAB + 60* Mathf.PI / 180) + transform.position.y;
-        //lerpAnchorPoint.z = 0;
-
-        //return lerpAnchorPoint;
-        #endregion
     }
 
 
@@ -242,17 +191,10 @@ public class GameSlots : MonoBehaviour, ISaveable
 
     public void RestoreState(object state)
     {
-
         Dictionary<string, object> _dictFromItemIN = (Dictionary<string, object>)state;
 
         GameObject gameItemtoLoad = ItemBag.Instance.GenerateItem(_dictFromItemIN);
 
-        //GameObject gameItemtoLoad = new GameObject();
-        //gameItemtoLoad.transform.SetParent(panel_Gameslots.transform);
-        //gameItemtoLoad.AddComponent<GameItems>().RestoreState(_dictFromItemIN);
-
         Drop(gameItemtoLoad.GetComponent<GameItems>());
-        
-
     }
 }

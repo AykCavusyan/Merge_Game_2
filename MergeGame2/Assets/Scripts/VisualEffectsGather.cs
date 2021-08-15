@@ -12,11 +12,12 @@ public class VisualEffectsGather : MonoBehaviour
     [SerializeField]private Item.ItemGenre itemGenre;
     private Sprite sprite;
 
-    private float lerpDuration = .25f;
+    private float lerpDuration = .32f;
     private GameObject levelBar;
     private GameObject goldBar;
     private Transform target;
-    private Button_Action_ItemInfo button_Action_ItemInfo;
+
+    private Vector3 lateralOscillation;
 
     private void Awake()
     {
@@ -27,7 +28,6 @@ public class VisualEffectsGather : MonoBehaviour
         levelBar = GameObject.Find("Level_Icon");
         goldBar = GameObject.Find("Gold_Icon");
         sprite = ItemAssets.Instance.GetAssetSprite(itemType);
-        button_Action_ItemInfo = GameObject.Find("Textbox_ItemInfo_ActionButton_BG").GetComponent<Button_Action_ItemInfo>();
 
     }
 
@@ -52,14 +52,17 @@ public class VisualEffectsGather : MonoBehaviour
 
         if (target && particles && particles.isPlaying)
         {
+
             allParticlesCount = particles.GetParticles(allParticles);
+            lateralOscillation = new Vector3(Mathf.PingPong(Time.unscaledTime*5, .2f), 0,0);
 
             for (int i = 0; i < allParticlesCount; i++)
             {
-                if(allParticles[i].remainingLifetime <= allParticles[i].startLifetime / 1.2f)
+                if(allParticles[i].remainingLifetime <= allParticles[i].startLifetime / Mathf.Clamp((1.2f+(i/8)),1.2f,1.65f))
                 {
-                    allParticles[i].position = Vector2.Lerp(allParticles[i].position, target.position, lerpDuration);
+                    allParticles[i].position = Vector2.MoveTowards(allParticles[i].position + lateralOscillation, target.position, lerpDuration);
                 }
+
             }
             
             particles.SetParticles(allParticles, allParticlesCount);
@@ -169,8 +172,6 @@ public class VisualEffectsGather : MonoBehaviour
 
     IEnumerator ExplodeEnum(int particleAmount)
     {
-        //if (particleAmount > 30) particleAmount = 30;
-        Debug.Log("explode");
         for (int i = 0; i < particleAmount; i++)
         {
             particles.Emit(1);
@@ -227,8 +228,8 @@ public class VisualEffectsGather : MonoBehaviour
 
     //void MoveParticles()
     //{
-        
-        
+
+
 
     //    for (int i = 0; i < allParticlesCount; i++)
     //    {
@@ -255,6 +256,30 @@ public class VisualEffectsGather : MonoBehaviour
     //    }
     //    particleIN.position = target.position;
     //    particles.SetParticles(allParticles, allParticlesCount);
+    //}
+
+
+
+
+    //IEnumerator CollectParticlesEnum(int i)
+    //{
+    //    yield return new WaitForSeconds(.5f);
+    //    allParticlesCount = particles.GetParticles(allParticles);
+    //    Vector3 particlePos = allParticles[i].position;
+    //    float elapsedTime = 0f;
+
+    //    while (elapsedTime < lerpDuration)
+    //    {
+    //        allParticlesCount = particles.GetParticles(allParticles);
+    //        allParticles[i].position = Vector3.Lerp(particlePos, target.position, elapsedTime / lerpDuration);
+    //        elapsedTime += Time.deltaTime;
+    //        particles.SetParticles(allParticles, allParticlesCount);
+
+    //        yield return null;
+    //    }
+    //    allParticles[i].position = target.position;
+    //    particles.SetParticles(allParticles, allParticlesCount);
+    //    onParticleCollision?.Invoke(EventArgs.Empty);
     //}
 
 }

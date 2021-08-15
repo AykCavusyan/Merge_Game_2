@@ -152,9 +152,9 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
         Button_CompleteQuest completeButton = (Button_CompleteQuest)sender;
         completeButton.OnQuestCompleted -= CompleteQuest;
 
-        questPanel.GetComponent<Quest_List>().TransferCompletedParentSlotContainers(e.quest);
+        OnQuestCompleted?.Invoke(this, new OnQuestAddRemoveEventArgs { quest = e.quest, button_CompleteQuest = completeButton });
 
-        OnQuestCompleted?.Invoke(this, new OnQuestAddRemoveEventArgs { quest = e.quest, button_CompleteQuest = completeButton }); //e.quest);
+        //questPanel.GetComponent<Quest_List>().TransferCompletedParentSlotContainers(e.quest);
 
         foreach (Item item in e.quest.itemsNeeded)
         {
