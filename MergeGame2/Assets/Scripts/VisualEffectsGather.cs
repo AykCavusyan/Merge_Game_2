@@ -12,12 +12,16 @@ public class VisualEffectsGather : MonoBehaviour
     [SerializeField]private Item.ItemGenre itemGenre;
     private Sprite sprite;
 
-    private float lerpDuration = .32f;
+    private float lerpSpeed = .32f;
     private GameObject levelBar;
     private GameObject goldBar;
     private Transform target;
 
     private Vector3 lateralOscillation;
+
+    private VisualEffectsExplode explodeEffect;
+    private Dictionary<int,bool> explodeIndex = new Dictionary<int, bool>();
+
 
     private void Awake()
     {
@@ -28,6 +32,8 @@ public class VisualEffectsGather : MonoBehaviour
         levelBar = GameObject.Find("Level_Icon");
         goldBar = GameObject.Find("Gold_Icon");
         sprite = ItemAssets.Instance.GetAssetSprite(itemType);
+
+        explodeEffect = GameObject.Find("Particle_Explode_Effect").GetComponent<VisualEffectsExplode>();
 
     }
 
@@ -60,14 +66,20 @@ public class VisualEffectsGather : MonoBehaviour
             {
                 if(allParticles[i].remainingLifetime <= allParticles[i].startLifetime / Mathf.Clamp((1.2f+(i/8)),1.2f,1.65f))
                 {
-                    allParticles[i].position = Vector2.MoveTowards(allParticles[i].position + lateralOscillation, target.position, lerpDuration);
+                    if (explodeIndex[i] && explodeIndex[i] == true)
+                    {
+                        explodeEffect.DoEmit(allParticles[i].position);
+                        explodeIndex[i] = false;
+                    }
+                    
+                    allParticles[i].position = Vector2.MoveTowards(allParticles[i].position + lateralOscillation, target.position, lerpSpeed);
                 }
-
+                
             }
             
             particles.SetParticles(allParticles, allParticlesCount);
- 
         }
+        //uuuuuulerpSpeed = .12f;
     }
 
     private void SetTargetAndPlayCollectibles(object sender, GameItems.OnItemCollectedEventArgs e)
@@ -175,6 +187,9 @@ public class VisualEffectsGather : MonoBehaviour
         for (int i = 0; i < particleAmount; i++)
         {
             particles.Emit(1);
+            if (explodeIndex.ContainsKey(i)) explodeIndex[i] = true;
+            else explodeIndex.Add(i,true);
+
             yield return new WaitForSeconds(.03f);
         }
         //particles.Emit(particleAmount);
