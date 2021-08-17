@@ -67,7 +67,6 @@ public class RewardSlots : MonoBehaviour
 
     public void Drop(GameItems gameItem)
     {
-        Debug.Log(gameItem.GetInstanceID());
         containedItem = gameItem;
         PlaceItem(gameItem);
         UpdateItemParentSlot(gameItem);

@@ -117,13 +117,15 @@
     <Compile Include="Assets\Scripts\Popup_Panel_Scripts\Popup_Panel.cs" />
     <Compile Include="Assets\Scripts\Button_CompleteQuest.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_Translate.cs" />
+    <Compile Include="Assets\Scripts\VisualEffectsExplode.cs" />
     <Compile Include="Assets\Scripts\Panel_Invetory.cs" />
     <Compile Include="Assets\Scripts\UI_ParticleEffects.cs" />
     <Compile Include="Assets\Scripts\IInitializerScript.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\VisualEffectsExplode.cs" />
+    <Compile Include="Assets\Scripts\Panel_ProducedItems.cs" />
+    <Compile Include="Assets\Scripts\ProducedItem_Slots.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
