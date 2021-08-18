@@ -326,15 +326,17 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         GameSlots gameSlot = null;
         ButtonHandler inventoryButton = null;
+        Panel_ProducedItems producedItemsPanel = null;
+        
 
         foreach (var result in results)
         {
             gameSlot = result.gameObject.GetComponent<GameSlots>();
             inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
+            producedItemsPanel = result.gameObject.GetComponent<Panel_ProducedItems>();
 
-            if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1) 
+            if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1 || producedItemsPanel!=null)
             {
-
                 break;
             }
         }
@@ -416,7 +418,6 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                         return;
                     }
                 }
-
             }
             else
             {
@@ -425,6 +426,22 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
+        else if (producedItemsPanel != null && producedItemsPanel.acceptedItemGenres.Contains(this.itemGenre))
+        {
+            foreach (GameObject slot in producedItemsPanel.slotList)
+            {
+                if (slot.GetComponent<ProducedItem_Slots>().isFree)
+                {
+                    StopAllCoroutines();
+                    rectTransform.sizeDelta = originalSizeDelta;
+
+                    slot.GetComponent<ProducedItem_Slots>().Drop(this);
+                    cr_Running = false;
+
+                    return;
+                }          
+            }
+        }
 
         SetItemBack(eventData);
     }
@@ -625,10 +642,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public void CollectItem()
     {
         canDrag = false;
-        Debug.Log("collecting");
         initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
         OnItemCollected?.Invoke(this, new OnItemCollectedEventArgs {  itemLevel=this.itemLevel , xpValue = this.xpValue , goldValue=this.goldValue, itemPanelID = itemPanelID , position = GetComponent<RectTransform>().position, ItemType= itemType});
-        //MoveItemToTopPanel();
         DestroyItem(this.gameObject);
     }
 

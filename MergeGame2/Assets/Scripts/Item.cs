@@ -115,6 +115,7 @@ public class Item
        {1, 
         new Dictionary<ItemGenre, ItemType> 
         {
+            {ItemGenre.Chest, ItemType.Chest_1 },
             {ItemGenre.Gold, ItemType.Gold_1 },
             {ItemGenre.Armor, ItemType.Armor_1 },
             {ItemGenre.Meals, ItemType.Meal_1 },
@@ -125,7 +126,8 @@ public class Item
         {2, 
          new Dictionary<ItemGenre, ItemType>
           {
-             { ItemGenre.Meals, ItemType.Meal_2 },
+             {ItemGenre.Chest, ItemType.Chest_2 },
+             {ItemGenre.Meals, ItemType.Meal_2 },
              {ItemGenre.Armor, ItemType.Armor_2 },
              {ItemGenre.Star, ItemType.Star_2 },
           }
@@ -134,7 +136,8 @@ public class Item
         {3, 
           new Dictionary<ItemGenre, ItemType>
           {
-            { ItemGenre.Meals, ItemType.Meal_3 },
+            {ItemGenre.Chest, ItemType.Chest_3 },
+            {ItemGenre.Meals, ItemType.Meal_3 },
             {ItemGenre.Armor, ItemType.Armor_3},
             {ItemGenre.Star, ItemType.Star_3 },
           }
@@ -143,6 +146,7 @@ public class Item
         {4,
           new Dictionary<ItemGenre, ItemType>
           {
+            {ItemGenre.Chest, ItemType.Chest_4 },
             {ItemGenre.Meals, ItemType.Meal_4 },
             {ItemGenre.Armor, ItemType.Armor_4 },
             {ItemGenre.Star, ItemType.Star_4 },
@@ -152,7 +156,8 @@ public class Item
         {5,
           new Dictionary<ItemGenre, ItemType>
           {
-            { ItemGenre.Meals,ItemType.Meal_5 },
+            {ItemGenre.Chest, ItemType.Chest_5 },
+            {ItemGenre.Meals,ItemType.Meal_5 },
             {ItemGenre.Armor, ItemType.Armor_5 },
             {ItemGenre.Star, ItemType.Star_5 },
           }
@@ -201,6 +206,11 @@ public class Item
 
     public enum ItemType
     {
+        Chest_1,
+        Chest_2,
+        Chest_3,
+        Chest_4,
+        Chest_5,
         Gold_1,
         Star_1,
         Star_2,
@@ -231,6 +241,7 @@ public class Item
 
     public enum ItemGenre
     {
+        Chest,
         Gold,
         Star,
         Meals,

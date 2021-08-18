@@ -12,7 +12,7 @@ public class VisualEffectsGather : MonoBehaviour
     [SerializeField]private Item.ItemGenre itemGenre;
     private Sprite sprite;
 
-    private float lerpSpeed = .32f;
+    private float lerpSpeed = .52f;
     private GameObject levelBar;
     private GameObject goldBar;
     private Transform target;
@@ -20,7 +20,7 @@ public class VisualEffectsGather : MonoBehaviour
     private Vector3 lateralOscillation;
 
     private VisualEffectsExplode explodeEffect;
-    private Dictionary<int,bool> explodeIndex = new Dictionary<int, bool>();
+    private Dictionary<ParticleSystem.Particle,bool> explodeIndex = new Dictionary<ParticleSystem.Particle, bool>();
 
 
     private void Awake()
@@ -66,20 +66,21 @@ public class VisualEffectsGather : MonoBehaviour
             {
                 if(allParticles[i].remainingLifetime <= allParticles[i].startLifetime / Mathf.Clamp((1.2f+(i/8)),1.2f,1.65f))
                 {
-                    if (explodeIndex[i] && explodeIndex[i] == true)
+                    if (explodeIndex.ContainsKey(allParticles[i]) && explodeIndex[allParticles[i]] == true) // (explodeIndex[i] && explodeIndex[i] == true) 
                     {
                         explodeEffect.DoEmit(allParticles[i].position);
-                        explodeIndex[i] = false;
+                        explodeIndex[allParticles[i]] = false;                           //explodeIndex[i] = false;
                     }
                     
                     allParticles[i].position = Vector2.MoveTowards(allParticles[i].position + lateralOscillation, target.position, lerpSpeed);
+
+
                 }
                 
             }
             
             particles.SetParticles(allParticles, allParticlesCount);
         }
-        //uuuuuulerpSpeed = .12f;
     }
 
     private void SetTargetAndPlayCollectibles(object sender, GameItems.OnItemCollectedEventArgs e)
@@ -184,11 +185,18 @@ public class VisualEffectsGather : MonoBehaviour
 
     IEnumerator ExplodeEnum(int particleAmount)
     {
+        ParticleSystem.Particle[] emittedParticleArray = new ParticleSystem.Particle[particleAmount];
+
         for (int i = 0; i < particleAmount; i++)
         {
             particles.Emit(1);
-            if (explodeIndex.ContainsKey(i)) explodeIndex[i] = true;
-            else explodeIndex.Add(i,true);
+
+            particles.GetParticles(emittedParticleArray);
+            ParticleSystem.Particle particle = emittedParticleArray[i];
+            explodeIndex.Add(particle, true);
+
+            //if (explodeIndex.ContainsKey(i)) explodeIndex[i] = true;
+            //else explodeIndex.Add(i,true);
 
             yield return new WaitForSeconds(.03f);
         }
@@ -196,6 +204,33 @@ public class VisualEffectsGather : MonoBehaviour
 
         //yield return new WaitForSeconds(.5f);
     }
+
+    //IEnumerator MoveParticlesEnum(ParticleSystem.Particle particleIN, int particleArrayLengthIN, int particleOrder)
+    //{
+    //    ParticleSystem.Particle[] emittedParticleArray = new ParticleSystem.Particle[particleArrayLengthIN];
+    //    float elapsedTime = 0;
+    //    float lerpDuration = .5f;
+
+    //    while (particleIN.remainingLifetime > particleIN.startLifetime / 1.5)
+    //    {
+    //        Debug.Log(particleIN.remainingLifetime);
+    //        Debug.Log(particleIN.startLifetime);
+    //        particles.GetParticles(emittedParticleArray);
+    //        particleIN = emittedParticleArray[particleOrder];
+
+    //        yield return null;
+    //    }
+
+    //    while (elapsedTime < lerpDuration)
+    //    {
+    //        particles.GetParticles(emittedParticleArray);
+    //        particleIN = emittedParticleArray[particleOrder];
+    //        particleIN.position = Vector2.MoveTowards(particleIN.position, target.position, lerpSpeed);
+    //        particles.SetParticles(emittedParticleArray);
+    //        yield return null;
+
+    //    }
+    //}
 
     //IEnumerator GroupExplodeEnum(List<Sprite> questXPandGoldRewardsIN)
     //{

@@ -87,6 +87,10 @@ public sealed class ItemBag : MonoBehaviour
             GameObject newGameItem = GenerateItem(Item.ItemGenre.Star);
             AddGeneratedItem(newGameItem);
         }
+        else if (Input.GetKeyDown(KeyCode.P))
+        {
+            ChestAddGeneratedItem();
+        }
     }
 
 
@@ -115,7 +119,11 @@ public sealed class ItemBag : MonoBehaviour
         AddGeneratedItem(newGameItem);
     }
 
-
+    public void ChestAddGeneratedItem()
+    {
+        GameObject newGameItem = GenerateItem(Item.ItemGenre.Chest);
+        AddGeneratedItem(newGameItem);
+    }
 
     public GameObject GenerateItem(Item.ItemGenre itemGenre, int itemLevel = 1, bool isRewardPanelItem = false)
     {
