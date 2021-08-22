@@ -7177,7 +7177,7 @@ GameObject:
   m_Component:
   - component: {fileID: 413262674}
   m_Layer: 5
-  m_Name: Panel_ProducedItems_Anchor
+  m_Name: Panel_PowerUpItems_Anchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8502,7 +8502,7 @@ GameObject:
   - component: {fileID: 543180821}
   - component: {fileID: 543180823}
   m_Layer: 5
-  m_Name: Panel_ProducedItems_FG
+  m_Name: Panel_PowerUpItems_FG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12513,7 +12513,7 @@ GameObject:
   - component: {fileID: 1141939129}
   - component: {fileID: 1141939128}
   m_Layer: 5
-  m_Name: Panel_ProducedItems_LeftScroll_Button
+  m_Name: Panel_PowerUpItems_LeftScroll_Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15137,7 +15137,7 @@ GameObject:
   - component: {fileID: 1500179533}
   - component: {fileID: 1500179532}
   m_Layer: 5
-  m_Name: Panel_ProducedItems_BG
+  m_Name: Panel_PowerUpItems_BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26664,7 +26664,7 @@ GameObject:
   - component: {fileID: 1792385562}
   - component: {fileID: 1792385561}
   m_Layer: 5
-  m_Name: Panel_ProducedItems_RightScroll_Button
+  m_Name: Panel_PowerUpItems_RightScroll_Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31560,7 +31560,7 @@ GameObject:
   - component: {fileID: 1801769927}
   - component: {fileID: 1801769929}
   m_Layer: 5
-  m_Name: Panel_ProducedItems_InnerPanelContainer
+  m_Name: Panel_PowerUpItems_InnerPanelContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -19,7 +19,7 @@ public class VisualEffectsExplode : MonoBehaviour
 
     public void DoEmit(Vector3 explodePosition)
     {
-
+        Debug.Log("explodeeffect");
         particles.transform.position = explodePosition;
         particles.Emit(35);
     }

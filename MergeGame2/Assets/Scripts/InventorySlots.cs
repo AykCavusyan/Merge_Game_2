@@ -106,7 +106,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
         containedItem = gameItem.gameObject;
         rt.SetAsLastSibling();
         rt.anchoredPosition = slot_Item_Holder.GetComponent<RectTransform>().anchoredPosition;
-        gameItem.isMoving = false;
+        //gameItem.isMoving = false;
         gameItem.initialGameSlot = this.gameObject;
 
     }

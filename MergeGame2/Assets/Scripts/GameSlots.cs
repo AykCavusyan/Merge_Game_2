@@ -56,6 +56,8 @@ public class GameSlots : MonoBehaviour, ISaveable
     public void Drop (GameItems gameItem, Vector3 itemDroppedPositionIN =  default(Vector3))
     {
         OnDropHandler?.Invoke(gameItem); // is there even a listener ??
+        //gameItem.isMoving = false;
+
         Vector3 itemDroppedPosition = new Vector3(); // is it necessary ???
 
         if (itemDroppedPositionIN == default(Vector3)) itemDroppedPosition = gameItem.transform.position;
@@ -148,7 +150,7 @@ public class GameSlots : MonoBehaviour, ISaveable
             yield return null;
         }
 
-        gameItem.isMoving = false;
+        
         gameItem.transform.position = transform.position;
     }
 

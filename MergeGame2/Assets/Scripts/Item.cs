@@ -19,6 +19,7 @@ public class Item
     public bool isRewardPanelItem { get; private set; }
     public string itemName { get; private set; }
     public string itemDescription { get; private set; }
+    public bool isPowerUpItem { get; private set; } = false;
 
     public Item(ItemGenre itemGenre, int itemLevel, bool isRewardPanelItemIN =false)
     {
@@ -39,6 +40,12 @@ public class Item
             isCollectible = true;
             SetXpValue(itemLevel);
             itemPanelID = 1;
+        }
+
+        else if (itemGenre == ItemGenre.Chest)
+        {
+            isPowerUpItem = true;
+            isSpawner = true;
         }
 
         foreach (Item.ItemType itemTpeReq in QuestManager.Instance._activeQuestItemsList)

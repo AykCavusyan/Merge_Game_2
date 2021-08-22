@@ -81,6 +81,7 @@
     <Compile Include="Assets\Scripts\Rewards_LevelUp.cs" />
     <Compile Include="Assets\Scripts\MasterEventListener.cs" />
     <Compile Include="Assets\Scripts\DynamicImageResizeEffect.cs" />
+    <Compile Include="Assets\Scripts\PowerUpItem_Slots.cs" />
     <Compile Include="Assets\Scripts\InventorySlots.cs" />
     <Compile Include="Assets\Scripts\SavingSystem\ISaveable.cs" />
     <Compile Include="Assets\Scripts\PlayerInfo.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Assets\Scripts\VisualEffectsGather.cs" />
     <Compile Include="Assets\Scripts\Button_Base.cs" />
     <Compile Include="Assets\Scripts\Quest_List.cs" />
+    <Compile Include="Assets\Scripts\Panel_PowerUpItems.cs" />
     <Compile Include="Assets\Scripts\Rewards.cs" />
     <Compile Include="Assets\Scripts\Quest.cs" />
     <Compile Include="Assets\Scripts\Scene\SceneTransitions.cs" />
@@ -124,8 +126,6 @@
     <Compile Include="Assets\JMO Assets\Cartoon FX\Demo\Assets\CFX_Demo_New.cs" />
     <Compile Include="Assets\JMO Assets\Cartoon FX\Scripts\CFX_LightFlicker.cs" />
     <Compile Include="Assets\Scripts\DynamicBar_Level.cs" />
-    <Compile Include="Assets\Scripts\Panel_ProducedItems.cs" />
-    <Compile Include="Assets\Scripts\ProducedItem_Slots.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

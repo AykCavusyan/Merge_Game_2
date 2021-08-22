@@ -20,7 +20,10 @@ public class VisualEffectsGather : MonoBehaviour
     private Vector3 lateralOscillation;
 
     private VisualEffectsExplode explodeEffect;
-    private Dictionary<ParticleSystem.Particle,bool> explodeIndex = new Dictionary<ParticleSystem.Particle, bool>();
+    private List<Vector4> customData = new List<Vector4>();
+    private int uniqueID;
+
+    //private Dictionary<ParticleSystem.Particle,bool> explodeIndex = new Dictionary<ParticleSystem.Particle, bool>();
 
 
     private void Awake()
@@ -55,22 +58,42 @@ public class VisualEffectsGather : MonoBehaviour
 
     private void LateUpdate()
     {
-
         if (target && particles && particles.isPlaying)
         {
+
+            particles.GetCustomParticleData(customData, ParticleSystemCustomData.Custom1);
+
+            for (int i = 0; i < customData.Count; i++)
+            {
+                if(customData[i].x == 0.0f)
+                {
+                    customData[i] = new Vector4(++uniqueID, 1, 0, 0);
+                }
+            }
+
+            particles.SetCustomParticleData(customData, ParticleSystemCustomData.Custom1);
 
             allParticlesCount = particles.GetParticles(allParticles);
             lateralOscillation = new Vector3(Mathf.PingPong(Time.unscaledTime*5, .2f), 0,0);
 
             for (int i = 0; i < allParticlesCount; i++)
             {
+                particles.GetCustomParticleData(customData, ParticleSystemCustomData.Custom1);
                 if(allParticles[i].remainingLifetime <= allParticles[i].startLifetime / Mathf.Clamp((1.2f+(i/8)),1.2f,1.65f))
                 {
-                    if (explodeIndex.ContainsKey(allParticles[i]) && explodeIndex[allParticles[i]] == true) // (explodeIndex[i] && explodeIndex[i] == true) 
+                    if(customData[i].y == 1)
                     {
                         explodeEffect.DoEmit(allParticles[i].position);
-                        explodeIndex[allParticles[i]] = false;                           //explodeIndex[i] = false;
+                        customData[i] = new Vector4(customData[i].x, 0, 0, 0);
+                        particles.SetCustomParticleData(customData, ParticleSystemCustomData.Custom1);
                     }
+
+                    //Debug.Log(allParticles[i]);
+                    //if (explodeIndex.ContainsKey(allParticles[i]) && explodeIndex[allParticles[i]] == true) // (explodeIndex[i] && explodeIndex[i] == true) 
+                    //{
+                    //    explodeEffect.DoEmit(allParticles[i].position);
+                    //    explodeIndex[allParticles[i]] = false;                           //explodeIndex[i] = false;
+                    //}
                     
                     allParticles[i].position = Vector2.MoveTowards(allParticles[i].position + lateralOscillation, target.position, lerpSpeed);
 
@@ -191,10 +214,9 @@ public class VisualEffectsGather : MonoBehaviour
         {
             particles.Emit(1);
 
-            particles.GetParticles(emittedParticleArray);
-            ParticleSystem.Particle particle = emittedParticleArray[i];
-            explodeIndex.Add(particle, true);
-
+            //particles.GetParticles(emittedParticleArray);
+            //ParticleSystem.Particle particle = emittedParticleArray[i];
+            //explodeIndex.Add(particle., true);
             //if (explodeIndex.ContainsKey(i)) explodeIndex[i] = true;
             //else explodeIndex.Add(i,true);
 

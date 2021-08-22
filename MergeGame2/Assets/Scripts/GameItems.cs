@@ -17,6 +17,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public class OnPossibleDropEffectsEventArgs
     {
         public Vector3 effectLocation;
+        public VisualEffectsCanDrop.EffectType effectType;
         public bool canPlay;
     }
 
@@ -89,8 +90,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     [SerializeField] private int itemPanelID;
     [SerializeField] public bool isQuestItem;
     [SerializeField] public bool isRewardPanelItem;
+    [SerializeField] public bool isPowerUpItem;
 
-    public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int goldValueIN, int itemPanelIDIn, bool isQuestItemIN, bool isRewardPanelItemIN)
+    public void CreateGameItem( int itemLevelIn, Item.ItemGenre itemGenreIn, Item.ItemType itemTypeIn, bool givesXPIn, bool isSpawnerIn, bool isCollectibleIn, int xpValueIn, int goldValueIN, int itemPanelIDIn, bool isQuestItemIN, bool isRewardPanelItemIN,bool isPowerUpItemIN)
     {
         gameObject.AddComponent<Image>().sprite = GetSpriteImage(itemTypeIn);
         itemLevel = itemLevelIn;
@@ -104,6 +106,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         itemPanelID = itemPanelIDIn;
         isQuestItem = isQuestItemIN;
         isRewardPanelItem = isRewardPanelItemIN;
+        isPowerUpItem = isPowerUpItemIN;
 
         GameObject cornerPanel = Instantiate(Resources.Load<GameObject>("Prefabs/" + "_checkmarkContainer"));
         cornerPanel.transform.SetParent(this.gameObject.transform, false);
@@ -122,7 +125,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         rectTransform = gameObject.AddComponent<RectTransform>();
         canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         panel_GameItems_Temporary = GameObject.Find("Panel_GameItems_Temporary");
-        topPanels = FindObjectsOfType<TopPanelID>();       
+        topPanels = FindObjectsOfType<TopPanelID>();
+        
     }
 
     private void OnEnable()
@@ -144,7 +148,68 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         originalSizeDelta = rectTransform.sizeDelta;
     }
 
+    private void Update()
+    {
+        if (isMoving)
+        {
+            var results = new List<RaycastResult>();
+            PointerEventData eventData = new PointerEventData(EventSystem.current);
+            eventData.position = Input.mousePosition;
+            EventSystem.current.RaycastAll(eventData, results);
 
+            GameSlots gameSlot = null;
+            ButtonHandler inventoryButton = null;
+            Panel_PowerUpItems powerUpItemsPanel = null;
+
+            
+
+            foreach(var result in results)
+            {
+                gameSlot = result.gameObject.GetComponent<GameSlots>();
+                inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
+                powerUpItemsPanel = result.gameObject.GetComponent<Panel_PowerUpItems>();
+
+                if(gameSlot != null || inventoryButton!=null || powerUpItemsPanel != null)
+                {
+                    break;
+                }
+            }
+
+            if (gameSlot != null && gameSlot.containedItem != null &&gameSlot.containedItem.GetComponent<GameItems>().itemType == this.itemType)
+            {
+                StartCoroutine(ActivateOnpossibleDropEffects(gameSlot.gameObject));
+            }
+            else if (inventoryButton != null && inventoryButton.buttonIndex == 1)
+            {
+                StartCoroutine(ActivateOnpossibleDropEffects(inventoryButton.gameObject));
+            }
+            else if (powerUpItemsPanel != null)
+            {
+                if(cr_Running == false && rectTransform.sizeDelta == originalSizeDelta) 
+                {
+                    Vector2 modifiedSizeDelta = new Vector2(powerUpItemsPanel.slotWidth, powerUpItemsPanel.slotWidth);
+                    StartCoroutine(DownSizeItemOnPanelHoverEnum(modifiedSizeDelta));
+                }
+            }
+            if (powerUpItemsPanel == null)
+            {
+                if (cr_Running == false && rectTransform.sizeDelta != originalSizeDelta) StartCoroutine(UpSizeItemOnPanelHoverEnum());
+            }
+            if (gameSlot == null || gameSlot.containedItem == null || gameSlot.containedItem.GetComponent<GameItems>().itemType != itemType)
+            {
+                OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = false, effectType = VisualEffectsCanDrop.EffectType.overGameItem });
+            }
+            if (inventoryButton == null || inventoryButton.buttonIndex != 1)
+            {
+                OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = false, effectType = VisualEffectsCanDrop.EffectType.overInvetory });
+            }
+            else
+            {
+                OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = false, effectType = VisualEffectsCanDrop.EffectType.overGameItem });
+                OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = false, effectType = VisualEffectsCanDrop.EffectType.overInvetory });
+            }
+        }
+    }
 
     void Init()
     {
@@ -207,11 +272,20 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
+        isMoving = true;
+
         rectTransform.SetParent(panel_GameItems_Temporary.transform);
         rectTransform.SetAsLastSibling();
-        
-        isMoving = true;
-        initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
+
+        if (initialGameSlot.GetComponent<GameSlots>()) 
+        {
+            initialGameSlot.GetComponent<GameSlots>().DischargeSlot();
+        }
+        else if (initialGameSlot.GetComponent<PowerUpItem_Slots>())
+        {
+            initialGameSlot.GetComponent<PowerUpItem_Slots>().DischargeItem();
+        }
+
         OnBeginDragHandler?.Invoke(eventData);
 
         #region
@@ -244,37 +318,49 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         {
             rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
 
-            var results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventData, results);
-
-            GameSlots gameSlot = null;
-            ButtonHandler inventoryButton = null;
-
-            foreach (var result in results)
-            {
-                gameSlot = result.gameObject.GetComponent<GameSlots>();
-                inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
-
-                if (gameSlot != null || inventoryButton != null)
-                {  
-                    break;
-                }
-            }
-
-            if (gameSlot!=null && gameSlot.containedItem != null && gameSlot.containedItem.GetComponent<GameItems>().itemType == this.itemType)
-            {
-                StartCoroutine(ActivateOnpossibleDropEffects(gameSlot.gameObject));
-                //OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = gameSlot.containedItem.transform.position });
-            }
-            else if (inventoryButton!=null && inventoryButton.buttonIndex == 1)
-            {
-                StartCoroutine(ActivateOnpossibleDropEffects(inventoryButton.gameObject));
-                //OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = inventoryButton.transform.position });
-            }
-            else OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = false });
-
-
         }
+    }
+
+     
+    IEnumerator DownSizeItemOnPanelHoverEnum(Vector2 modifiedSizeDeltaIN)
+    {
+        cr_Running = true;
+
+        float lerpDuration = .10f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < lerpDuration)
+        {
+            rectTransform.sizeDelta = Vector2.Lerp(originalSizeDelta, modifiedSizeDeltaIN, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        rectTransform.sizeDelta = modifiedSizeDeltaIN;
+
+       cr_Running = false;
+    }
+
+    IEnumerator UpSizeItemOnPanelHoverEnum()
+    {
+        cr_Running = true;
+
+        //StopCoroutine("DownSizeItemOnPanelHoverEnum");
+
+        float lerpDuration = .1f;
+        float elapsedTime = 0f;
+        Vector2 currentItemSize = rectTransform.sizeDelta;
+
+        while (elapsedTime < lerpDuration)
+        {
+            rectTransform.sizeDelta = Vector2.Lerp(currentItemSize, originalSizeDelta, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        rectTransform.sizeDelta = originalSizeDelta;
+
+        cr_Running = false;
     }
 
     IEnumerator ActivateOnpossibleDropEffects(GameObject focusedItemIN)
@@ -309,9 +395,9 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         }
 
         if (gameSlot != null && gameSlot.gameObject == focusedItemIN)
-            OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = gameSlot.containedItem.transform.position });
+            OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = gameSlot.containedItem.transform.position, effectType = VisualEffectsCanDrop.EffectType.overGameItem });
         else if (inventoryButton!= null && inventoryButton.gameObject ==focusedItemIN)
-            OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = inventoryButton.transform.position });
+            OnPossibleDropEffects?.Invoke(this, new OnPossibleDropEffectsEventArgs { canPlay = true, effectLocation = inventoryButton.transform.position , effectType = VisualEffectsCanDrop.EffectType.overInvetory});
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -321,19 +407,22 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
+        isMoving = false;
+        OnEndDragHandler?.Invoke(eventData, false);
+
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
         GameSlots gameSlot = null;
         ButtonHandler inventoryButton = null;
-        Panel_ProducedItems producedItemsPanel = null;
+        Panel_PowerUpItems producedItemsPanel = null;
         
 
         foreach (var result in results)
         {
             gameSlot = result.gameObject.GetComponent<GameSlots>();
             inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
-            producedItemsPanel = result.gameObject.GetComponent<Panel_ProducedItems>();
+            producedItemsPanel = result.gameObject.GetComponent<Panel_PowerUpItems>();
 
             if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1 || producedItemsPanel!=null)
             {
@@ -426,17 +515,24 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
-        else if (producedItemsPanel != null && producedItemsPanel.acceptedItemGenres.Contains(this.itemGenre))
+        else if (producedItemsPanel != null && isPowerUpItem)
         {
-            foreach (GameObject slot in producedItemsPanel.slotList)
-            {
-                if (slot.GetComponent<ProducedItem_Slots>().isFree)
-                {
-                    StopAllCoroutines();
-                    rectTransform.sizeDelta = originalSizeDelta;
 
-                    slot.GetComponent<ProducedItem_Slots>().Drop(this);
+            foreach ((GameObject,float) slot in producedItemsPanel.slotList)
+            {
+
+                if (slot.Item1.GetComponent<PowerUpItem_Slots>().isFree)
+                {
+                    canDrag = false;
+
+                    StopAllCoroutines();
+                    rectTransform.sizeDelta = originalSizeDelta; // buna gerek var mý zaten küçültüyoruz bu paneliin üzerindeyken ??
+                    producedItemsPanel.FindSlotsToMoveAndDrop(this);
+
+                    //slot.Item1.GetComponent<PowerUpItem_Slots>().Drop(this);
                     cr_Running = false;
+
+                    canDrag = true;
 
                     return;
                 }          
@@ -450,7 +546,8 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     void SetItemBack(PointerEventData eventData)
     {
         canDrag = false; Debug.Log("The Item SLot Container is already full or invalid position");
-        initialGameSlot.GetComponent<GameSlots>().Drop(this);
+        if(initialGameSlot.GetComponent<GameSlots>()) initialGameSlot.GetComponent<GameSlots>().Drop(this);
+        else if (initialGameSlot.GetComponent<PowerUpItem_Slots>()) initialGameSlot.GetComponent<PowerUpItem_Slots>().Drop(this);
         OnEndDragHandler?.Invoke(eventData, false);
         canDrag = true;
     }
@@ -723,6 +820,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             _variablesDict.Add("goldValue",this.goldValue);
             _variablesDict.Add("itemPanelID", this.itemPanelID);
             _variablesDict.Add("isQuestItem", this.isQuestItem);
+            _variablesDict.Add("isPowerUpItem", this.isPowerUpItem);
             //_variablesDict.Add("isRewardPanelItem", this.isRewardPanelItem);
 
         return _variablesDict;
@@ -747,9 +845,10 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             goldValue = (int)_variablesDictIN["goldValue"];
             itemPanelID = (int)_variablesDictIN["itemPanelID"];
             isQuestItem = (bool)_variablesDictIN["isQuestItem"]; ;
+            isPowerUpItem = (bool)_variablesDictIN["isPowerUpItem"];
             //isRewardPanelItem = (bool)_variablesDictIN["isRewardPanelItem"]; ;
 
-            CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, goldValue, itemPanelID, isQuestItem, isRewardPanelItem);;
+            CreateGameItem(itemLevel, itemGenre, itemType, givesXP, isSpawner, isCollectible, xpValue, goldValue, itemPanelID, isQuestItem, isRewardPanelItem, isPowerUpItem);
 
     }
 

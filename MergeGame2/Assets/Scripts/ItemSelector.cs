@@ -122,10 +122,12 @@ public class ItemSelector : MonoBehaviour
 
     private void ResumeSelectionOnItemRelease(PointerEventData pointerEventData, bool canEnd)
     {
-        selectionSquare.transform.SetParent(selectedItem.initialGameSlot.transform);
-        selectionSquare.transform.position = selectedItem.initialGameSlot.transform.position;
-        selectionSquare.SetActive(true);
-
+        if (canEnd)
+        {
+            selectionSquare.transform.SetParent(selectedItem.initialGameSlot.transform);
+            selectionSquare.transform.position = selectedItem.initialGameSlot.transform.position;
+            selectionSquare.SetActive(true);
+        }
     }
 
     private void PauseSelectionOnItemMove(PointerEventData pointerEventData)
