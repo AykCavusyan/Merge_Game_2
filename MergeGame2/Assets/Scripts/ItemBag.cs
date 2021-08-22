@@ -133,6 +133,7 @@ public sealed class ItemBag : MonoBehaviour
         GameObject newGameItem = new GameObject();
         newGameItem.transform.SetParent(panel_Gameslots.transform);
         newGameItem.AddComponent<GameItems>().CreateGameItem(item.itemLevel, item.itemGenre, item.itemType, item.givesXP, item.isSpawner, item.isCollectible, item.xpValue, item.goldValue, item.itemPanelID, item.isQuestItem, item.isRewardPanelItem, item.isPowerUpItem);
+        newGameItem.AddComponent<GameItem_PowerUp>();
 
         OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
 
@@ -146,7 +147,7 @@ public sealed class ItemBag : MonoBehaviour
         GameObject newGameItem = new GameObject();
         newGameItem.transform.SetParent(panel_Gameslots.transform);
         newGameItem.AddComponent<GameItems>().RestoreState(_dictFromItemIN);
-
+        newGameItem.AddComponent<GameItem_PowerUp>();
 
         OnGameItemCreated?.Invoke(this, new OnGameItemCreatedEventArgs { gameItem = newGameItem.GetComponent<GameItems>() });
 

@@ -13,12 +13,15 @@ public class PowerUpItem_Slots : MonoBehaviour
 
     public void Drop(GameItems gameItem)
     {
-        PlaceItem(gameItem);
+        gameItem.isInsidePowerUpPanel = true;
+        Vector3 itemDropPos = transform.InverseTransformPoint(gameItem.transform.position);
+
+        PlaceItem(gameItem, itemDropPos);
         UpdateParentSlot(gameItem);
         isFree = false;
     }
 
-    void PlaceItem(GameItems gameItemIN)
+    void PlaceItem(GameItems gameItemIN, Vector2 itemDroppedPosIN)
     {
         RectTransform rtslot = GetComponent<RectTransform>();
         RectTransform rt = gameItemIN.GetComponent<RectTransform>();
@@ -30,16 +33,17 @@ public class PowerUpItem_Slots : MonoBehaviour
         //rt.anchoredPosition = new Vector3 (0,0,0);
         //gameItemIN.isMoving = false;
         gameItemIN.initialGameSlot = this.gameObject;
-        StartCoroutine(LerpItemPositionEnum(rt, rt.anchoredPosition));
+        StartCoroutine(LerpItemPositionEnum(rt, itemDroppedPosIN));
     }
 
-    IEnumerator LerpItemPositionEnum(RectTransform rtIN, Vector3 anchoredPositionIN)
+    IEnumerator LerpItemPositionEnum(RectTransform rtIN, Vector2 itemDroppedPosIN)
     {
         float elapsedTime = 0f;
-        Vector3 lerpPosition = new Vector3(0, 0, 0);
+        Vector3 lerpPosition = new Vector2(0, 0);
         while (elapsedTime < lerpDuration)
         {
-            rtIN.anchoredPosition = Vector3.Lerp(anchoredPositionIN, lerpPosition, elapsedTime / lerpDuration);
+            
+            rtIN.anchoredPosition = Vector2.Lerp(itemDroppedPosIN, lerpPosition, elapsedTime / lerpDuration);
             elapsedTime += Time.deltaTime;
 
             yield return null;
@@ -49,7 +53,7 @@ public class PowerUpItem_Slots : MonoBehaviour
 
     void UpdateParentSlot(GameItems gameItemIN)
     {
-
+        gameItemIN.initialGameSlot = this.gameObject;
 
     }
 

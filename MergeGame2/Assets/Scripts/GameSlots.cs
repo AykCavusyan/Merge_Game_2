@@ -10,6 +10,7 @@ public class GameSlots : MonoBehaviour, ISaveable
 {
     private GameObject panel_GameItems;
     public GameObject panel_Gameslots { get; private set; }
+    private Vector2 containedItemSize;
     private RectTransform rt;
     private Transform crossMark;
     public List<DropConditions> dropConditions = new List<DropConditions>();
@@ -35,7 +36,7 @@ public class GameSlots : MonoBehaviour, ISaveable
         crossMark = transform.Find("CrossMark");
         panel_Gameslots = GameObject.Find("Panel_GameSlots");
         panel_GameItems = GameObject.Find("Panel_GameItems");
-
+        containedItemSize = GetComponent<RectTransform>().sizeDelta *.85f;
     }
 
     private void Start()
@@ -56,6 +57,7 @@ public class GameSlots : MonoBehaviour, ISaveable
     public void Drop (GameItems gameItem, Vector3 itemDroppedPositionIN =  default(Vector3))
     {
         OnDropHandler?.Invoke(gameItem); // is there even a listener ??
+        gameItem.isInsidePowerUpPanel = false;
         //gameItem.isMoving = false;
 
         Vector3 itemDroppedPosition = new Vector3(); // is it necessary ???
@@ -89,7 +91,8 @@ public class GameSlots : MonoBehaviour, ISaveable
         RectTransform rtGameItem = gameItem.GetComponent<RectTransform>();
 
         rtGameItem.SetParent(panel_GameItems.transform);
-        rtGameItem.sizeDelta = (GetComponent<RectTransform>().sizeDelta) * .85f ; 
+        rtGameItem.sizeDelta = containedItemSize;
+        
         rtGameItem.localScale = new Vector3(1, 1, 1);
         containedItem = gameItem.gameObject;
         rtGameItem.SetAsLastSibling();

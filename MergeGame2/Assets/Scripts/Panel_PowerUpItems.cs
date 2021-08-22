@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Panel_PowerUpItems : MonoBehaviour
+public class Panel_PowerUpItems : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
 {
+    private bool isFocused = false;
+    private RectTransform panelBackground;
     private GameObject innerPanelContainer;
     private int slotCount;
     public float slotWidth { get; private set; }
@@ -12,6 +15,7 @@ public class Panel_PowerUpItems : MonoBehaviour
 
     private void Awake()
     {
+        panelBackground = transform.parent.GetChild(this.transform.GetSiblingIndex() - 1).GetComponent<RectTransform>();
         innerPanelContainer = transform.GetChild(0).GetChild(0).gameObject;
     }
 
@@ -61,24 +65,25 @@ public class Panel_PowerUpItems : MonoBehaviour
 
     public void FindSlotsToMoveAndDrop(GameItems gameItemIN)
     {
-        
-        gameItemIN.transform.SetParent(innerPanelContainer.transform,false);
+        Vector3 itemDroppedPosX = innerPanelContainer.transform.InverseTransformPoint(gameItemIN.transform.position);
+
+
+
+        //gameItemIN.transform.SetParent(innerPanelContainer.transform,false);
         //gameItemIN.GetComponent<RectTransform>().anchorMin = slotList[0].Item1.GetComponent<RectTransform>().anchorMin;
         //gameItemIN.GetComponent<RectTransform>().anchorMax = slotList[0].Item1.GetComponent<RectTransform>().anchorMax;
         //gameItemIN.GetComponent<RectTransform>().pivot = slotList[0].Item1.GetComponent<RectTransform>().pivot;
-        float itemDroppedPosX = gameItemIN.GetComponent<RectTransform>().localPosition.x;
-        Debug.Log(itemDroppedPosX);
+        //float itemDroppedPosX = gameItemIN.GetComponent<RectTransform>().localPosition.x;
+        Debug.Log(itemDroppedPosX.x);
         
         for (int i = 0; i < slotList.Count; i++)
         {
-            if(itemDroppedPosX <= slotList[i].Item2)
+            if(itemDroppedPosX .x <= slotList[i].Item2)
             {
                 PowerUpItem_Slots powerupSlots = slotList[i].Item1.GetComponent<PowerUpItem_Slots>();
 
                 if(powerupSlots.isFree)
                 {
-                    Debug.Log(i);
-                    Debug.Log(slotList[i].Item2);
                     for(int x = 0; x < slotList.Count; x++)
                     {
                         Debug.Log("considered free slot");
@@ -92,33 +97,73 @@ public class Panel_PowerUpItems : MonoBehaviour
                 }
                 else
                 {
-                    int index = slotList.IndexOf((slotList[i].Item1, slotList[i].Item2));
+                    //int index = slotList.IndexOf((slotList[i].Item1, slotList[i].Item2));
                     
-                    MoveItemsInsideSlots(index);
-                    powerupSlots.Drop(gameItemIN);
+                    MoveItemsInsideSlots(i, gameItemIN);
+                    //powerupSlots.Drop(gameItemIN);
                 }
+                StartCoroutine(LerpPanelSizeEnum());
                 return;
             }
         }
     }
 
-    void MoveItemsInsideSlots(int indexIN)
+    void MoveItemsInsideSlots(int indexIN, GameItems gameItemIN)
     {
-        Debug.Log("working" + indexIN);
-        Debug.Log(slotList.Count - 1);
-        for (int i = slotList.Count-1; i > indexIN; i--)
+        for (int i = slotList.Count-1; i > indexIN-1; i--)
         {
-            Debug.Log("working" + i);
             PowerUpItem_Slots slot = slotList[i].Item1.GetComponent<PowerUpItem_Slots>();
             if (!slot.isFree)
             {
-                Debug.Log("working"+i);
                 GameItems itemToMove = slot.containedItem.GetComponent<GameItems>();
                 slotList[i + 1].Item1.GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
                 slot.DischargeItem();
                    
-            }         
+            } 
+            if(i == indexIN)
+            {
+                slot.Drop(gameItemIN);
+            }
         }
+    }
+
+    IEnumerator LerpPanelSizeEnum()
+    {
+        Vector2 originalSize = panelBackground.sizeDelta;
+        Vector2 scaleFactor = new Vector2(1.05f, 1.05f);
+        float elapsedTime = 0f;
+        float lerpDuration = .06f;
+        int counter = 0;
+
+        while (counter !=2)
+        {
+            while (elapsedTime < lerpDuration)
+            {
+                panelBackground.sizeDelta = Vector2.Lerp(originalSize, originalSize * scaleFactor, elapsedTime / lerpDuration);
+                elapsedTime += Time.deltaTime;
+
+                yield return null;
+            }
+            Debug.Log("asdad");
+            panelBackground.sizeDelta = originalSize * scaleFactor;
+
+            elapsedTime = 0f;
+            while (elapsedTime < lerpDuration)
+            {
+                panelBackground.sizeDelta = Vector2.Lerp(originalSize * scaleFactor, originalSize, elapsedTime / lerpDuration);
+                elapsedTime += Time.deltaTime;
+
+                yield return null;
+            }
+            panelBackground.sizeDelta = originalSize;
+            counter++;
+            elapsedTime = 0F;
+
+            yield return null;
+        }
+        
+
+
     }
 
     void AddExtraSlots()
@@ -146,6 +191,42 @@ public class Panel_PowerUpItems : MonoBehaviour
             rt.sizeDelta = new Vector2(lastSlotPositionRightEnd, rt.sizeDelta.y);
         }
     }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        isFocused = true;
+        StartCoroutine(CheckPointerPositionEnum());
+        Debug.Log("isfocused");
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        isFocused = false;
+        Debug.Log("isNOTfocused");
+
+    }
+
+    IEnumerator CheckPointerPositionEnum()
+    {
+        while (isFocused)
+        {
+            Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 localPointerPos = innerPanelContainer.transform.InverseTransformPoint(mouseWorldPosition);
+
+            for (int i = 0; i < slotList.Count; i++)
+            {
+                if(localPointerPos.x <= slotList[i].Item2)
+                {
+
+                }
+            }
+
+            yield return null;
+        }
+        
+    }
+
+
 
     //void SetAcceptedItemGenres()
     //{

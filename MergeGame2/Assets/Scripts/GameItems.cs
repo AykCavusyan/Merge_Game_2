@@ -78,6 +78,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     private Vector2 originalSizeDelta;
     public GameObject initialGameSlot;
     public bool isInventoryItem;
+    public bool isInsidePowerUpPanel;
 
     [SerializeField] private int itemLevel;
     [SerializeField] public Item.ItemGenre itemGenre;// get set olarak ayarlanmalý !!!!!
@@ -150,6 +151,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     private void Update()
     {
+
         if (isMoving)
         {
             var results = new List<RaycastResult>();
@@ -273,6 +275,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         }
 
         isMoving = true;
+        GetComponent<Image>().raycastTarget = false;
 
         rectTransform.SetParent(panel_GameItems_Temporary.transform);
         rectTransform.SetAsLastSibling();
@@ -407,6 +410,10 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
+        GetComponent<Image>().raycastTarget = true;
+
+        StopAllCoroutines();
+        cr_Running = false;
         isMoving = false;
         OnEndDragHandler?.Invoke(eventData, false);
 
@@ -415,16 +422,16 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
         GameSlots gameSlot = null;
         ButtonHandler inventoryButton = null;
-        Panel_PowerUpItems producedItemsPanel = null;
+        Panel_PowerUpItems powerUpItemsPanel = null;
         
 
         foreach (var result in results)
         {
             gameSlot = result.gameObject.GetComponent<GameSlots>();
             inventoryButton = result.gameObject.GetComponent<ButtonHandler>();
-            producedItemsPanel = result.gameObject.GetComponent<Panel_PowerUpItems>();
+            powerUpItemsPanel = result.gameObject.GetComponent<Panel_PowerUpItems>();
 
-            if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1 || producedItemsPanel!=null)
+            if (gameSlot != null || inventoryButton != null && inventoryButton.buttonIndex == 1 || powerUpItemsPanel!=null)
             {
                 break;
             }
@@ -515,10 +522,10 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
-        else if (producedItemsPanel != null && isPowerUpItem)
+        else if (powerUpItemsPanel != null && isPowerUpItem)
         {
 
-            foreach ((GameObject,float) slot in producedItemsPanel.slotList)
+            foreach ((GameObject,float) slot in powerUpItemsPanel.slotList)
             {
 
                 if (slot.Item1.GetComponent<PowerUpItem_Slots>().isFree)
@@ -527,7 +534,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                     StopAllCoroutines();
                     rectTransform.sizeDelta = originalSizeDelta; // buna gerek var mý zaten küçültüyoruz bu paneliin üzerindeyken ??
-                    producedItemsPanel.FindSlotsToMoveAndDrop(this);
+                    powerUpItemsPanel.FindSlotsToMoveAndDrop(this);
 
                     //slot.Item1.GetComponent<PowerUpItem_Slots>().Drop(this);
                     cr_Running = false;
@@ -636,7 +643,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if(!isRewardPanelItem && !isInventoryItem)
+        if(!isRewardPanelItem && !isInventoryItem && !isInsidePowerUpPanel)
         OnGameItemClicked?.Invoke(this, new OnGameItemClickedEventArgs { itemType = itemType , goldValue = goldValue});
 
         if(cr_Running==false)StartCoroutine(DownsizeItemOnClick());
@@ -662,6 +669,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             {
                 CollectItem();
             }
+            else if (isSpawner ==true && isInventoryItem==false && isInsidePowerUpPanel == false)
+            {
+                GameObject newGameItem = ItemBag.Instance.GenerateItem(itemGenre);
+                ItemBag.Instance.AddGeneratedItem(newGameItem, this.transform.position);
+            }
 
         }
 
@@ -675,11 +687,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public void OnPointerUp(PointerEventData eventData)
     {
 
-        if (canReactToClick == true && isSpawner == true && isInventoryItem == false)
-        {
-            GameObject newGameItem = ItemBag.Instance.GenerateItem(itemGenre);
-            ItemBag.Instance.AddGeneratedItem(newGameItem, this.transform.position);           
-        }
+        //if (canReactToClick == true && isSpawner == true && isInventoryItem == false)
+        //{
+        //    GameObject newGameItem = ItemBag.Instance.GenerateItem(itemGenre);
+        //    ItemBag.Instance.AddGeneratedItem(newGameItem, this.transform.position);           
+        //}
     }
 
     IEnumerator InputListener()
