@@ -7,7 +7,7 @@ public class PowerUpItem_Slots : MonoBehaviour
 {
     public int slotIDNumber;
     public bool isFree { get; private set; } = true;
-    public GameObject containedItem { get; private set; }
+    public GameObject containedItem { get;  set; }
 
     private float lerpDuration = .15f;
 
