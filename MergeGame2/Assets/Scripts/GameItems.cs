@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,9 +10,11 @@ using UnityEngine.UI;
 public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginDragHandler,IEndDragHandler, IDragHandler, IPointerDownHandler,IPointerUpHandler //,ISaveable
 {
 
+    private bool isLongPress = false;
+
     public event Action<PointerEventData> OnBeginDragHandler;
     public event Action<PointerEventData> OnDragHandler;
-    public event Action<PointerEventData, bool> OnEndDragHandler;
+    public event Action<PointerEventData, bool,bool> OnEndDragHandler;
 
     public event EventHandler<OnPossibleDropEffectsEventArgs> OnPossibleDropEffects;
     public class OnPossibleDropEffectsEventArgs
@@ -152,7 +155,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     private void Update()
     {
-        if(!isRewardPanelItem) Debug.Log(initialGameSlot);
+        if(!isRewardPanelItem);
         if (isMoving)
         {
             var results = new List<RaycastResult>();
@@ -315,6 +318,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         //canvasGroup.alpha = .6f;
         #endregion
     }
+
     public void OnDrag(PointerEventData eventData)
     {
         if (!canDrag)
@@ -377,8 +381,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             yield return null;
         }
         rectTransform.sizeDelta = modifiedSizeDeltaIN;
-
-       cr_Running = false;
+        cr_Running = false;
     }
 
     IEnumerator UpSizeItemOnPanelHoverEnum()
@@ -457,7 +460,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         StopAllCoroutines();
         cr_Running = false;
         isMoving = false;
-        OnEndDragHandler?.Invoke(eventData, false);
+        OnEndDragHandler?.Invoke(eventData, false, false);
 
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
@@ -489,7 +492,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                 gameSlot.Drop(this);
                 Vector3 pointerDropPos = new Vector3(eventData.position.x, eventData.position.y, 0);
 
-                OnEndDragHandler?.Invoke(eventData, true);
+                OnEndDragHandler?.Invoke(eventData, true,false);
 
                 canDrag = true; 
                 return;
@@ -512,7 +515,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
                     gameSlot.Drop(mergedItem); 
 
-                    OnEndDragHandler?.Invoke(eventData, true);
+                    OnEndDragHandler?.Invoke(eventData, true,false);
                     OnMerged?.Invoke(this, new OnMergedEventArgs { mergePos = containedItem.transform.position, sprite = containedItem.GetComponent<Image>().sprite, itemLevel = itemLevel ,mergedItem =mergedItem});
 
                     DestroyItem(this.gameObject);
@@ -526,7 +529,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     initialGameSlot.GetComponent<GameSlots>().Drop(gameSlot.containedItem.GetComponent<GameItems>());
                     gameSlot.Drop(this);
 
-                    OnEndDragHandler?.Invoke(eventData, true);
+                    OnEndDragHandler?.Invoke(eventData, true,false);
                     canDrag = true;
                     return;
                 }
@@ -578,12 +581,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     rectTransform.sizeDelta = originalSizeDelta; // buna gerek var mý zaten küçültüyoruz bu paneliin üzerindeyken ??
                     //powerUpItemsPanel.FindSlotsToMoveAndDrop(this);
 
-                    slot.GetComponent<PowerUpItem_Slots>().Drop(this);
+                    slot.GetComponent<PowerUpItem_Slots>().Drop(this,shakeWholePanel:true);
                     cr_Running = false;
 
                     canDrag = true;
 
-                    OnEndDragHandler?.Invoke(eventData, false);
+                    OnEndDragHandler?.Invoke(eventData, false,true);
 
                     return;
                 }          
@@ -597,9 +600,36 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     void SetItemBack(PointerEventData eventData)
     {
         canDrag = false; Debug.Log("The Item SLot Container is already full or invalid position");
-        if(initialGameSlot.GetComponent<GameSlots>()) initialGameSlot.GetComponent<GameSlots>().Drop(this);
-        else if (initialGameSlot.GetComponent<PowerUpItem_Slots>()) initialGameSlot.GetComponent<PowerUpItem_Slots>().Drop(this);
-        OnEndDragHandler?.Invoke(eventData, false);
+
+        if (initialGameSlot.GetComponent<GameSlots>())
+        {
+            initialGameSlot.GetComponent<GameSlots>().Drop(this);
+            OnEndDragHandler?.Invoke(eventData, false, false);
+        }
+
+        else if (initialGameSlot.GetComponent<PowerUpItem_Slots>())
+        {
+            foreach (GameObject slot in powerUpItemsPanelMain.slotList)
+            {
+                if (slot.GetComponent<PowerUpItem_Slots>().isFree)
+                {
+                    canDrag = false;
+
+                    StopAllCoroutines();
+                    rectTransform.sizeDelta = originalSizeDelta; // buna gerek var mý zaten küçültüyoruz bu paneliin üzerindeyken ??
+                    //powerUpItemsPanel.FindSlotsToMoveAndDrop(this);
+
+                    slot.GetComponent<PowerUpItem_Slots>().Drop(this, shakeWholePanel:true);
+                    cr_Running = false;
+
+                    canDrag = true;
+
+                    OnEndDragHandler?.Invoke(eventData, false, true);
+
+                    return;
+                }
+            }
+        }
         canDrag = true;
     }
 

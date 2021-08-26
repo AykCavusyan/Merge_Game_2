@@ -120,7 +120,7 @@ public class ItemSelector : MonoBehaviour
         } 
     }
 
-    private void ResumeSelectionOnItemRelease(PointerEventData pointerEventData, bool canEnd)
+    private void ResumeSelectionOnItemRelease(PointerEventData pointerEventData, bool canEnd, bool isInsidePowerUpPanel)
     {
         if (canEnd)
         {

@@ -59,7 +59,6 @@ public class Inventory : MonoBehaviour
     public void ConfigPanel(Dictionary<int, object> _itemsDictIN)
     {
         currentSlotAmount = PlayerInfo.Instance.currentInventorySlotAmount;
-        Debug.Log(currentSlotAmount);
 
         if (currentSlotAmount > 0)
         {

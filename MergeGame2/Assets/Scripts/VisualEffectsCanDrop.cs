@@ -75,7 +75,7 @@ public class VisualEffectsCanDrop : MonoBehaviour
         }
     }
 
-    void StopEffectOnEndDrag(PointerEventData pointerevent, bool endBool)
+    void StopEffectOnEndDrag(PointerEventData pointerevent, bool endBool, bool isInsidePowerUpPanel)
     {
         particles.Stop(withChildren:true, stopBehavior: ParticleSystemStopBehavior.StopEmittingAndClear );
         effectType = EffectType.none;

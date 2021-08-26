@@ -8,20 +8,28 @@ public class PowerUpItem_Slots : MonoBehaviour
     public int slotIDNumber;
     public bool isFree { get; private set; } = true;
     public GameObject containedItem { get;  set; }
-
+    private Panel_PowerUpItems panelPowerUpItems;
     private float lerpDuration = .15f;
 
-    public void Drop(GameItems gameItem)
+    private void Awake()
     {
+        panelPowerUpItems = FindObjectOfType<Panel_PowerUpItems>();
+    }
+
+    public void Drop(GameItems gameItem, bool shakeWholePanel = false)
+    {
+        Image gameItemImage = gameItem.GetComponent<Image>();
+
+        gameItemImage.maskable = false;
         gameItem.isInsidePowerUpPanel = true;
         Vector3 itemDropPos = transform.InverseTransformPoint(gameItem.transform.position);
 
-        PlaceItem(gameItem, itemDropPos);
+        PlaceItem(gameItem, itemDropPos,gameItemImage, shakeWholePanel);
         UpdateParentSlot(gameItem);
         isFree = false;
     }
 
-    void PlaceItem(GameItems gameItemIN, Vector2 itemDroppedPosIN)
+    void PlaceItem(GameItems gameItemIN, Vector2 itemDroppedPosIN, Image gameItemImage, bool shakeWholePanel)
     {
         RectTransform rtslot = GetComponent<RectTransform>();
         RectTransform rt = gameItemIN.GetComponent<RectTransform>();
@@ -33,22 +41,25 @@ public class PowerUpItem_Slots : MonoBehaviour
         //rt.anchoredPosition = new Vector3 (0,0,0);
         //gameItemIN.isMoving = false;
         gameItemIN.initialGameSlot = this.gameObject;
-        StartCoroutine(LerpItemPositionEnum(rt, itemDroppedPosIN));
+        StartCoroutine(LerpItemPositionEnum(rt, itemDroppedPosIN,gameItemImage, shakeWholePanel));
     }
 
-    IEnumerator LerpItemPositionEnum(RectTransform rtIN, Vector2 itemDroppedPosIN)
+    IEnumerator LerpItemPositionEnum(RectTransform rtIN, Vector2 itemDroppedPosIN, Image gameItemImage,bool ShakeWholePanel)
     {
         float elapsedTime = 0f;
         Vector3 lerpPosition = new Vector2(0, 0);
         while (elapsedTime < lerpDuration)
-        {
-            
+        {            
             rtIN.anchoredPosition = Vector2.Lerp(itemDroppedPosIN, lerpPosition, elapsedTime / lerpDuration);
             elapsedTime += Time.deltaTime;
 
             yield return null;
         }
+
         rtIN.anchoredPosition = lerpPosition;
+        gameItemImage.maskable = true;
+
+        if (ShakeWholePanel) panelPowerUpItems.SelectContainedItems();
     }
 
     void UpdateParentSlot(GameItems gameItemIN)

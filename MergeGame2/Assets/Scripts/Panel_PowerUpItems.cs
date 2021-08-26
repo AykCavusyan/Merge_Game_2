@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Panel_PowerUpItems : MonoBehaviour
 {
@@ -10,24 +11,32 @@ public class Panel_PowerUpItems : MonoBehaviour
 
     private RectTransform panelBackground;
     private GameObject innerPanelContainer;
+    private RectTransform thisPanel;
     private int slotCount;
     public float slotWidth { get; private set; }
     private float slotWidthAdjustedToParent;
     public List<GameObject> slotList { get; private set; } = new List<GameObject>();
-    private GameObject backupInitialGameSLot = null;
+    //private GameObject backupInitialGameSLot = null;
     public bool isFull { get; private set; } = false;
+    private Text existingItemAmountText;
+    private Text totalItemAmountText;
+    List<(GameItems, Vector2,Vector2)> existingItemsList = new List<(GameItems, Vector2, Vector2)>();
 
     private void Awake()
     {
+        thisPanel = GetComponent<RectTransform>();
         panelBackground = transform.parent.GetChild(this.transform.GetSiblingIndex() - 1).GetComponent<RectTransform>();
         innerPanelContainer = transform.GetChild(0).GetChild(0).gameObject;
+        existingItemAmountText = transform.parent.GetChild(this.transform.GetSiblingIndex() + 1).GetChild(0).GetComponent<Text>();
+        totalItemAmountText = transform.parent.GetChild(this.transform.GetSiblingIndex() + 1).GetChild(2).GetComponent<Text>();
     }
 
     private void Start()
     {
         GetSlotCount();
         InstantiateSlots();
-        //SetAcceptedItemGenres();
+        SetTotalItemAmount();
+        SetExistingItemAmount();
     }
 
     private void Update()
@@ -68,13 +77,32 @@ public class Panel_PowerUpItems : MonoBehaviour
 
     void GetSlotCount()
     {
-        slotCount = 7; // bu daha sonra playerinfordan yapýlacak
+        slotCount = 9; // bu daha sonra playerinfordan yapýlacak
+    }
+
+    private void SetTotalItemAmount()
+    {
+        totalItemAmountText.text = slotCount.ToString();
+    }
+
+    private  void SetExistingItemAmount()
+    {
+        int itemAmount = 0;
+
+        for (int i = 0; i < slotList.Count; i++)
+        {
+            if (!slotList[i].GetComponent<PowerUpItem_Slots>().isFree)
+            {
+                itemAmount++;
+            }         
+        }
+
+        existingItemAmountText.text =  itemAmount.ToString();
     }
 
     void InstantiateSlots()
     {
         slotWidthAdjustedToParent = innerPanelContainer.transform.parent.GetComponent<RectTransform>().sizeDelta.y;
-
         for (int i = 0; i < slotCount; i++)
         {
             GameObject currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "Slot_ProducedItems"));
@@ -108,7 +136,6 @@ public class Panel_PowerUpItems : MonoBehaviour
 
             if(itemCurrentPositionLocal.x > rtSlot.localPosition.x && itemCurrentPositionLocal.x < (rtSlot.localPosition.x + slotWidth))
             {
-                Debug.Log(slot.GetComponent<PowerUpItem_Slots>().slotIDNumber);
 
                 PowerUpItem_Slots scriptSlot = slot.GetComponent<PowerUpItem_Slots>();
 
@@ -123,7 +150,7 @@ public class Panel_PowerUpItems : MonoBehaviour
                             slotList[i].GetComponent<PowerUpItem_Slots>().DischargeItem();
                         }
                     }
-                    backupInitialGameSLot = gameItemIN.initialGameSlot;
+                    //backupInitialGameSLot = gameItemIN.initialGameSlot;
                     gameItemIN.initialGameSlot = slot;
                     gameItemIN.isInsidePowerUpPanel = true;
                 }
@@ -134,50 +161,47 @@ public class Panel_PowerUpItems : MonoBehaviour
 
                     if (scriptSlot.slotIDNumber == ItemSlotID) return;
 
-                    else if (scriptSlot.slotIDNumber > ItemSlotID)
+                    else if (scriptSlot.slotIDNumber > ItemSlotID )
                     {
                         //if(itemCurrentPositionLocal.x > rtSlot.localPosition.x )
                         //{
-                            Debug.Log("moving in positive direction");
 
-                            for (int i = ItemSlotID+1; i < scriptSlot.slotIDNumber+1; i++)
-                            {
-                                GameItems itemToMove = slotList[i].GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
-                                slotList[i - 1].GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
-                                slotList[i].GetComponent<PowerUpItem_Slots>().DischargeItem();
-                            }
+                        for (int i = ItemSlotID + 1; i < scriptSlot.slotIDNumber + 1; i++)
+                        {
+                            GameItems itemToMove = slotList[i].GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
+                            slotList[i - 1].GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
+                            slotList[i].GetComponent<PowerUpItem_Slots>().DischargeItem();
+                        }
 
-                            //GameItems itemToMove =scriptSlot.containedItem.GetComponent<GameItems>();
-                            //gameItemIN.initialGameSlot.GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
-                            //scriptSlot.DischargeItem();
-                            gameItemIN.initialGameSlot = slot;
+                        //GameItems itemToMove =scriptSlot.containedItem.GetComponent<GameItems>();
+                        //gameItemIN.initialGameSlot.GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
+                        //scriptSlot.DischargeItem();
+                        gameItemIN.initialGameSlot = slot;
                         //}
                     }
+
                     else if (scriptSlot.slotIDNumber < ItemSlotID)
                     {
                         //if (itemCurrentPositionLocal.x < rtSlot.localPosition.x )
-                       //{
-                            Debug.Log("moving in negative direction");
+                        //{
 
-                            for (int i = ItemSlotID - 1; i > scriptSlot.slotIDNumber - 1; i--)
-                            {
-                                GameItems itemToMove = slotList[i].GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
-                                slotList[i + 1].GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
-                                slotList[i].GetComponent<PowerUpItem_Slots>().DischargeItem();
-                            }
+                        for (int i = ItemSlotID - 1; i > scriptSlot.slotIDNumber - 1; i--)
+                        {
+                            GameItems itemToMove = slotList[i].GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
+                            slotList[i + 1].GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
+                            slotList[i].GetComponent<PowerUpItem_Slots>().DischargeItem();
+                        }
 
-
-                            //GameItems itemToMove = scriptSlot.containedItem.GetComponent<GameItems>();
-                            //gameItemIN.initialGameSlot.GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
-                            //scriptSlot.DischargeItem();
-                            gameItemIN.initialGameSlot = slot;
-                       // }
+                        //GameItems itemToMove = scriptSlot.containedItem.GetComponent<GameItems>();
+                        //gameItemIN.initialGameSlot.GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
+                        //scriptSlot.DischargeItem();
+                        gameItemIN.initialGameSlot = slot;
+                        // }
                     }
                 }
             }
         }
     }
-
 
     //public void ReceiveItemRayAndEvaluate(GameItems gameItemIN,PowerUpItem_Slots powerUpSlotIN, bool wasOnTheSlot, bool isPointerDirectionPositiveIN, Vector3 previousPositionIN)
     //{
@@ -262,22 +286,25 @@ public class Panel_PowerUpItems : MonoBehaviour
     {
         int initialSlotID = gameItemIN.initialGameSlot.GetComponent<PowerUpItem_Slots>().slotIDNumber;
         gameItemIN.isInsidePowerUpPanel = false;
-        gameItemIN.initialGameSlot = backupInitialGameSLot;
+        //gameItemIN.initialGameSlot = backupInitialGameSLot;
 
         for (int i = initialSlotID+1; i < slotList.Count; i++)
         {           
-            if (slotList[i].GetComponent<PowerUpItem_Slots>().isFree) return;
+            if (slotList[i].GetComponent<PowerUpItem_Slots>().isFree) break;
 
             GameItems itemToMove = slotList[i].GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
             slotList[i-1].GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
             slotList[i].GetComponent<PowerUpItem_Slots>().DischargeItem();         
         }
+        StartCoroutine(ShiftPanelOnResetEnum());
         FullCheck();
     }
-    private void EndDragMethods(PointerEventData pointerEvent, bool endBool)
+    private void EndDragMethods(PointerEventData pointerEvent, bool endBool, bool isInsidePowerUpPanel)
     {
         FullCheck();
-        if(!isFull) StartCoroutine(LerpPanelSizeEnum());
+        SetExistingItemAmount();
+
+        if (!isFull && isInsidePowerUpPanel) StartCoroutine(LerpPanelSizeEnum());
     }
 
     private void FullCheck()
@@ -375,6 +402,93 @@ public class Panel_PowerUpItems : MonoBehaviour
 
     }
         
+    IEnumerator ShiftPanelOnResetEnum()
+    {
+        Vector2 originalLocation = thisPanel.anchoredPosition;
+        float lerpAmout = thisPanel.sizeDelta.x / 93;
+        Vector2 lerpedLocation = new Vector2(originalLocation.x - lerpAmout, originalLocation.y);
+        float lerpDuration = .1f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < lerpDuration)
+        {
+            thisPanel.anchoredPosition = Vector2.Lerp(originalLocation, lerpedLocation, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        thisPanel.anchoredPosition = lerpedLocation;
+        elapsedTime = 0f;
+
+        while (elapsedTime < lerpDuration)
+        {
+            thisPanel.anchoredPosition = Vector2.Lerp(lerpedLocation, originalLocation, elapsedTime / lerpDuration);
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+        thisPanel.anchoredPosition = originalLocation;
+    }
+
+    public void SelectContainedItems()
+    {
+        existingItemsList.Clear();
+
+        foreach (GameObject slot in slotList)
+        {
+            if (slot.GetComponent<PowerUpItem_Slots>().containedItem)
+            {
+                GameItems existingItem = slot.GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
+                Vector2 existingPosition = existingItem.GetComponent<RectTransform>().anchoredPosition;
+                existingItemsList.Add((existingItem, existingPosition, new Vector2(existingPosition.x, Random.Range(existingPosition.y+slotWidth/2, existingPosition.y +slotWidth/ 1))));
+               
+            }
+        }
+        if(existingItemsList.Count>0)  StartCoroutine(ShakeItemsOnPanel(existingItemsList));
+    }
+
+    IEnumerator ShakeItemsOnPanel(List<(GameItems, Vector2, Vector2)> existingItemsListIN) //TEK TEK YOLLA DAA HIZLI OLUR !!!!!!!!!!!!!
+    {
+        Debug.Log("working");
+
+        float elapsedTime = 0f;
+        float lerpDuration = .24f;
+        while (elapsedTime < lerpDuration)
+        {
+            foreach ((GameItems, Vector2,Vector2) item in existingItemsListIN)
+            {
+                item.Item1.GetComponent<Image>().maskable = false;
+                item.Item1.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(item.Item2, item.Item3, elapsedTime / lerpDuration);
+                //yield return null;
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
+        {
+            item.Item1.GetComponent<RectTransform>().anchoredPosition = item.Item3;
+        }
+        //yield return null;
+
+        elapsedTime = 0f;
+        while (elapsedTime < lerpDuration)
+        {
+            foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
+            {
+                item.Item1.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(item.Item3, item.Item2, elapsedTime / lerpDuration);
+                //yield return null;
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
+        {
+            item.Item1.GetComponent<RectTransform>().anchoredPosition = item.Item2;
+            item.Item1.GetComponent<Image>().maskable = true;
+        }
+        yield return null;
+
+    }
 
     void AddExtraSlots()
     {
@@ -401,8 +515,6 @@ public class Panel_PowerUpItems : MonoBehaviour
             rt.sizeDelta = new Vector2(lastSlotPositionRightEnd, rt.sizeDelta.y);
         }
     }
-
-
 
 
 
