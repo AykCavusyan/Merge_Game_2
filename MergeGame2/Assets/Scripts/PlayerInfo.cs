@@ -17,10 +17,12 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     private Button_Claim button_Claim;
     private Button_Action_ItemInfo buttonActionItemInfo;
     private Inventory inventoryScript;
+    private Panel_PowerUpItems panelPowerUpItems;
 
     private Dictionary<InventorySlots, GameItems> inventory = new Dictionary<InventorySlots, GameItems>();
 
     private Dictionary<int, object> _itemsDictToLoad = new Dictionary<int, object>();
+    private Dictionary<int, object> _powerUpItemsDictToLoad = new Dictionary<int, object>();
 
     public List<InventorySlots> emptySlots = new List<InventorySlots>();
 
@@ -35,6 +37,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
     public int XPToNextLevel { get; private set; }
     public int currentLevel { get; private set; }
     public int lastClaimedLevel { get; private set; } = 1;
+    public int powerUpSlotAmount { get; set; } = 9;
     //private GameObject levelBar;
     
     //private MasterEventListener masterEventListener; // bu gerekli mi bakmak lazým
@@ -107,6 +110,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         if (levelPanel) levelPanel.GetComponent<Rewards>().OnListOfRewardLevelToClaimUpdated -= UpdateListOfRewardLevelsToClaim;
         if (button_Claim) button_Claim.OnClaimed -= UpdateLastLevelClaimed;
         if (buttonActionItemInfo) buttonActionItemInfo.OnItemSold -= CalculateCurrentGold;
+        Button_AddPowerUpSlots.onPowerUpSlotBought -= CalculateCurrentGold;
 
         InventorySlots[] inventorySlots = FindObjectsOfType<InventorySlots>(); 
         if (inventorySlots.Length > 0)
@@ -132,7 +136,9 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
             inventoryScript = GameObject.Find("Panel_BackToGame").GetComponent<Inventory>();
             inventoryScript.OnInventorySlotCreated += ListenInventorySlots;
             inventoryScript.ConfigPanel(_itemsDictToLoad);
-            
+
+            panelPowerUpItems = GameObject.Find("Panel_PowerUpItems_FG").GetComponent<Panel_PowerUpItems>();
+            StartCoroutine(panelPowerUpItems.ConfigPanel(_powerUpItemsDictToLoad));
 
             levelPanel = GameObject.Find("Panel_LevelPanel");
             button_Claim = levelPanel.transform.GetChild(4).GetComponent<Button_Claim>();
@@ -144,7 +150,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
             buttonActionItemInfo = GameObject.Find("Panel_ItemInfo_BG").transform.GetChild(4).GetComponent<Button_Action_ItemInfo>();
             buttonActionItemInfo.OnItemSold += CalculateCurrentGold;
 
-            
+            Button_AddPowerUpSlots.onPowerUpSlotBought += CalculateCurrentGold;
         }
     }
 
@@ -198,13 +204,19 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         }
 
     }
-
-    
-    
+  
     void CalculateCurrentGold(object sender, MasterEventListener.OnFinancialEvent e)
     {
         //if (e.itemValue != default(int)) currentGold += e.itemValue;
-        if (e.inventorySlotCost != default(int)) currentGold -= e.inventorySlotCost;
+        if (e.inventorySlotCost != default(int)) 
+        {
+            currentGold -= e.inventorySlotCost;
+        } 
+
+        if (e.powerUpSlotCost != default(int))
+        {
+            currentGold -= e.powerUpSlotCost;           
+        }
         OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
     }
 
@@ -317,6 +329,7 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         _variablesDict.Add("XPToNextLevel", XPToNextLevel);
         _variablesDict.Add("currentInventorySlotAmount", currentInventorySlotAmount);
         _variablesDict.Add("currentLevel", currentLevel);
+        _variablesDict.Add("powerUpSlotAmount", powerUpSlotAmount);
 
         Dictionary<int, object> _itemsDict = new Dictionary<int, object>();
         foreach (KeyValuePair<InventorySlots,GameItems> pair in inventory )
@@ -324,6 +337,18 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
             if (pair.Value!=null) _itemsDict.Add(pair.Key.slotIDNumber, pair.Value.CaptureState());
         }
         _variablesDict.Add("itemsDict", _itemsDict);
+
+
+        Dictionary<int, object> _powerUpItemsDict = new Dictionary<int, object>();
+        foreach (GameObject slot in panelPowerUpItems.slotList)
+        {
+            PowerUpItem_Slots slotScript = slot.GetComponent<PowerUpItem_Slots>();
+            if (slotScript.containedItem != null)
+            {
+                _powerUpItemsDict.Add(slotScript.slotIDNumber, slotScript.CaptureState());
+            }
+        }
+        _variablesDict.Add("_powerUpItemsDict", _powerUpItemsDict);
 
         return _variablesDict;
     }
@@ -338,9 +363,10 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         currentGold = (int)_VariablesDictIN["currentGold"];
         XPToNextLevel = (int)_VariablesDictIN["XPToNextLevel"];
         currentLevel = (int)_VariablesDictIN["currentLevel"];
+        powerUpSlotAmount = (int)_VariablesDictIN["powerUpSlotAmount"];
 
         _itemsDictToLoad = (Dictionary<int, object>)_VariablesDictIN["itemsDict"];
-
+        _powerUpItemsDictToLoad = (Dictionary<int, object>)_VariablesDictIN["_powerUpItemsDict"];
 
     }
 }

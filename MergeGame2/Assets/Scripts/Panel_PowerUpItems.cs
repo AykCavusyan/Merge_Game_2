@@ -7,51 +7,49 @@ using UnityEngine.UI;
 
 public class Panel_PowerUpItems : MonoBehaviour
 {
-    public bool isTemporarlyModified; // bunun çýkmasý gerekebilir belki de gereksiz ?
+    //public bool isTemporarlyModified; // bunun çýkmasý gerekebilir belki de gereksiz ?
 
-    private RectTransform panelBackground;
+    private RectTransform panelBackgroundRect;
     private GameObject innerPanelContainer;
+    private RectTransform innerPanelContainerRect;
     private RectTransform thisPanel;
     private int slotCount;
+    private int currentItemAmount = 0;
     public float slotWidth { get; private set; }
     private float slotWidthAdjustedToParent;
     public List<GameObject> slotList { get; private set; } = new List<GameObject>();
     //private GameObject backupInitialGameSLot = null;
     public bool isFull { get; private set; } = false;
-    private Text existingItemAmountText;
+    //private Text existingItemAmountText;
     private Text totalItemAmountText;
-    List<(GameItems, Vector2,Vector2)> existingItemsList = new List<(GameItems, Vector2, Vector2)>();
+    //List<(GameItems, Vector2,Vector2)> existingItemsList = new List<(GameItems, Vector2, Vector2)>();
+    private NumeratorMovement numeratorScript;
+    private bool isGUISetupComplete = false;
+    //AWAKE ve START METODLARI SCENECONFIG E GÝDEBÝLÝR !!!!!! /////
 
     private void Awake()
     {
         thisPanel = GetComponent<RectTransform>();
-        panelBackground = transform.parent.GetChild(this.transform.GetSiblingIndex() - 1).GetComponent<RectTransform>();
+        panelBackgroundRect = transform.parent.GetChild(this.transform.GetSiblingIndex() - 1).GetComponent<RectTransform>();
         innerPanelContainer = transform.GetChild(0).GetChild(0).gameObject;
-        existingItemAmountText = transform.parent.GetChild(this.transform.GetSiblingIndex() + 1).GetChild(0).GetComponent<Text>();
+        innerPanelContainerRect = innerPanelContainer.GetComponent<RectTransform>();
+        //existingItemAmountText = transform.parent.GetChild(this.transform.GetSiblingIndex() + 1).GetChild(0).GetComponent<Text>();
         totalItemAmountText = transform.parent.GetChild(this.transform.GetSiblingIndex() + 1).GetChild(2).GetComponent<Text>();
+        numeratorScript = transform.parent.GetChild((this.transform.GetSiblingIndex() + 1)).GetComponent<NumeratorMovement>();
     }
 
-    private void Start()
-    {
-        GetSlotCount();
-        InstantiateSlots();
-        SetTotalItemAmount();
-        SetExistingItemAmount();
-    }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.A)) AddExtraSlots();
-    }
 
     private void OnEnable()
     {
+        GUI_PowerUpPanel.onPanelSetupComplete += IsGUISetupComplete;
         ItemBag.Instance.OnGameItemCreated += StartListeningToGameItem;
         MasterEventListener.Instance.OnDestroyedMasterEvent += StoplisteningToGameItem;
     }
 
     private void OnDisable()
     {
+        GUI_PowerUpPanel.onPanelSetupComplete -= IsGUISetupComplete;
         ItemBag.Instance.OnGameItemCreated -= StartListeningToGameItem;
         MasterEventListener.Instance.OnDestroyedMasterEvent -= StoplisteningToGameItem;
 
@@ -65,6 +63,28 @@ public class Panel_PowerUpItems : MonoBehaviour
         }
     }
 
+    private void IsGUISetupComplete()
+    {
+        isGUISetupComplete = true;
+    }
+
+    public IEnumerator ConfigPanel(Dictionary<int,object> _powerUpItemsDictIN)
+    {
+        yield return new WaitUntil(() => isGUISetupComplete == true);
+
+        InýtialSlotconfig(_powerUpItemsDictIN);
+    }
+
+    private void InýtialSlotconfig(Dictionary<int, object> _powerUpItemsDictIN)
+    {
+        GetSlotCount();
+        InstantiateSlots(_powerUpItemsDictIN);
+        SetTotalItemAmount();
+        SetExistingItemAmount();
+    }
+
+    
+
     private void StartListeningToGameItem(object sender, ItemBag.OnGameItemCreatedEventArgs e)
     {
         e.gameItem.OnEndDragHandler += EndDragMethods;
@@ -77,7 +97,12 @@ public class Panel_PowerUpItems : MonoBehaviour
 
     void GetSlotCount()
     {
-        slotCount = 9; // bu daha sonra playerinfordan yapýlacak
+        slotCount = PlayerInfo.Instance.powerUpSlotAmount;
+    }
+
+    void ReCalculateSlotCount()
+    {
+        PlayerInfo.Instance.powerUpSlotAmount = slotList.Count;
     }
 
     private void SetTotalItemAmount()
@@ -96,11 +121,16 @@ public class Panel_PowerUpItems : MonoBehaviour
                 itemAmount++;
             }         
         }
+        
+        numeratorScript.SetTextsAndMove(currentItemAmount, itemAmount);
 
-        existingItemAmountText.text =  itemAmount.ToString();
+        currentItemAmount = itemAmount;
+
+        //existingItemAmountText.text =  itemAmount.ToString();
     }
 
-    void InstantiateSlots()
+
+    private void InstantiateSlots(Dictionary<int, object> _powerUpItemsDictIN)
     {
         slotWidthAdjustedToParent = innerPanelContainer.transform.parent.GetComponent<RectTransform>().sizeDelta.y;
         for (int i = 0; i < slotCount; i++)
@@ -108,7 +138,7 @@ public class Panel_PowerUpItems : MonoBehaviour
             GameObject currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "Slot_ProducedItems"));
             RectTransform rt = currentNewSlot.GetComponent<RectTransform>();
             currentNewSlot.transform.SetParent(innerPanelContainer.transform, false);
-            rt.sizeDelta = new Vector2(slotWidthAdjustedToParent * .75f, slotWidthAdjustedToParent * .75f);
+            rt.sizeDelta = new Vector2(slotWidthAdjustedToParent *.9f, slotWidthAdjustedToParent * .75f);
             
 
             if (i == 0)
@@ -121,10 +151,39 @@ public class Panel_PowerUpItems : MonoBehaviour
             slotList.Add(currentNewSlot);
 
             currentNewSlot.GetComponent<PowerUpItem_Slots>().slotIDNumber = i;
+
+            if (_powerUpItemsDictIN.ContainsKey(i))
+            {
+                currentNewSlot.GetComponent<PowerUpItem_Slots>().RestoreState(_powerUpItemsDictIN[i]);
+            }
+
+
         }
 
         ResetInnerPanelWidth();
     }
+
+    public void AddExtraSlots()
+    {
+        GameObject currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "Slot_ProducedItems"));
+        RectTransform rt = currentNewSlot.GetComponent<RectTransform>();
+        currentNewSlot.transform.SetParent(innerPanelContainer.transform, false);
+        rt.sizeDelta = new Vector2(slotWidthAdjustedToParent * .75f, slotWidthAdjustedToParent * .75f);
+
+        Vector2 slotPosition = new Vector3(slotList.Count * (slotWidth), 0);
+        rt.anchoredPosition = slotPosition;
+        slotList.Add(currentNewSlot);
+
+        currentNewSlot.GetComponent<PowerUpItem_Slots>().slotIDNumber = slotList.Count - 1;
+
+        ResetInnerPanelWidth();
+
+        ReCalculateSlotCount();
+        GetSlotCount();
+        SetTotalItemAmount();
+    }
+
+
     public void ReceivePositionAndEvaluate(GameItems gameItemIN)
     {
         Vector3 itemCurrentPositionLocal = innerPanelContainer.transform.InverseTransformPoint(gameItemIN.transform.position);
@@ -296,8 +355,10 @@ public class Panel_PowerUpItems : MonoBehaviour
             slotList[i-1].GetComponent<PowerUpItem_Slots>().Drop(itemToMove);
             slotList[i].GetComponent<PowerUpItem_Slots>().DischargeItem();         
         }
+
         StartCoroutine(ShiftPanelOnResetEnum());
         FullCheck();
+        SetExistingItemAmount();
     }
     private void EndDragMethods(PointerEventData pointerEvent, bool endBool, bool isInsidePowerUpPanel)
     {
@@ -375,136 +436,142 @@ public class Panel_PowerUpItems : MonoBehaviour
 
     IEnumerator LerpPanelSizeEnum()
     {
-        Vector2 originalSize = panelBackground.sizeDelta;
+        Vector2 originalSizeBGPanel = panelBackgroundRect.sizeDelta;
+        Vector2 originalSizeInnerPanel = innerPanelContainerRect.sizeDelta;
         Vector2 scaleFactor = new Vector2(1.05f, 1.05f);
         float elapsedTime = 0f;
         float lerpDuration = .1f;
+        int counter = 0;
 
-      
-        while (elapsedTime < lerpDuration)
+        while (counter < 1)
         {
-            panelBackground.sizeDelta = Vector2.Lerp(originalSize, originalSize * scaleFactor, elapsedTime / lerpDuration);
-            elapsedTime += Time.deltaTime;
-            
-            yield return null;
-        }
-        panelBackground.sizeDelta = originalSize * scaleFactor;
+            while (elapsedTime < lerpDuration)
+            {
+                panelBackgroundRect.sizeDelta = Vector2.Lerp(originalSizeBGPanel, originalSizeBGPanel * scaleFactor, elapsedTime / lerpDuration);
+                innerPanelContainerRect.sizeDelta = Vector2.Lerp(originalSizeInnerPanel, originalSizeInnerPanel * scaleFactor, elapsedTime / lerpDuration);
+                elapsedTime += Time.deltaTime;
 
-        elapsedTime = 0f;
-        while (elapsedTime < lerpDuration)
-        {
-            panelBackground.sizeDelta = Vector2.Lerp(originalSize * scaleFactor, originalSize, elapsedTime / lerpDuration);
-            elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            panelBackgroundRect.sizeDelta = originalSizeBGPanel * scaleFactor;
+            innerPanelContainerRect.sizeDelta = originalSizeInnerPanel * scaleFactor;
 
-            yield return null;
-        }
-        panelBackground.sizeDelta = originalSize;
+            elapsedTime = 0f;
+            while (elapsedTime < lerpDuration)
+            {
+                panelBackgroundRect.sizeDelta = Vector2.Lerp(originalSizeBGPanel * scaleFactor, originalSizeBGPanel, elapsedTime / lerpDuration);
+                innerPanelContainerRect.sizeDelta = Vector2.Lerp(originalSizeInnerPanel * scaleFactor, originalSizeInnerPanel, elapsedTime / lerpDuration);
+                elapsedTime += Time.deltaTime;
 
+                yield return null;
+            }
+            panelBackgroundRect.sizeDelta = originalSizeBGPanel;
+            innerPanelContainerRect.sizeDelta = originalSizeInnerPanel;
+
+            elapsedTime = 0f;
+            counter++;
+            lerpDuration /= 2;
+        }       
     }
         
     IEnumerator ShiftPanelOnResetEnum()
     {
         Vector2 originalLocation = thisPanel.anchoredPosition;
-        float lerpAmout = thisPanel.sizeDelta.x / 93;
+        float lerpAmout = thisPanel.sizeDelta.x / 90;
         Vector2 lerpedLocation = new Vector2(originalLocation.x - lerpAmout, originalLocation.y);
         float lerpDuration = .1f;
         float elapsedTime = 0f;
+        int counter = 0;
 
-        while (elapsedTime < lerpDuration)
+        while (counter < 1)
         {
-            thisPanel.anchoredPosition = Vector2.Lerp(originalLocation, lerpedLocation, elapsedTime / lerpDuration);
-            elapsedTime += Time.deltaTime;
+            while (elapsedTime < lerpDuration)
+            {
+                thisPanel.anchoredPosition = Vector2.Lerp(originalLocation, lerpedLocation, elapsedTime / lerpDuration);
+                elapsedTime += Time.deltaTime;
 
-            yield return null;
-        }
-        thisPanel.anchoredPosition = lerpedLocation;
-        elapsedTime = 0f;
+                yield return null;
+            }
+            thisPanel.anchoredPosition = lerpedLocation;
+            elapsedTime = 0f;
 
-        while (elapsedTime < lerpDuration)
-        {
-            thisPanel.anchoredPosition = Vector2.Lerp(lerpedLocation, originalLocation, elapsedTime / lerpDuration);
-            elapsedTime += Time.deltaTime;
+            while (elapsedTime < lerpDuration)
+            {
+                thisPanel.anchoredPosition = Vector2.Lerp(lerpedLocation, originalLocation, elapsedTime / lerpDuration);
+                elapsedTime += Time.deltaTime;
 
-            yield return null;
-        }
-        thisPanel.anchoredPosition = originalLocation;
+                yield return null;
+            }
+            thisPanel.anchoredPosition = originalLocation;
+            elapsedTime = 0f;
+            counter++;
+            lerpDuration /= 2;
+        } 
+
+       
     }
 
-    public void SelectContainedItems()
-    {
-        existingItemsList.Clear();
+    //public void SelectContainedItems()
+    //{
+    //    existingItemsList.Clear();
 
-        foreach (GameObject slot in slotList)
-        {
-            if (slot.GetComponent<PowerUpItem_Slots>().containedItem)
-            {
-                GameItems existingItem = slot.GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
-                Vector2 existingPosition = existingItem.GetComponent<RectTransform>().anchoredPosition;
-                existingItemsList.Add((existingItem, existingPosition, new Vector2(existingPosition.x, Random.Range(existingPosition.y+slotWidth/2, existingPosition.y +slotWidth/ 1))));
+    //    foreach (GameObject slot in slotList)
+    //    {
+    //        if (slot.GetComponent<PowerUpItem_Slots>().containedItem)
+    //        {
+    //            GameItems existingItem = slot.GetComponent<PowerUpItem_Slots>().containedItem.GetComponent<GameItems>();
+    //            Vector2 existingPosition = existingItem.GetComponent<RectTransform>().anchoredPosition;
+    //            existingItemsList.Add((existingItem, existingPosition, new Vector2(existingPosition.x, Random.Range(existingPosition.y+slotWidth/2, existingPosition.y +slotWidth/ 1))));
                
-            }
-        }
-        if(existingItemsList.Count>0)  StartCoroutine(ShakeItemsOnPanel(existingItemsList));
-    }
+    //        }
+    //    }
+    //    if(existingItemsList.Count>0)  StartCoroutine(ShakeItemsOnPanel(existingItemsList));
+    //}
 
-    IEnumerator ShakeItemsOnPanel(List<(GameItems, Vector2, Vector2)> existingItemsListIN) //TEK TEK YOLLA DAA HIZLI OLUR !!!!!!!!!!!!!
-    {
-        Debug.Log("working");
+    //IEnumerator ShakeItemsOnPanel(List<(GameItems, Vector2, Vector2)> existingItemsListIN) //TEK TEK YOLLA DAA HIZLI OLUR !!!!!!!!!!!!!
+    //{
+    //    Debug.Log("working");
 
-        float elapsedTime = 0f;
-        float lerpDuration = .24f;
-        while (elapsedTime < lerpDuration)
-        {
-            foreach ((GameItems, Vector2,Vector2) item in existingItemsListIN)
-            {
-                item.Item1.GetComponent<Image>().maskable = false;
-                item.Item1.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(item.Item2, item.Item3, elapsedTime / lerpDuration);
-                //yield return null;
-            }
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
-        {
-            item.Item1.GetComponent<RectTransform>().anchoredPosition = item.Item3;
-        }
-        //yield return null;
+    //    float elapsedTime = 0f;
+    //    float lerpDuration = .24f;
+    //    while (elapsedTime < lerpDuration)
+    //    {
+    //        foreach ((GameItems, Vector2,Vector2) item in existingItemsListIN)
+    //        {
+    //            item.Item1.GetComponent<Image>().maskable = false;
+    //            item.Item1.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(item.Item2, item.Item3, elapsedTime / lerpDuration);
+    //            //yield return null;
+    //        }
+    //        elapsedTime += Time.deltaTime;
+    //        yield return null;
+    //    }
+    //    foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
+    //    {
+    //        item.Item1.GetComponent<RectTransform>().anchoredPosition = item.Item3;
+    //    }
+    //    //yield return null;
 
-        elapsedTime = 0f;
-        while (elapsedTime < lerpDuration)
-        {
-            foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
-            {
-                item.Item1.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(item.Item3, item.Item2, elapsedTime / lerpDuration);
-                //yield return null;
-            }
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
-        {
-            item.Item1.GetComponent<RectTransform>().anchoredPosition = item.Item2;
-            item.Item1.GetComponent<Image>().maskable = true;
-        }
-        yield return null;
+    //    elapsedTime = 0f;
+    //    while (elapsedTime < lerpDuration)
+    //    {
+    //        foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
+    //        {
+    //            item.Item1.GetComponent<RectTransform>().anchoredPosition = Vector2.Lerp(item.Item3, item.Item2, elapsedTime / lerpDuration);
+    //            //yield return null;
+    //        }
+    //        elapsedTime += Time.deltaTime;
+    //        yield return null;
+    //    }
+    //    foreach ((GameItems, Vector2, Vector2) item in existingItemsListIN)
+    //    {
+    //        item.Item1.GetComponent<RectTransform>().anchoredPosition = item.Item2;
+    //        item.Item1.GetComponent<Image>().maskable = true;
+    //    }
+    //    yield return null;
 
-    }
+    //}
 
-    void AddExtraSlots()
-    {
-        GameObject currentNewSlot = Instantiate(Resources.Load<GameObject>("Prefabs/" + "Slot_ProducedItems"));
-        RectTransform rt = currentNewSlot.GetComponent<RectTransform>();
-        currentNewSlot.transform.SetParent(innerPanelContainer.transform, false);
-        rt.sizeDelta = new Vector2(slotWidthAdjustedToParent * .75f, slotWidthAdjustedToParent * .75f);
 
-        Vector2 slotPosition = new Vector3(slotList.Count * (slotWidth), 0);
-        rt.anchoredPosition = slotPosition;
-        slotList.Add(currentNewSlot);
-
-        currentNewSlot.GetComponent<PowerUpItem_Slots>().slotIDNumber = slotList.Count-1;
-
-        ResetInnerPanelWidth();
-    }
 
     void ResetInnerPanelWidth()
     {

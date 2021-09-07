@@ -31,7 +31,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
     public class OnQuestAddRemoveEventArgs
     {
         public Quest quest;
-        public Item.ItemType itemType;
+        public Item.ItemType itemType = Item.ItemType.None;
         public Button_CompleteQuest button_CompleteQuest;
     }
     public event EventHandler<AddRemoveQuestItemEventArgs> OnQuestItemNoMore;
@@ -44,7 +44,8 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
     private void Awake()
     {
-        if(_instance != null && _instance != this)
+
+        if (_instance != null && _instance != this)
         {
             Destroy(this.gameObject);
         }
@@ -89,6 +90,8 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
     }
 
 
+
+
     private void OnDisable()
     {
         ItemBag.Instance.OnGameItemCreated -= AddPresentGameItemsList;
@@ -115,6 +118,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
 
     void GenerateNewQuest(int zoneNumber, int taskNumber)
     {
+
         newQuest = new Quest(zoneNumber, taskNumber);
         _activeQuests.Add(newQuest);
         CheckAndFlagExistingItems(newQuest);
@@ -122,7 +126,9 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
         Button_CompleteQuest button_CompleteQuest = newParentQuestContainer.transform.GetChild(3).GetChild(1).GetComponent<Button_CompleteQuest>();
         button_CompleteQuest.OnQuestCompleted += CompleteQuest;
 
-        OnQuestAdded?.Invoke(this, new OnQuestAddRemoveEventArgs { button_CompleteQuest = button_CompleteQuest });
+        OnQuestAddRemoveEventArgs args = new OnQuestAddRemoveEventArgs { button_CompleteQuest = button_CompleteQuest } ;
+        OnQuestAdded?.Invoke(this, args);
+        Debug.Log(args.itemType);
     }
 
     void AddPresentGameItemsList(object  sender, ItemBag.OnGameItemCreatedEventArgs e)
@@ -180,6 +186,7 @@ public class QuestManager : MonoBehaviour , ISaveable, IInitializerScript
     {
         foreach (Item questItem in newQuest.itemsNeeded)
         {
+            Debug.Log(questItem.itemType);
             OnQuestAdded?.Invoke(this, new OnQuestAddRemoveEventArgs { itemType = questItem.itemType });
             _activeQuestItemsList.Add(questItem.itemType);
         }

@@ -97,18 +97,23 @@ public class ItemSelector : MonoBehaviour
 
         GameItems gameItemToSelect = (GameItems)sender;
 
+        if (selectedItem == null || gameItemToSelect.initialGameSlot != selectedItem.initialGameSlot)
         {
-            if (selectedItem == null || gameItemToSelect.initialGameSlot != selectedItem.initialGameSlot)
+            if (!gameItemToSelect.isInsidePowerUpPanel)
             {
                 selectedItem = gameItemToSelect;
                 selectionSquare.transform.SetParent(gameItemToSelect.initialGameSlot.transform);
                 selectionSquare.transform.position = gameItemToSelect.initialGameSlot.transform.position;
                 selectionSquare.SetActive(true);
-
-                OnGameItemSelected?.Invoke(gameItemToSelect, new OnGameItemSelectedEventArgs { itemType = gameItemToSelect.itemType, goldValue = gameItemToSelect.goldValue });
-
             }
+            else
+            {
+                selectedItem = gameItemToSelect;
+            }
+
+            OnGameItemSelected?.Invoke(gameItemToSelect, new OnGameItemSelectedEventArgs { itemType = gameItemToSelect.itemType, goldValue = gameItemToSelect.goldValue });
         }
+        
     }
 
     private void DisableSelectionForDestroyedItem(object sender, GameItems.OnItemDestroyedEventArgs e )

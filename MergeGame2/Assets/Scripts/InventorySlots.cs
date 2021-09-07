@@ -248,12 +248,17 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     {
         Dictionary<string, object> _dictFromItemIn = (Dictionary<string, object>)state;
 
-        GameObject gameItemToLoad = new GameObject();
+        GameObject gameItemToLoad = ItemBag.Instance.GenerateItem(_dictFromItemIn);
         gameItemToLoad.transform.SetParent(slot_Item_Holder.transform);
-
-        Debug.Log("restorestate of inventory slots working!!");
-
-        gameItemToLoad.AddComponent<GameItems>().RestoreState(_dictFromItemIn);
         Drop(gameItemToLoad.GetComponent<GameItems>());
+
+
+        //GameObject gameItemToLoad = new GameObject();
+        //gameItemToLoad.transform.SetParent(slot_Item_Holder.transform);
+
+        //Debug.Log("restorestate of inventory slots working!!");
+
+        //gameItemToLoad.AddComponent<GameItems>().RestoreState(_dictFromItemIn);
+        //Drop(gameItemToLoad.GetComponent<GameItems>());
     }
 }

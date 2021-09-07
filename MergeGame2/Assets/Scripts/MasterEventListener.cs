@@ -25,6 +25,7 @@ public sealed class MasterEventListener : MonoBehaviour
         public InventorySlots inventorySlot;
         public int inventorySlotCost;
         public int itemValue;
+        public int powerUpSlotCost;
     }
 
     #region

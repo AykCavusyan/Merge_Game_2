@@ -213,6 +213,7 @@ public class Item
 
     public enum ItemType
     {
+        None,
         Chest_1,
         Chest_2,
         Chest_3,

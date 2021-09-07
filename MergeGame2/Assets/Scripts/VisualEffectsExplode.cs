@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class VisualEffectsExplode : MonoBehaviour
 {
-    private bool isActive = true;
-    private float coolDownTimer;
     private ParticleSystem particles;
 
 
@@ -19,7 +17,6 @@ public class VisualEffectsExplode : MonoBehaviour
 
     public void DoEmit(Vector3 explodePosition)
     {
-        Debug.Log("explodeeffect");
         particles.transform.position = explodePosition;
         particles.Emit(35);
     }

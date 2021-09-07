@@ -104,7 +104,7 @@ public class Rewards : MonoBehaviour
     {
         slotIDNumber = 0;
         currentLevelToClaim = rewardsDict.Keys.Min();
-        Debug.Log(currentLevelToClaim);
+        //Debug.Log(currentLevelToClaim);
        // for (int i = 0; i < rewardsList[0].Count; i++)
         for (int i = 0; i < rewardsDict[currentLevelToClaim].Count; i++)
         {

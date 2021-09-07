@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
@@ -34,7 +35,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     public class OnGameItemClickedEventArgs
     {
         public Item.ItemType itemType;
-        public int goldValue;
+        public int goldValue;       
     }
 
     public event EventHandler<OnItemDestroyedEventArgs> OnItemDestroyed;
@@ -150,12 +151,13 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     private void Start()
     {
         rectTransform.localScale = new Vector3(1, 1, 1);
-        originalSizeDelta = rectTransform.sizeDelta;
+        originalSizeDelta = GameObject.FindObjectOfType<GameSlots>().containedItemSize;
     }
 
     private void Update()
     {
-        if(!isRewardPanelItem);
+       // if(!isRewardPanelItem);
+
         if (isMoving)
         {
             var results = new List<RaycastResult>();
@@ -252,11 +254,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
     }
 
 
-    public  void SetCheckMark(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
+    public void SetCheckMark(object sender, QuestManager.OnQuestAddRemoveEventArgs e)
     {
 
         if(isQuestItem!=true && isRewardPanelItem ==false && itemType == e.itemType)
         {
+            UnityEngine.Debug.Log(sender);
             isQuestItem = true;
             checkMark.enabled = true;
         }
@@ -282,6 +285,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
         {
             return;
         }
+
 
         isMoving = true;
         GetComponent<Image>().raycastTarget = false;
@@ -326,13 +330,11 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
             return;
         }
 
-        OnDragHandler?.Invoke(eventData);
-
         if (followCursor)
         {
             rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
         }
-
+        OnDragHandler?.Invoke(eventData);
         /*
         if (isPowerUpItem)
         {
@@ -581,12 +583,12 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     rectTransform.sizeDelta = originalSizeDelta; // buna gerek var mý zaten küçültüyoruz bu paneliin üzerindeyken ??
                     //powerUpItemsPanel.FindSlotsToMoveAndDrop(this);
 
-                    slot.GetComponent<PowerUpItem_Slots>().Drop(this,shakeWholePanel:true);
+                    slot.GetComponent<PowerUpItem_Slots>().Drop(this);
                     cr_Running = false;
 
                     canDrag = true;
 
-                    OnEndDragHandler?.Invoke(eventData, false,true);
+                    OnEndDragHandler?.Invoke(eventData, false, true);
 
                     return;
                 }          
@@ -599,7 +601,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     void SetItemBack(PointerEventData eventData)
     {
-        canDrag = false; Debug.Log("The Item SLot Container is already full or invalid position");
+        canDrag = false; UnityEngine.Debug.Log("The Item SLot Container is already full or invalid position");
 
         if (initialGameSlot.GetComponent<GameSlots>())
         {
@@ -619,7 +621,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
                     rectTransform.sizeDelta = originalSizeDelta; // buna gerek var mý zaten küçültüyoruz bu paneliin üzerindeyken ??
                     //powerUpItemsPanel.FindSlotsToMoveAndDrop(this);
 
-                    slot.GetComponent<PowerUpItem_Slots>().Drop(this, shakeWholePanel:true);
+                    slot.GetComponent<PowerUpItem_Slots>().Drop(this);
                     cr_Running = false;
 
                     canDrag = true;
@@ -717,7 +719,7 @@ public class GameItems : MonoBehaviour, IInitializePotentialDragHandler, IBeginD
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if(!isRewardPanelItem && !isInventoryItem && !isInsidePowerUpPanel)
+        if(!isRewardPanelItem && !isInventoryItem )
         OnGameItemClicked?.Invoke(this, new OnGameItemClickedEventArgs { itemType = itemType , goldValue = goldValue});
 
         if(cr_Running==false)StartCoroutine(DownsizeItemOnClick());

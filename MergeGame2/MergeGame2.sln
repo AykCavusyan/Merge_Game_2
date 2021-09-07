@@ -49,8 +49,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.TextMeshPro.Editor", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.2D.Animation.Editor", "Unity.2D.Animation.Editor.csproj", "{4F518DC0-44CB-EB13-22D6-B039C5FEABAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.CollabProxy.Editor", "Unity.CollabProxy.Editor.csproj", "{B896486A-0C77-E655-0362-1251F1605CBB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEditor.TestRunner", "UnityEditor.TestRunner.csproj", "{1ECF1CEE-0164-A330-9D05-8BDD41FCCBBC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.Rider.Editor", "Unity.Rider.Editor.csproj", "{A35132BC-E9F3-7B8B-85AC-DE7575BA790E}"
@@ -237,10 +235,6 @@ Global
 		{4F518DC0-44CB-EB13-22D6-B039C5FEABAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F518DC0-44CB-EB13-22D6-B039C5FEABAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F518DC0-44CB-EB13-22D6-B039C5FEABAC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B896486A-0C77-E655-0362-1251F1605CBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B896486A-0C77-E655-0362-1251F1605CBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B896486A-0C77-E655-0362-1251F1605CBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B896486A-0C77-E655-0362-1251F1605CBB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1ECF1CEE-0164-A330-9D05-8BDD41FCCBBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1ECF1CEE-0164-A330-9D05-8BDD41FCCBBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1ECF1CEE-0164-A330-9D05-8BDD41FCCBBC}.Release|Any CPU.ActiveCfg = Release|Any CPU

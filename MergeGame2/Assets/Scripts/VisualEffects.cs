@@ -71,4 +71,10 @@ public class VisualEffects : MonoBehaviour
     }
 
    
+    public void UpperButtonAnimation(Vector3 positionIN, Sprite spriteIN)
+    {
+        particles.transform.position = positionIN;
+        particles.textureSheetAnimation.SetSprite(0, spriteIN);
+        particles.Play();
+    }
 }

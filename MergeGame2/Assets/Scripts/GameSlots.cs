@@ -10,7 +10,7 @@ public class GameSlots : MonoBehaviour, ISaveable
 {
     private GameObject panel_GameItems;
     public GameObject panel_Gameslots { get; private set; }
-    private Vector2 containedItemSize;
+    public  Vector2 containedItemSize { get; private set; }
     private RectTransform rt;
     private Transform crossMark;
     public List<DropConditions> dropConditions = new List<DropConditions>();
