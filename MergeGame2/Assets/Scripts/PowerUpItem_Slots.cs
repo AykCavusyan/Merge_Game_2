@@ -12,8 +12,7 @@ public class PowerUpItem_Slots : MonoBehaviour , ISaveable
     public GameObject containedItem { get;  set; }
     //private Panel_PowerUpItems panelPowerUpItems;
     private float lerpDuration = .15f;
-    private static Coroutine longPressDetect_CR;
-    private bool isLongPressed =false;
+ 
 
     //public static Action<PointerEventData> onPowerUpItemLongClicked;
 

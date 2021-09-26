@@ -11,7 +11,7 @@ public class Button_Action_ItemInfo : MonoBehaviour ,IPointerDownHandler
     private Text actionText;
     private ItemSelector itemSelector;
 
-    public event EventHandler<MasterEventListener.OnFinancialEvent> OnItemSold;
+    public event EventHandler<MasterEventListener.OnFinancialEventArgs> OnItemSold;
 
     private void Awake()
     {

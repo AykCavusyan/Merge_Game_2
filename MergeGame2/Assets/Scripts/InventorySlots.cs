@@ -29,7 +29,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
     Vector3 lerpedSize;
     Vector3 originalSize;
 
-    public event EventHandler <MasterEventListener.OnFinancialEvent> OnSlotPurchased;
+    public event EventHandler <MasterEventListener.OnFinancialEventArgs> OnSlotPurchased;
     public event EventHandler<onInventoryItemModificationEventArgs> onInventoryPlacedItem;
     public event EventHandler<onInventoryItemModificationEventArgs> onInventoryRemovedItem;
     public class onInventoryItemModificationEventArgs
@@ -228,7 +228,7 @@ public class InventorySlots : MonoBehaviour, IPointerDownHandler,IPointerUpHandl
 
     void ActivateSlot()
     {
-        OnSlotPurchased?.Invoke(this, new MasterEventListener.OnFinancialEvent { inventorySlot = this, inventorySlotCost = slotActivateCost });// slot = this, slotActivateCost = slotActivateCost }); //this.gameObject);
+        OnSlotPurchased?.Invoke(this, new MasterEventListener.OnFinancialEventArgs { inventorySlot = this, inventorySlotCost = slotActivateCost });// slot = this, slotActivateCost = slotActivateCost }); //this.gameObject);
     }
 
 

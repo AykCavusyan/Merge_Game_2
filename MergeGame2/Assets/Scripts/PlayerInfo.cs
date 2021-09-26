@@ -54,6 +54,11 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
     public event Action<EventArgs> OnCurrentGoldChanged;
 
+    public event EventHandler<MasterEventListener.OnPopupTextEventArgs> OnPopupTextDisplay;
+    private GameObject levelBar;
+    private GameObject goldBar;
+    private GameObject energyBar;
+    private GameObject gemBar;
 
     //public int  GetInitializeOrder()
     //{
@@ -151,6 +156,11 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
             buttonActionItemInfo.OnItemSold += CalculateCurrentGold;
 
             Button_AddPowerUpSlots.onPowerUpSlotBought += CalculateCurrentGold;
+
+            levelBar = GameObject.Find("Level_Bar_BackgroundHolder") ;
+            goldBar = GameObject.Find("Gold_Bar_BackgroundHolder");
+            energyBar = GameObject.Find("Energy_Bar_BackgroundHolder");
+            gemBar = GameObject.Find("Gem_Bar_BackgroundHolder");
         }
     }
 
@@ -205,19 +215,23 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
     }
   
-    void CalculateCurrentGold(object sender, MasterEventListener.OnFinancialEvent e)
+    void CalculateCurrentGold(object sender, MasterEventListener.OnFinancialEventArgs e)
     {
         //if (e.itemValue != default(int)) currentGold += e.itemValue;
         if (e.inventorySlotCost != default(int)) 
         {
             currentGold -= e.inventorySlotCost;
+            OnPopupTextDisplay?.Invoke(this, new MasterEventListener.OnPopupTextEventArgs { amount = (e.inventorySlotCost)*-1, travelDirection = -1, originalPosition = goldBar.transform.position });
         } 
 
         if (e.powerUpSlotCost != default(int))
         {
-            currentGold -= e.powerUpSlotCost;           
+            currentGold -= e.powerUpSlotCost;
+            OnPopupTextDisplay?.Invoke(this, new MasterEventListener.OnPopupTextEventArgs { amount = (e.powerUpSlotCost)*-1, travelDirection = -1, originalPosition = goldBar.transform.position });
         }
         OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
+        
+
     }
 
 
@@ -226,11 +240,13 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         if(e.xpValue != default(int))
         {
             currentXP += e.xpValue;
+            OnPopupTextDisplay?.Invoke(this, new MasterEventListener.OnPopupTextEventArgs { amount = e.xpValue, travelDirection = -1, originalPosition = levelBar.transform.position });
             UpdateXpPoints();
         }
         if(e.goldValue != default(int))
         {
             currentGold += e.goldValue;
+            OnPopupTextDisplay?.Invoke(this, new MasterEventListener.OnPopupTextEventArgs { amount = e.goldValue, travelDirection = -1, originalPosition = goldBar.transform.position });
             OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
         }
     }
@@ -240,11 +256,13 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
         if(e.quest.questXPReward != default(int))
         {
             currentXP += e.quest.questXPReward;
+            OnPopupTextDisplay?.Invoke(this, new MasterEventListener.OnPopupTextEventArgs { amount = e.quest.questXPReward, travelDirection = -1 , originalPosition = levelBar.transform.position});
             UpdateXpPoints();
         }
         if(e.quest.questGoldReward != default(int))
         {
             currentGold += e.quest.questGoldReward;
+            OnPopupTextDisplay?.Invoke(this, new MasterEventListener.OnPopupTextEventArgs { amount = e.quest.questGoldReward, travelDirection = -1, originalPosition = goldBar.transform.position });
             OnCurrentGoldChanged?.Invoke(EventArgs.Empty);
         }
     }
@@ -257,8 +275,8 @@ public sealed class PlayerInfo : MonoBehaviour , ISaveable, IInitializerScript
 
     void UpdateXpPoints()
     {
-        //currentXP += e.xpValue;
-      
+        //currentXP += e.xpValue; 
+
         while (currentXP >= XPToNextLevel)
         {
 

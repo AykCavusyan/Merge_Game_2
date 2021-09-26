@@ -131,7 +131,7 @@ public class Inventory : MonoBehaviour
 
  
 
-    void PurchaseSlot(object sender, MasterEventListener.OnFinancialEvent e) //  InventorySlots.onInventoryItemModificationEventArgs e)
+    void PurchaseSlot(object sender, MasterEventListener.OnFinancialEventArgs e) //  InventorySlots.onInventoryItemModificationEventArgs e)
     {
         //InventorySlots inventorySlot = sender.GetComponent<InventorySlots>();
         e.inventorySlot.transform.GetChild(0).GetComponent<Image>().color = e.inventorySlot.originalColor;

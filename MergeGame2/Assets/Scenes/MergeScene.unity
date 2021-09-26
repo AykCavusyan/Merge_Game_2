@@ -16311,7 +16311,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -32693,7 +32693,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1801769927}
-  - component: {fileID: 1801769929}
   m_Layer: 5
   m_Name: Panel_PowerUpItems_InnerPanelContainer
   m_TagString: Untagged
@@ -32720,14 +32719,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.000000012930864, y: 0}
   m_SizeDelta: {x: 526.15, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &1801769929
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1801769926}
-  m_CullTransparentMesh: 1
 --- !u!1 &1821307181
 GameObject:
   m_ObjectHideFlags: 0

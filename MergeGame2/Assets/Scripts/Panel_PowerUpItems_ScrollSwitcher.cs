@@ -52,7 +52,7 @@ public class Panel_PowerUpItems_ScrollSwitcher : MonoBehaviour, IPointerDownHand
             if(powerUpSlot != null && powerUpSlot.containedItem != null)
             {
                 selectedItem = powerUpSlot.containedItem;
-                selectedItemImage = powerUpSlot.GetComponent<Image>();
+                //selectedItemImage = selectedItem.GetComponent<Image>();
                 cr = StartCoroutine(DetectLongPress());
           
                 ExecuteEvents.Execute(selectedItem, eventData, ExecuteEvents.pointerDownHandler); // this is for the itembar to display iteminfo on clickdown
@@ -66,6 +66,7 @@ public class Panel_PowerUpItems_ScrollSwitcher : MonoBehaviour, IPointerDownHand
     {
         if (selectedItem)
         {
+            Debug.Log("on pointer up called");
             selectedItem = null;
         }
 
@@ -84,7 +85,7 @@ public class Panel_PowerUpItems_ScrollSwitcher : MonoBehaviour, IPointerDownHand
         {
             StopCoroutine(cr);
         }
-
+        Debug.Log("on pointerexit called");
         isLongPress = false;
         isInsideDetachPoint = false;
     }
@@ -111,7 +112,7 @@ public class Panel_PowerUpItems_ScrollSwitcher : MonoBehaviour, IPointerDownHand
         if (selectedItem && !isInsideDetachPoint && this.transform.InverseTransformPoint(firstSlot.transform.position).x > localXPosFirst)
         {
             isInsideDetachPoint = true;
-            EqualizeItemPositionToCursor();
+            //EqualizeItemPositionToCursor();
 
             ExecuteEvents.Execute(selectedItem, eventData, ExecuteEvents.initializePotentialDrag);
             selectedItemImage.raycastTarget = true;
@@ -125,7 +126,7 @@ public class Panel_PowerUpItems_ScrollSwitcher : MonoBehaviour, IPointerDownHand
         else if (selectedItem && !isInsideDetachPoint && this.transform.InverseTransformPoint(lastSlot.transform.position).x < localXPosLast)
         {
             isInsideDetachPoint = true;
-            EqualizeItemPositionToCursor();
+            //EqualizeItemPositionToCursor();
 
             ExecuteEvents.Execute(selectedItem, eventData, ExecuteEvents.initializePotentialDrag);
             selectedItemImage.raycastTarget = true;
@@ -149,6 +150,7 @@ public class Panel_PowerUpItems_ScrollSwitcher : MonoBehaviour, IPointerDownHand
 
     private IEnumerator DetectLongPress()
     {
+
         float elapsedTime = 0f;
 
         while (elapsedTime < .5f)
@@ -170,9 +172,10 @@ public class Panel_PowerUpItems_ScrollSwitcher : MonoBehaviour, IPointerDownHand
 
             if(powerUpSlot != null && powerUpSlot.containedItem == selectedItem)
             {
-                ExecuteEvents.Execute(selectedItem, eventData, ExecuteEvents.initializePotentialDrag);
+                selectedItem.GetComponent<Image>().raycastTarget = true;
+                
                 isLongPress = true;
-                selectedItemImage.raycastTarget = true;
+                ExecuteEvents.Execute(selectedItem, eventData, ExecuteEvents.initializePotentialDrag);
 
                 eventData.pointerDrag = selectedItem;
                 ExecuteEvents.Execute(selectedItem, eventData, ExecuteEvents.beginDragHandler);

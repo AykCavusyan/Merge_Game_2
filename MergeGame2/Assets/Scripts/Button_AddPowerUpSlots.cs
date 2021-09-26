@@ -23,7 +23,7 @@ public class Button_AddPowerUpSlots : MonoBehaviour, IPointerDownHandler
     float minY;
     float maxY;
 
-    public static event EventHandler<MasterEventListener.OnFinancialEvent> onPowerUpSlotBought;
+    public static event EventHandler<MasterEventListener.OnFinancialEventArgs> onPowerUpSlotBought;
 
 
     private void Awake()
@@ -71,7 +71,7 @@ public class Button_AddPowerUpSlots : MonoBehaviour, IPointerDownHandler
             panelPowerUpitems.AddExtraSlots();
             ParticleSystem particlesystem = ChooseParticleSystem();
             StartCoroutine(MoveParticleSystemEnumerator(particlesystem));
-            onPowerUpSlotBought?.Invoke(this, new MasterEventListener.OnFinancialEvent { powerUpSlotCost = slotCost });
+            onPowerUpSlotBought?.Invoke(this, new MasterEventListener.OnFinancialEventArgs { powerUpSlotCost = slotCost });
         }
         else
         {
